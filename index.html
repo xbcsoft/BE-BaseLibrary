@@ -1,0 +1,1597 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>白易VC++帮助文档</title>
+	<link rel="stylesheet" href="style.css">
+	<link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.css">
+</head>
+
+<body>
+	<div id="progress-bar-container">
+		<div id="progress-bar"></div>
+	</div>
+	<div class="book with-summary">
+		<script>
+			if (window.innerWidth < 600) {
+				document.querySelector('.book').classList.remove('with-summary');
+			}
+		</script>
+		<div class="book-summary" style="box-sizing:border-box;">
+			<div class="book-search">
+				<input type="text" placeholder="输入并回车搜索" class="form-control">
+				<i class="fa fa-times search-clear" style="font-size:12px;display: none;"></i>
+			</div>
+			<div class="search-container">
+				<div class="search-header">
+					<i class="fa fa-spinner fa-spin"></i>
+					<span>正在搜索...</span>
+				</div>
+				<ul class="search-results"></ul>
+			</div>
+
+			<ul class="summary">
+				<li class="chapter" data-level="1.1">
+					<a href="https://www.xbcsoft.com" target="_blank">小白菜软件官网</a>
+				</li>
+				<li class="chapter" data-level="1.1">
+					<a href="https://www.xbcsoft.com/about.html" target="_blank">关于</a>
+				</li>
+				<li class="divider"></li>
+				<div id="summary-title"><li class="chapter"><a href="?file=index.html">简介</a></li><li class="chapter"><a href="?file=更新日志.html">更新日志</a></li><li class="chapter has-children collapsed"><a href="#"><i class="fa fa-chevron-down toggle-chapter"></i>白易免费版功能</a><ul class="articles"><li class="chapter"><a href="?file=白易主程VS管理器.html">白易主程VS管理器</a></li><li class="chapter"><a href="?file=vsix插件内的免费功能.html">vsix插件内的免费功能</a></li><li class="chapter"><a href="?file=VS项目复制与改名工具.html">VS项目复制与改名工具</a></li></ul></li><li class="chapter"><a href="?file=C++工程基本开发模式.html">C++工程基本开发模式</a></li><li class="chapter"><a href="?file=快速入门编写白易模块.html">快速入门编写白易模块</a></li><li class="chapter"><a href="?file=白易的安装目录介绍.html">白易的安装目录介绍</a></li><li class="chapter has-children collapsed"><a href="#"><i class="fa fa-chevron-down toggle-chapter"></i>白易模块化开发</a><ul class="articles"><li class="chapter"><a href="?file=MakeBEC模块制作器.html">MakeBEC模块制作器</a></li><li class="chapter"><a href="?file=关于导出整个C++类.html">关于导出整个C++类</a></li><li class="chapter"><a href="?file=补充：lib库文件不一定总是被提取符号.html">补充：lib库文件不一定总是被提取符号</a></li><li class="chapter"><a href="?file=附录：关于DLL与LIB的前置知识.html">附录：关于DLL与LIB的前置知识</a></li><li class="chapter has-children collapsed"><a href="#"><i class="fa fa-chevron-down toggle-chapter"></i>BEC模块格式说明</a><ul class="articles"><li class="chapter"><a href="?file=BEC格式与模块名引出.html">BEC格式与模块名引出</a></li><li class="chapter"><a href="?file=模块ABI兼容问题讨论.html">模块ABI兼容问题讨论</a></li><li class="chapter"><a href="?file=externC导入C接口应对ABI问题.html">externC导入C接口应对ABI问题</a></li><li class="chapter"><a href="?file=老VC三方库的兼容方案.html">老VC三方库的兼容方案</a></li><li class="chapter"><a href="?file=白易DLL动态库模块工程.html">白易DLL动态库模块工程</a></li><li class="chapter"><a href="?file=模块入口头文件的文档注释规范.html">模块入口头文件的文档注释规范</a></li><li class="chapter"><a href="?file=文本扩展函数开发规范.html">文本扩展函数开发规范</a></li></ul></li><li class="chapter has-children collapsed"><a href="#"><i class="fa fa-chevron-down toggle-chapter"></i>用户模块与系统模块</a><ul class="articles"><li class="chapter"><a href="?file=二者模块的概述与区别.html">二者模块的概述与区别</a></li><li class="chapter"><a href="?file=用户模块版本隔离问题.html">用户模块版本隔离问题</a></li><li class="chapter"><a href="?file=系统模块版本管理问题.html">系统模块版本管理问题</a></li></ul></li><li class="chapter"><a href="?file=程序集与窗口程序集.html">程序集与窗口程序集</a></li><li class="chapter"><a href="?file=全局量表与资源表.html">全局量表与资源表</a></li><li class="chapter"><a href="?file=模块中导出全局变量.html">模块中导出全局变量</a></li><li class="chapter"><a href="?file=白易模块注释级指令.html">白易模块注释级指令</a></li></ul></li><li class="chapter has-children collapsed"><a href="#"><i class="fa fa-chevron-down toggle-chapter"></i>白易C++基础库</a><ul class="articles"><li class="chapter"><a href="?file=基础库纲要.html">基础库纲要</a></li><li class="chapter"><a href="?file=为何自己设计Bytes和Str.html">为何自己设计Bytes和Str</a></li><li class="chapter has-children collapsed"><a href="#"><i class="fa fa-chevron-down toggle-chapter"></i>BECore</a><ul class="articles"><li class="chapter"><a href="?file=轻量版快速查阅.html">轻量版快速查阅</a></li><li class="chapter"><a href="?file=完整版深入学习.html">完整版深入学习</a></li><li class="chapter"><a href="?file=中文核心别名.hpp.html">中文核心别名.hpp</a></li><li class="chapter"><a href="?file=文本_扩展函数开发规范.html">文本_扩展函数开发规范</a></li><li class="chapter has-children collapsed"><a href="#"><i class="fa fa-chevron-down toggle-chapter"></i>基础API参考</a><ul class="articles"><li class="chapter"><a href="?file=全局别名类型.html">全局别名类型</a></li><li class="chapter"><a href="?file=Bytes.html">Bytes</a></li><li class="chapter"><a href="?file=StrA.html">StrA</a></li><li class="chapter"><a href="?file=StrW.html">StrW</a></li><li class="chapter"><a href="?file=StrU8.html">StrU8</a></li><li class="chapter"><a href="?file=AutoStr.html">AutoStr</a></li><li class="chapter"><a href="?file=Arraybe.html">Arraybe</a></li><li class="chapter"><a href="?file=HashTbe.html">HashTbe</a></li><li class="chapter"><a href="?file=全局函数.html">全局函数</a></li></ul></li><li class="chapter has-children collapsed"><a href="#"><i class="fa fa-chevron-down toggle-chapter"></i>中文扩展API参考</a><ul class="articles"><li class="chapter"><a href="?file=字节集操作.html">字节集操作</a></li><li class="chapter"><a href="?file=数组操作.html">数组操作</a></li><li class="chapter"><a href="?file=文本操作.html">文本操作</a></li><li class="chapter"><a href="?file=日期时间型.html">日期时间型</a></li></ul></li></ul></li><li class="chapter has-children collapsed"><a href="#"><i class="fa fa-chevron-down toggle-chapter"></i>BEWin32Base</a><ul class="articles"><li class="chapter has-children collapsed"><a href="#"><i class="fa fa-chevron-down toggle-chapter"></i>API参考</a><ul class="articles"><li class="chapter"><a href="?file=Win32日期时间.html">Win32日期时间</a></li><li class="chapter"><a href="?file=环境存取.html">环境存取</a></li><li class="chapter"><a href="?file=文件读写.html">文件读写</a></li><li class="chapter"><a href="?file=磁盘目录操作.html">磁盘目录操作</a></li><li class="chapter"><a href="?file=注册表操作.html">注册表操作</a></li><li class="chapter"><a href="?file=其他系统操作.html">其他系统操作</a></li><li class="chapter"><a href="?file=同步套接字.html">同步套接字</a></li></ul></li></ul></li><li class="chapter has-children collapsed"><a href="#"><i class="fa fa-chevron-down toggle-chapter"></i>BEWin32UI</a><ul class="articles"><li class="chapter"><a href="?file=用户窗口程序规范.html">用户窗口程序规范</a></li><li class="chapter"><a href="?file=窗口UI控件模块开发规范.html">窗口UI控件模块开发规范</a></li><li class="chapter"><a href="?file=窗口组件元信息制作器.html">窗口组件元信息制作器</a></li><li class="chapter has-children collapsed"><a href="#"><i class="fa fa-chevron-down toggle-chapter"></i>辅助API参考</a><ul class="articles"><li class="chapter"><a href="?file=窗口常量.html">窗口常量</a></li><li class="chapter"><a href="?file=窗口辅助核心.html">窗口辅助核心</a></li><li class="chapter"><a href="?file=绘制上下文.html">绘制上下文</a></li><li class="chapter"><a href="?file=句柄管理.html">句柄管理</a></li><li class="chapter"><a href="?file=位图.html">位图</a></li><li class="chapter"><a href="?file=字体.html">字体</a></li></ul></li><li class="chapter has-children collapsed"><a href="#"><i class="fa fa-chevron-down toggle-chapter"></i>窗口基础类</a><ul class="articles"><li class="chapter"><a href="?file=窗口基类.html">窗口基类</a></li><li class="chapter"><a href="?file=控件类.html">控件类</a></li><li class="chapter"><a href="?file=容器类.html">容器类</a></li><li class="chapter"><a href="?file=子容器.html">子容器</a></li><li class="chapter"><a href="?file=多夹接口.html">多夹接口</a></li></ul></li></ul></li></ul></li><li class="chapter has-children collapsed"><a href="#"><i class="fa fa-chevron-down toggle-chapter"></i>白易编程之AI加持篇</a><ul class="articles"><li class="chapter"><a href="?file=AI入门自动编译VS项目.html">AI入门自动编译VS项目</a></li><li class="chapter"><a href="?file=AI-Skill技能分类篇.html">AI-Skill技能分类篇</a></li><li class="chapter"><a href="?file=MCP配置高级操作篇.html">MCP配置高级操作篇</a></li><li class="chapter"><a href="?file=更多MCP操作技巧.html">更多MCP操作技巧</a></li><li class="chapter"><a href="?file=已知问题.html">已知问题</a></li></ul></li><li class="chapter has-children collapsed"><a href="#"><i class="fa fa-chevron-down toggle-chapter"></i>附录：VS自带功能</a><ul class="articles"><li class="chapter has-children collapsed"><a href="#"><i class="fa fa-chevron-down toggle-chapter"></i>VS可选去掉项</a><ul class="articles"><li class="chapter"><a href="?file=生成编译不跳转错误列表.html">生成编译不跳转错误列表</a></li><li class="chapter"><a href="?file=输出显示xxx.exe(进程xxx)已退出，代码为0.html">输出显示xxx.exe(进程xxx)已退出，代码为0</a></li><li class="chapter"><a href="?file=设置不需要tab补全而是直接回车.html">设置不需要tab补全而是直接回车</a></li><li class="chapter"><a href="?file=关闭编写模板时的自动提示“提供IntelliSense的示例模板参数”.html">关闭编写模板时的自动提示“提供IntelliSense的示例模板参数”</a></li><li class="chapter"><a href="?file=关掉按住Ctrl+鼠标左键跳转到定义.html">关掉按住Ctrl+鼠标左键跳转到定义</a></li><li class="chapter"><a href="?file=在调试时把模块加载信息给移除.html">在调试时把模块加载信息给移除</a></li><li class="chapter"><a href="?file=不在目录内生成ipch.html">不在目录内生成ipch</a></li><li class="chapter"><a href="?file=关闭编译已用时间.html">关闭编译已用时间</a></li><li class="chapter"><a href="?file=模板实例化导致的VS产生BUG滚动条上一堆警告.html">模板实例化导致的VS产生BUG滚动条上一堆警告</a></li></ul></li><li class="chapter has-children collapsed"><a href="#"><i class="fa fa-chevron-down toggle-chapter"></i>VC杂谈</a><ul class="articles"><li class="chapter"><a href="?file=VC版本号对应VS的关系.html">VC版本号对应VS的关系</a></li><li class="chapter"><a href="?file=VC++的目录(包含目录、库目录、附加包含目录、附加依赖项).html">VC++的目录(包含目录、库目录、附加包含目录、附加依赖项)</a></li><li class="chapter"><a href="?file=VC中的目录宏.html">VC中的目录宏</a></li><li class="chapter"><a href="?file=传统VC运行时库以及libcmt,msvcrt等内容.html">传统VC运行时库以及libcmt,msvcrt等内容</a></li><li class="chapter"><a href="?file=VC140之后的VC++运行时.html">VC140之后的VC++运行时</a></li><li class="chapter"><a href="?file=VC中_DLL,_LIB等预定义的宏.html">VC中_DLL,_LIB等预定义的宏</a></li><li class="chapter"><a href="?file=使用VC预编译头加速编译.html">使用VC预编译头加速编译</a></li><li class="chapter"><a href="?file=使用多核编译.html">使用多核编译</a></li></ul></li><li class="chapter"><a href="?file=@常用快捷键.html">@常用快捷键</a></li><li class="chapter"><a href="?file=区域块折叠.html">区域块折叠</a></li><li class="chapter"><a href="?file=书签标记.html">书签标记</a></li><li class="chapter"><a href="?file=自定义快捷输入代码.html">自定义快捷输入代码</a></li><li class="chapter"><a href="?file=让白易核心库内置类型调试时友好显示格式.html">让白易核心库内置类型调试时友好显示格式</a></li><li class="chapter"><a href="?file=显示结构体的内存布局(成员偏移量).html">显示结构体的内存布局(成员偏移量)</a></li><li class="chapter"><a href="?file=PDB符号定位异常的调试技巧.html">PDB符号定位异常的调试技巧</a></li></ul></li><li class="chapter has-children collapsed"><a href="#"><i class="fa fa-chevron-down toggle-chapter"></i>附录：白易实验报告</a><ul class="articles"><li class="chapter"><a href="?file=引入与主项目不同VS版本的CRT静态库模块.html">引入与主项目不同VS版本的CRT静态库模块</a></li><li class="chapter"><a href="?file=主程为CRT动态库引入不同VS的动态库但其自身静态CRT的模块.html">主程为CRT动态库引入不同VS的动态库但其自身静态CRT的模块</a></li><li class="chapter"><a href="?file=lib库文件不一定总是被提取符号.html">lib库文件不一定总是被提取符号</a></li><li class="chapter"><a href="?file=链接整个lib会增大程序体积吗.html">链接整个lib会增大程序体积吗</a></li><li class="chapter"><a href="?file=与std-string,vector性能对比.html">与std-string,vector性能对比</a></li></ul></li></div>
+				<li class="divider"></li>
+				<li>
+					<a href="https://www.xbcsoft.com/archives/webMaker.html" target="_blank" class="gitbook-link">由
+						xbcsoft 生成</a>
+				</li>
+			</ul>
+
+		</div>
+
+		<div class="summary-resizer"></div>
+
+		<div class="book-body">
+			<div class="body-overlay"></div>
+			<div class="body-inner">
+				<div class="book-header">
+					<a href="javascript:void(0)" class="btn pull-left toggle-summary"><i
+							class="fa fa-align-justify"></i></a>
+					<a href="javascript:void(0)" class="btn pull-left toggle-search"><i class="fa fa-search"></i></a>
+					<a href="javascript:void(0)" class="btn pull-left toggle-font-settings"><i
+							class="fa fa-font"></i></a>
+					<!--<a href="javascript:void(0)" class="btn pull-left" id="go-booklist" title="将当前页面定位到书签"
+						onclick="window.open(window.location.href)"><i class="fa fa fa-dedent"></i></a>-->
+					<div class="font-settings-dropdown" style="display: none;">
+						<div class="font-size-option" data-size="0.85">
+							<span style="font-size: 14px;">A</span>
+						</div>
+						<div class="font-size-option" data-size="1.0">
+							<span style="font-size: 16px;">A</span>
+						</div>
+						<div class="font-size-option" data-size="1.15">
+							<span style="font-size: 18px;">A</span>
+						</div>
+						<div class="font-size-option" data-size="1.3">
+							<span style="font-size: 20px;">A</span>
+						</div>
+					</div>
+					<h1 style="text-align:left;margin-left:15px">
+						<a id='a_tit' href=".">
+							<script>a_tit.innerText = document.title</script>
+						</a>
+					</h1>
+				</div>
+				<div class="page-wrapper">
+					<div class="page-inner">
+						<iframe name="content-frame" src="docs/index.html" frameborder="0"></iframe>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	</div>
+
+	<script>
+
+		// IE polyfill for Element.closest
+		if (!Element.prototype.closest) {
+			Element.prototype.closest = function (selector) {
+				var el = this;
+				while (el && el !== document) {
+					if (el.matches(selector)) return el;
+					el = el.parentElement;
+				}
+				return null;
+			};
+		}
+		if (!Element.prototype.matches) {
+			Element.prototype.matches =
+				Element.prototype.msMatchesSelector ||
+				Element.prototype.webkitMatchesSelector ||
+				function (selector) {
+					var matches = (this.document || this.ownerDocument).querySelectorAll(selector),
+						i = matches.length;
+					while (--i >= 0 && matches.item(i) !== this) {
+					}
+					return i > -1;
+				};
+		}
+
+		if (!NodeList.prototype.forEach) {
+			NodeList.prototype.forEach = function (callback, thisArg) {
+				thisArg = thisArg || window;
+				for (var i = 0; i < this.length; i++) {
+					callback.call(thisArg, this[i], i, this);
+				}
+			};
+		}
+
+		var isManualSidebarClick = false;
+		var isIframeManualClick = false; // 标记是否是通过 iframe 内部链接点击跳转的
+		var isPopstateNavigation = false; // 标记是否是通过 popstate（后退/前进）触发的导航
+		var currentLoadingSession = 0; // 加载会话计数器，防止快速切换导致冲突
+
+		// 安全解码函数，防止 URI malformed 报错
+		function safeDecode(str) {
+			if (!str) return '';
+			try {
+				return decodeURIComponent(str);
+			} catch (e) {
+				try {
+					return decodeURI(str);
+				} catch (e2) {
+					return str;
+				}
+			}
+		}
+
+		// --- 核心全局函数：同步主页面 URL ---
+		window.highlightSidebar = function (fileName) {
+			if (!fileName) return;
+			var cleanName = fileName.split('#')[0];
+			var decodedName = safeDecode(cleanName);
+			var allLinks = document.querySelectorAll('.summary .chapter a');
+			var matchingLink = null;
+			for (var i = 0; i < allLinks.length; i++) {
+				var link = allLinks[i];
+				var href = link.getAttribute('href');
+				if (!href) continue;
+				var hrefFile = '';
+				if (href.indexOf('?file=') > -1) {
+					hrefFile = href.split('?file=')[1].split('#')[0];
+				} else if (href.indexOf('docs/') > -1) {
+					hrefFile = href.substring(href.lastIndexOf('/') + 1).split('#')[0];
+				} else if (href.indexOf('.html') > -1) {
+					hrefFile = href.split('#')[0];
+				}
+				if (hrefFile === cleanName || hrefFile === decodedName ||
+					safeDecode(hrefFile) === cleanName || safeDecode(hrefFile) === decodedName) {
+					matchingLink = link;
+					break;
+				}
+			}
+			if (matchingLink) {
+				var activeElements = document.querySelectorAll('.summary .chapter.active');
+				for (var j = 0; j < activeElements.length; j++) {
+					activeElements[j].classList.remove('active');
+				}
+				matchingLink.parentElement.classList.add('active');
+				var parentLi = matchingLink.parentElement;
+				while (parentLi) {
+					if (parentLi.classList.contains('has-children')) {
+						parentLi.classList.remove('collapsed');
+					}
+					parentLi = parentLi.parentElement && parentLi.parentElement.closest('li.has-children');
+				}
+			}
+		};
+
+		window.updateMainPageUrl = function (fileName, usePush) {
+			if (!fileName || fileName === 'blank' || fileName === 'about:blank') return;
+
+			var currentUrl = new URL(window.location.href);
+			if (fileName == 'index.html') {
+				currentUrl.searchParams.delete('file');
+				currentUrl.hash = '';
+			} else {
+				var hashIdx = fileName.indexOf('#');
+				var namePart = hashIdx !== -1 ? fileName.substring(0, hashIdx) : fileName;
+				var hashPart = hashIdx !== -1 ? fileName.substring(hashIdx) : '';
+
+				currentUrl.searchParams.set('file', safeDecode(namePart));
+				currentUrl.hash = hashPart;
+			}
+
+			var finalUrl = currentUrl.toString();
+			if (usePush) {
+				window.history.pushState({}, '', finalUrl);
+			} else {
+				window.history.replaceState({}, '', finalUrl);
+			}
+		};
+
+		// --- CSS 注入函数：抢跑和正式显示都要用 ---
+		window.injectIframeCSS = function (iframe) {
+			if (!iframe) return;
+			try {
+				var doc = iframe.contentDocument || iframe.contentWindow.document;
+				if (!doc) return;
+				// 检查是否已注入且样式真正生效
+				var marker = doc.getElementById('injected-css-marker');
+				if (marker) {
+					try {
+						var computed = iframe.contentWindow.getComputedStyle(doc.body);
+						// 浏览器默认 margin 通常是 8px，如果已变为 0px 则说明注入真正成功
+						if (computed.margin === '0px' && computed.padding === '0px') return true;
+					} catch (e) {
+						return true; // 跨域无法获取样式时，以 ID 为准
+					}
+				}
+
+				// 创建注入成功标记节点（放在body开头）
+				var marker = doc.createElement('div');
+				marker.id = 'injected-css-marker';
+				marker.style.display = 'none';
+				doc.body.insertBefore(marker, doc.body.firstChild);
+
+				var style = doc.createElement('style');
+				style.id = 'injected-padding-style';
+				style.textContent = "body { padding: 0 !important; margin: 0 !important; box-sizing: border-box !important; }\n" +
+					"html { box-sizing: border-box !important; }\n" +
+					".layout-container { display: flex; max-width: 100%; box-sizing: border-box; padding: 30px 40px !important; }\n" +
+					".content-area { flex: 1; min-width: 0; }\n" +
+					".toc-area { display: none; width: 250px; margin-left: 40px; flex-shrink: 0; border-left: 1px solid #eee; padding-left: 15px; font-size: 13px; }\n" +
+					".toc-area-inner { position: fixed; top: 20px; max-height: calc(100vh - 40px); overflow-y: auto; }\n" +
+					"@media (min-width: 1100px) { .toc-area { display: block; } }\n" +
+					".toc-header { font-weight: bold; margin-bottom: 10px; padding-left: 10px; color: #7e888b; text-transform: uppercase; font-size: 12px; }\n" +
+					".toc-list { list-style: none; padding: 0; margin: 0; }\n" +
+					".toc-list li a { display: block; padding: 5px 10px; color: #7e888b; text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; border-left: 2px solid transparent; }\n" +
+					".toc-list li.active a { color: #008cff; border-left-color: #008cff; background: #f5f5f5; }\n" +
+					"@media (hover: hover) { .toc-list li a:hover { color: #008cff; } }\n" +
+					".page-navigation { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 50px; padding: 20px 0; border-top: 1px solid #eee; font-size: 14px; color: #666; gap: 20px; }\n" +
+					".page-navigation a, .page-navigation span { flex: 1; text-decoration: none; color: #008cff; }\n" +
+					".page-navigation a:last-child, .page-navigation span:last-child { text-align: right; }\n" +
+					".page-navigation a:hover { text-decoration: underline; }\n" +
+					"body > * { max-width: 100%; }\n" +
+					"img { max-width: 100% !important; }\n" +
+					".content-area > h1:first-child, .content-area > #injected-css-marker + h1, .content-area > h2:first-child, .content-area > #injected-css-marker + h2, .content-area > h3:first-child, .content-area > #injected-css-marker + h3, .content-area > h4:first-child, .content-area > #injected-css-marker + h4, .content-area > h5:first-child, .content-area > #injected-css-marker + h5, .content-area > h6:first-child, .content-area > #injected-css-marker + h6, .content-area > p:first-child, .content-area > #injected-css-marker + p { margin-block-start: 0 !important; }\n" +
+					"@media (max-width: 600px) { .layout-container{padding: 10px 20px !important;} }";
+
+				var head = doc.head || doc.getElementsByTagName('head')[0];
+				if (head) {
+					head.appendChild(style);
+					iframe.style.padding = ''; // 清除 Fallback
+					return true;
+				}
+				// 如果head不存在但body存在，也标记为成功（移动端兼容）
+				if (doc.body) {
+					return true;
+				}
+				return false;
+			} catch (e) {
+				// 跨域导致注入失败，执行兜底间距
+				iframe.style.padding = '20px 30px';
+				iframe.style.width = 'calc(100% - 30px)';
+				iframe.style.height = 'calc(100% - 20px)';
+				return false;
+			}
+		};
+
+		// --- 抢跑函数：一旦检测到 DOM 立即注入布局和间距 ---
+		window.applyEarlyLayout = function (iframe) {
+			if (!iframe) return;
+			try {
+				var doc = iframe.contentDocument || iframe.contentWindow.document;
+				if (!doc || !doc.body || doc.body.childNodes.length === 0) return;
+
+				// 如果检测到已经有了布局容器
+				if (doc.getElementById('injected-layout-wrapper')) {
+					var tocList = doc.querySelector('.toc-list');
+					// 只有当 TOC 已经有了内容，才认为 EarlyLayout 彻底完成
+					if (tocList && tocList.children.length > 0) {
+						iframe.hasDoneEarlyLayout = true;
+						return;
+					}
+					// 否则继续往下走，尝试由 initTOC 补充内容
+				}
+
+				// 1. 抢跑注入 CSS
+				injectIframeCSS(iframe);
+
+				// 2. 初始化基础布局
+				if (typeof initTOC === 'function') {
+					initTOC(iframe, true);
+				}
+
+				// 3. 修正首个可见元素的顶部间距 (H1-H6 或 P)
+				window.fixTopMargin(iframe);
+
+				iframe.hasDoneEarlyLayout = true;
+			} catch (e) { }
+		};
+
+		// 辅助函数：专门寻找并修正第一个内容元素的间距
+		window.fixTopMargin = function (iframe) {
+			try {
+				var doc = iframe.contentDocument || iframe.contentWindow.document;
+				var contentArea = doc.querySelector('.content-area');
+				if (contentArea) {
+					var firstEl = contentArea.firstElementChild;
+					// 跳过标记位，寻找真正的第一个元素
+					while (firstEl && (firstEl.id === 'injected-css-marker' || firstEl.nodeName === 'SCRIPT' || firstEl.nodeName === 'STYLE')) {
+						firstEl = firstEl.nextElementSibling;
+					}
+					// 只要找到了且是 H 或 P 标签，就干掉间距
+					if (firstEl && /^(H[1-6]|P)$/i.test(firstEl.tagName)) {
+						firstEl.style.marginBlockStart = '0';
+					}
+				}
+			} catch (e) { }
+		};
+
+		// --- 孤儿元素搬运：将被错留在 wrapper 外的内容挪进去 ---
+		window.moveOrphansToContentArea = function (iframe) {
+			try {
+				var doc = iframe.contentDocument || iframe.contentWindow.document;
+				var wrapper = doc.getElementById('injected-layout-wrapper');
+				var contentArea = doc.querySelector('.content-area');
+				if (wrapper && contentArea) {
+					var children = Array.from(doc.body.childNodes);
+					for (var i = 0; i < children.length; i++) {
+						var node = children[i];
+						// 不要搬运 wrapper 本身、样式表以及脚本
+						if (node !== wrapper && node.id !== 'injected-padding-style' && node.nodeName !== 'SCRIPT') {
+							// 如果是导航栏，跳过（因为稍后由 injectFooterNav 统一追加）
+							if (node.id === 'injected-navigation') continue;
+							contentArea.appendChild(node);
+						}
+					}
+					// 搬完后强制重新校对一次第一个元素的间距
+					window.fixTopMargin(iframe);
+				}
+			} catch (e) { }
+		};
+
+		// --- 最终显示函数：处理剩下的扫尾工作 ---
+		window.prepareIframeForDisplay = function (iframe, isRealLoad) {
+			if (!iframe) return;
+			try {
+				if (isRealLoad) {
+					iframe.hasDoneEarlyLayout = false; // 真正的 Load 事件触发时，强制允许重刷检测
+					// 页面完全加载后，清空 TOC 强制重建，防止抢跑时只扫到部分标题
+					try {
+						var idoc = iframe.contentDocument || iframe.contentWindow.document;
+						var tocList_ = idoc && idoc.querySelector('.toc-list');
+						if (tocList_) tocList_.innerHTML = '';
+					} catch(e) {}
+				}
+				applyEarlyLayout(iframe); // 确保抢跑逻辑跑过
+				moveOrphansToContentArea(iframe); // 搬走所有残留内容
+
+				// 1. 只有真正的 load 事件时才充当最终的兜底注入，平时已通过 200ms 轮询在 DOM interactive 时提前注入了
+				if (isRealLoad && typeof injectFooterNav === 'function') {
+					injectFooterNav(iframe);
+				}
+
+				// 2. 字体和链接处理
+				if (typeof applyFontScale === 'function') {
+					var scale = parseFloat(localStorage.getItem('fontScale') || '1.0');
+					applyFontScale(scale);
+				}
+				if (typeof processIframeLinks === 'function') {
+					processIframeLinks(iframe);
+				}
+
+				// 3. 最终曝光
+				iframe.classList.add('loaded');
+			} catch (e) {
+				iframe.classList.add('loaded');
+			}
+		};
+
+		// 监听浏览器后退键（全局监听，延迟调用内部函数）
+		window.addEventListener('popstate', function (e) {
+			// 标记这是 popstate 触发的导航
+			isPopstateNavigation = true;
+			// 后退时，清空标记，确保 load 事件中使用 replaceState
+			isManualSidebarClick = false;
+			isIframeManualClick = false;
+
+			// 延迟执行，确保 DOMContentLoaded 已完成初始化
+			setTimeout(function () {
+				if (typeof window.loadFileFromUrl_ === 'function') {
+					window.loadFileFromUrl_();
+				}
+			}, 0);
+		});
+
+		// Global search variables
+		var searchInput, searchClearBtn, summaryList, searchContainer, searchHeader, searchResultsList, searchLoader,
+			searchHeaderText, currentSearchXHR;
+
+		// Global search functions
+		function endSearch() {
+			if (currentSearchXHR) {
+				currentSearchXHR.abort();
+				currentSearchXHR = null;
+			}
+			if (searchInput) searchInput.value = '';
+			if (searchClearBtn) searchClearBtn.style.display = 'none';
+			if (searchContainer) searchContainer.style.display = 'none';
+			if (searchResultsList) searchResultsList.innerHTML = '';
+			if (summaryList) summaryList.style.display = 'block';
+			setTimeout(function () {
+				searchInput.focus();
+			}, 300);
+		}
+
+		function streamingAjax(pObj) {
+			if (!pObj.url) return;
+			var xhr = new XMLHttpRequest();
+			var url = pObj.url + "?q=" + encodeURIComponent(pObj.query);
+			xhr.open("GET", url, true);
+			var lastRecvLen = 0;
+
+			xhr.onreadystatechange = function () {
+				if (pObj.onProgress) {
+					var s = xhr.responseText.substr(lastRecvLen), k;
+					while ((k = s.indexOf("\0")) != -1) { //约定\0用作帧边界
+						var _s = s.substr(0, k);
+						s = s.substr(k + 1);
+						pObj.onProgress && pObj.onProgress(_s, xhr);
+					}
+					lastRecvLen = xhr.responseText.length;
+				}
+
+				if (xhr.readyState === 3) { // LOADING
+
+				} else if (xhr.readyState === 4) { // DONE
+					pObj.onDone && pObj.onDone(xhr);
+				}
+			};
+			if (pObj.onError) xhr.onerror = function () {
+				pObj.onError(xhr)
+			};
+			xhr.send();
+			return xhr;
+		}
+
+		function startSearch(query) {
+			if (currentSearchXHR) {
+				currentSearchXHR.abort();
+			}
+
+			summaryList.style.display = 'none';
+			searchContainer.style.display = 'block';
+			searchResultsList.innerHTML = '';
+			searchLoader.style.display = 'inline-block';
+			searchHeaderText.textContent = '正在搜索...';
+			searchClearBtn.style.display = 'block';
+
+			// Use setTimeout to allow the browser to render the UI updates (like the loader)
+			// before starting the heavy network request.
+			setTimeout(function () {
+				var searchAPIurl = "<?php echo 'search';?>"; //白菜的PHPMVC框架定制
+				if (searchAPIurl.indexOf("php echo") !== -1) {
+					searchAPIurl = "search.php";
+				}
+				currentSearchXHR = streamingAjax({
+					url: searchAPIurl, //根据后端需要改为指定处理脚本如search.php
+					query: query,
+					onProgress: function (data) {
+						try {
+							var result = JSON.parse(data);
+							if (result.name) {
+								var li = document.createElement('li');
+								var a = document.createElement('a');
+								a.href = "docs/" + result.name;
+								a.target = 'content-frame';
+								var title = result.name.replace(/\.html$/, '');
+								// Try to find matching title in sidebar
+								var links = document.querySelectorAll('.summary .chapter a');
+								for (var i = 0; i < links.length; i++) {
+									var h = links[i].getAttribute('href');
+									if (h && h.indexOf(result.name) > -1) {
+										title = links[i].textContent.trim();
+										break;
+									}
+								}
+								a.textContent = title;
+								li.appendChild(a);
+								searchResultsList.appendChild(li);
+							}
+						} catch (e) {
+							console.error("Error parsing search result:", e, data);
+						}
+					},
+					onDone: function () {
+						searchLoader.style.display = 'none';
+						currentSearchXHR = null;
+						var resultCount = searchResultsList.children.length;
+						if (resultCount === 0) {
+							searchHeaderText.textContent = '未找到结果。';
+						} else {
+							searchHeaderText.textContent = '找到 ' + resultCount + ' 个结果。';
+						}
+					},
+					onError: function () {
+						searchLoader.style.display = 'none';
+						searchHeaderText.textContent = '搜索出错！';
+						currentSearchXHR = null;
+					}
+				});
+			}, 0);
+		}
+
+		document.addEventListener('DOMContentLoaded', function () {
+			var book = document.querySelector('.book');
+			var summary = document.querySelector('.book-summary');
+			var body = document.querySelector('.book-body');
+
+			// Initial sidebar state is now handled by HTML class and inline script to prevent flashing.
+			// No need to manually add class or manage transitions here for initial load.
+
+			// 监视 iframe 载入
+			var iframe = document.querySelector('iframe[name="content-frame"]');
+			if (iframe) {
+				iframe.addEventListener('load', function () {
+
+					// 如果 sessionTag 不匹配，更新它并继续执行（而不是跳过）
+					// 这样可以确保每次 load 都能正确注入内容
+					if (iframe.sessionTag && iframe.sessionTag !== currentLoadingSession) {
+						iframe.sessionTag = currentLoadingSession;
+						iframe.hasDoneEarlyLayout = false;
+					}
+
+					// 2. 更新 URL 和侧边栏
+					try {
+						// 核心：iframe 内部跳转后，必须通过其当前的 location 来同步父窗口地址栏
+						var iframeWin = iframe.contentWindow;
+						var iframeSrc = iframeWin.location.href;
+
+						if (iframeSrc && iframeSrc !== 'about:blank' && iframeSrc.indexOf('/docs/') > -1) {
+							// 提取文件名（包含锚点）
+							var fileWithHash = iframeSrc.substring(iframeSrc.lastIndexOf('/') + 1);
+
+							if (fileWithHash) {
+								// 高亮侧边栏
+								highlightSidebar(fileWithHash);
+
+								// 只有在非 popstate 导航 且 是用户主动点击时才操作历史
+								// 初始加载时不操作历史，避免破坏历史记录
+								if (!isPopstateNavigation && (isManualSidebarClick || isIframeManualClick)) {
+									updateMainPageUrl(fileWithHash, true);
+								}
+							}
+						}
+					} catch (e) {
+						console.warn('Cannot sync iframe URL:', e);
+					} finally {
+						// 重置标记，确保下次加载行为判断正确
+						isManualSidebarClick = false;
+						isIframeManualClick = false;
+						isPopstateNavigation = false; // 重置 popstate 标记
+					}
+
+					// 3. 执行最终显示 (包含导航注入)
+					prepareIframeForDisplay(iframe, true);
+
+					// 4. 完成加载进度
+					if (typeof finishProgress === 'function') {
+						finishProgress(iframe.sessionTag);
+					}
+				});
+			}
+
+
+
+
+			function getQueryParam(name) {
+				var search = window.location.search; // ?file=xxx&other=yyy
+				if (!search) return null;
+				search = search.substring(1); // 去掉 ?
+				var params = search.split("&");
+				for (var i = 0; i < params.length; i++) {
+					var pair = params[i].split("=");
+					if (decodeURIComponent(pair[0]) === name) {
+						return pair.length > 1 ? decodeURIComponent(pair[1]) : "";
+					}
+				}
+				return null;
+			}
+
+			// Function to load file from URL parameter on page load
+			function loadFileFromUrl() {
+				//var urlParams = new URLSearchParams(window.location.search);
+				//var fileParam = urlParams.get('file');
+				var fileParam = getQueryParam('file');
+
+				// 获取 iframe 元素
+				var iframeElement = document.querySelector('iframe[name="content-frame"]');
+				if (!iframeElement) {
+					return;
+				}
+
+				// 如果没有 fileParam，加载默认的 index.html
+				if (!fileParam) {
+					// 重置会话标记，确保后续 load 事件能正常执行
+					var session = ++currentLoadingSession;
+					iframeElement.sessionTag = session;
+					iframeElement.hasDoneEarlyLayout = false;
+					iframeElement.classList.remove('loaded');
+
+					// 加载默认页面
+					iframeElement.src = "docs/index.html" + window.location.hash;
+					return;
+				}
+
+				if (fileParam) {
+					// Decode the URL parameter (it might be URL encoded)
+					var decodedFileParam = safeDecode(fileParam);
+
+					function getFileName(url) {
+						if (!url) return '';
+						var name = url.substring(url.lastIndexOf('/') + 1);
+						name = name.split('#')[0];
+						return name;
+					}
+
+					var fileCandidates = [getFileName(fileParam), getFileName(decodedFileParam)];
+
+					var allLinks = document.querySelectorAll('.summary a');
+					var matchingLink = null, matchtit = '';
+
+					for (var i = 0; i < allLinks.length; i++) {
+						var link = allLinks[i];
+						var href = link.getAttribute('href');
+						var hrefCandidates = [getFileName(href), getFileName(safeDecode(href))];
+
+						// 任意匹配就算成功
+						for (var a = 0; a < fileCandidates.length && !matchingLink; a++) {
+							for (var b = 0; b < hrefCandidates.length; b++) {
+								var aa = fileCandidates[a];
+								if (aa === hrefCandidates[b].slice(-aa.length)) {
+									matchingLink = link;
+									matchtit = aa;
+									break;
+								}
+							}
+						}
+						if (matchingLink) break;
+					}
+
+
+					if (matchingLink) {
+						// Expand all parent chapters
+						var parentLi = matchingLink.parentElement;
+						while (parentLi) {
+							if (parentLi.classList.contains('has-children')) {
+								parentLi.classList.remove('collapsed');
+							}
+							parentLi = parentLi.parentElement && parentLi.parentElement.closest('li.has-children');
+						}
+
+						// Set as active
+						var activeElements = document.querySelectorAll('.summary .chapter.active');
+						for (var j = 0; j < activeElements.length; j++) {
+							activeElements[j].classList.remove('active');
+						}
+						matchingLink.parentElement.classList.add('active');
+
+						// 检查当前 iframe 页面是否和目标页面不同
+						var targetSrc = "docs/" + matchtit + window.location.hash;
+						try {
+							var currentIframeSrc = iframeElement.contentWindow.location.href;
+							var currentFile = currentIframeSrc.substring(currentIframeSrc.lastIndexOf('/') + 1).split('#')[0];
+							var targetFile = matchtit.split('#')[0];
+
+							// 解码 currentFile 以便正确比较
+							currentFile = safeDecode(currentFile);
+
+							// 如果当前页面和目标页面相同，不需要重新加载
+							if (currentFile === targetFile) {
+								// 但仍需更新侧边栏高亮
+								highlightSidebar(matchtit);
+								return;
+							}
+						} catch (e) {
+							// 跨域时忽略检查，直接加载
+						}
+
+						// Load the file in iframe
+						// popstate 时也启动进度条，确保 sessionTag 正确设置
+						startProgress();
+						iframeElement.src = targetSrc;
+					} else {
+						console.warn('No matching link found for file:', fileParam);
+					}
+				}
+			}
+
+			window.loadFileFromUrl_ = loadFileFromUrl;
+
+			loadFileFromUrl();
+
+			searchInput = document.querySelector('.book-search input');
+			searchClearBtn = document.querySelector('.search-clear');
+			summaryList = document.querySelector('.summary');
+			searchContainer = document.querySelector('.search-container');
+			searchHeader = document.querySelector('.search-header');
+			searchResultsList = document.querySelector('.search-results');
+			searchLoader = document.querySelector('.search-header .fa-spinner');
+			searchHeaderText = document.querySelector('.search-header span');
+			currentSearchXHR = null;
+
+			searchInput.addEventListener('keyup', function (e) {
+				var query = searchInput.value.trim();
+
+				if (e.key === 'Enter') {
+					e.preventDefault();
+					if (query) {
+						startSearch(query);
+					} else {
+						endSearch();
+					}
+				}
+
+				// Handle clear button visibility on every keyup
+				if (query) {
+					searchClearBtn.style.display = 'block';
+				} else {
+					// Only hide the clear button if there's no active search
+					if (!currentSearchXHR) {
+						searchClearBtn.style.display = 'none';
+					}
+				}
+			});
+
+			//searchClearBtn.addEventListener('click', endSearch);
+			searchClearBtn.addEventListener('click', function () {
+				if (currentSearchXHR) {
+					currentSearchXHR.abort();
+					currentSearchXHR = null;
+				}
+				if (searchInput) searchInput.value = '';
+				this.style.display = 'none'
+				searchInput.focus();
+			});
+
+			// Make search result links behave like summary links (update URL, etc.)
+			searchResultsList.addEventListener('click', function (e) {
+				var target = e.target.closest('a');
+				if (target && target.href) {
+					e.preventDefault();
+					isManualSidebarClick = true;
+
+					var iframe = document.querySelector('iframe[name="content-frame"]');
+					if (iframe) {
+						// 启动加载会话
+						if (typeof startProgress_ === 'function') {
+							startProgress_();
+						}
+
+						// 提取文件名并加载
+						var href = target.getAttribute('href');
+						var filePart = href.replace('docs/', '');
+						iframe.src = "docs/" + filePart;
+						// 不在这里调用 updateMainPageUrl，让 iframe load 事件统一处理
+					}
+
+					// Remove active class from summary, add to search result
+					var activeElements = document.querySelectorAll('.summary .chapter.active, .search-results .active');
+					activeElements.forEach(function (el) {
+						el.classList.remove('active');
+					});
+					target.parentElement.classList.add('active');
+				}
+			});
+
+			// Target links in both the summary and search results
+			var summaryContainer = document.querySelector('.summary');
+			var iframe = document.querySelector('iframe[name="content-frame"]');
+
+			var progressInterval;
+			var loadingTimeout;
+			var forceShowTimeout;
+			var earlyPollingInterval;
+			var slowLoad = false;
+
+			function startProgress() {
+				var progressBarContainer = document.getElementById('progress-bar-container');
+				var progressBar = document.getElementById('progress-bar');
+				if (!progressBarContainer || !progressBar) return;
+
+				// 创建新的加载会话
+				var session = ++currentLoadingSession;
+
+				if (iframe) {
+					iframe.classList.remove('loaded');
+					iframe.hasDoneEarlyLayout = false;
+					iframe.sessionTag = session; // 标记 iframe 的当前任务 ID
+
+					// 兜底处理：跳转前直接清空当前 Iframe 的 DOM，防止 3s 兜底显示逻辑触发时仍展示旧页面内容
+					try {
+						var doc = iframe.contentDocument || iframe.contentWindow.document;
+						if (doc && doc.body) {
+							doc.body.innerHTML = '';
+						}
+					} catch (e) {
+						// 跨域或特殊情况无法操作 DOM 时忽略，依靠 CSS 隐藏
+					}
+				}
+
+				// Reset state
+				slowLoad = false;
+				clearTimeout(loadingTimeout);
+				clearTimeout(forceShowTimeout);
+				clearInterval(progressInterval);
+				clearInterval(earlyPollingInterval);
+				progressBar.style.width = '0%';
+				progressBarContainer.style.display = 'none';
+
+				// 每 200ms 轮询一次 DOM 内容
+				earlyPollingInterval = setInterval(function () {
+					// 如果在这 200ms 期间用户又点了一次别的，session 就变了，立即自杀
+					if (session !== currentLoadingSession || !iframe) {
+						clearInterval(earlyPollingInterval);
+						return;
+					}
+					applyEarlyLayout(iframe);
+					moveOrphansToContentArea(iframe);
+					
+					// 页面加载到 </html> 结尾时(即DOM解析完毕)，直接注入底部导航，不用等待图片等资源完成
+					try {
+						var idoc = iframe.contentDocument || iframe.contentWindow.document;
+						if (idoc && (idoc.readyState === 'interactive' || idoc.readyState === 'complete')) {
+							if (typeof window.injectFooterNav === 'function') {
+								window.injectFooterNav(iframe);
+							}
+						}
+					} catch (e) {}
+				}, 200);
+
+				loadingTimeout = setTimeout(function () {
+					if (session !== currentLoadingSession) return;
+					slowLoad = true;
+					progressBarContainer.style.display = 'block';
+					var width = 0;
+
+					progressInterval = setInterval(function () {
+						if (session !== currentLoadingSession) {
+							clearInterval(progressInterval);
+							return;
+						}
+						if (width < 30) {
+							width += Math.random() * 5;
+						} else if (width < 85) {
+							width += Math.random() * 1;
+						}
+						if (width > 85) {
+							width = 85;
+						}
+						progressBar.style.width = width + '%';
+					}, 200);
+				}, 100);
+
+				// 最长等待 2 秒强制准备并显示内容
+				forceShowTimeout = setTimeout(function () {
+					if (session !== currentLoadingSession) return;
+					if (iframe && !iframe.classList.contains('loaded')) {
+						clearInterval(earlyPollingInterval);
+						prepareIframeForDisplay(iframe, false);
+					}
+				}, 2000);
+
+				// 2.5秒后开启持续检测注入状态的定时器（移动端慢加载兜底）
+				setTimeout(function () {
+					if (session !== currentLoadingSession || !iframe) return;
+
+					var injectionCheckInterval = setInterval(function () {
+						// session变化时停止检测
+						if (session !== currentLoadingSession || !iframe) {
+							clearInterval(injectionCheckInterval);
+							return;
+						}
+
+						try {
+							var doc = iframe.contentDocument || iframe.contentWindow.document;
+							// 检查是否已注入成功
+							var marker = doc.getElementById('injected-css-marker');
+							var isApplied = false;
+							if (marker) {
+								try {
+									var computed = iframe.contentWindow.getComputedStyle(doc.body);
+									if (computed.margin === '0px' && computed.padding === '0px') {
+										isApplied = true;
+									}
+								} catch (e) { isApplied = true; }
+							}
+
+							if (isApplied) {
+								// 注入成功且生效，停止检测
+								clearInterval(injectionCheckInterval);
+								return;
+							}
+
+							// 未注入成功或样式未生效，尝试注入
+							if (doc && doc.body && doc.body.childNodes.length > 0) {
+								injectIframeCSS(iframe);
+								applyEarlyLayout(iframe);
+							}
+						} catch (e) {
+							// 跨域或其他错误，继续尝试
+						}
+					}, 300); // 每300ms检测一次
+				}, 2500);
+			}
+
+			window.startProgress_ = startProgress;
+			if (document.querySelector('.summary a[href*="?file=index.html"]')) {
+				startProgress_();
+			}
+
+			function finishProgress(forcedSession) {
+				var progressBarContainer = document.getElementById('progress-bar-container');
+				var progressBar = document.getElementById('progress-bar');
+				if (!progressBarContainer || !progressBar) return;
+
+				// 如果指定了 session（来自 load 事件），则必须匹配当前最新 session 才会关闭
+				var sessionToFinish = forcedSession || (iframe ? iframe.sessionTag : currentLoadingSession);
+
+				clearTimeout(loadingTimeout);
+				clearTimeout(forceShowTimeout);
+
+				if (slowLoad) {
+					clearInterval(progressInterval);
+					progressBar.style.width = '100%';
+					setTimeout(function () {
+						// 最终检查：如果在 300ms 渐变期间用户又点了一个新页面，则不隐藏，让新进度条继续接力
+						if (sessionToFinish !== currentLoadingSession) return;
+						progressBarContainer.style.display = 'none';
+						progressBar.style.width = '0%';
+						slowLoad = false;
+					}, 300);
+				} else {
+					// 如果没进入 slowLoad（极速完成），直接隐藏
+					progressBarContainer.style.display = 'none';
+					progressBar.style.width = '0%';
+				}
+			}
+
+			// Observer to sync progress bar position with sidebar resizing
+			var bookBody = document.querySelector('.book-body');
+			if (bookBody) {
+				var observer = new MutationObserver(function (mutations) {
+					mutations.forEach(function (mutation) {
+						if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+							var progressBarContainer = document.getElementById('progress-bar-container');
+							if (progressBarContainer) progressBarContainer.style.left = bookBody.style.left;
+						}
+					});
+				});
+
+				observer.observe(bookBody, {
+					attributes: true //configure it to listen to attribute changes
+				});
+			}
+		});
+
+		var book = document.querySelector('.book');
+		var summary = document.querySelector('.book-summary');
+		var body = document.querySelector('.book-body');
+		var resizer = document.querySelector('.summary-resizer');
+		var lastSidebarWidth = '';
+
+		var bookBody = document.querySelector('.book-body');
+		var iframeShield = null;
+
+		// Add click listener to the overlay to close the summary on mobile
+		var bodyOverlay = document.querySelector('.body-overlay');
+		if (bodyOverlay) {
+			bodyOverlay.addEventListener('click', function () {
+				if (book.classList.contains('with-summary')) {
+					document.querySelector('.toggle-summary').click();
+				}
+			});
+		}
+
+		function createIframeShield() {
+			if (!iframeShield) {
+				iframeShield = document.createElement('div');
+				iframeShield.className = 'iframe-shield';
+				bookBody.appendChild(iframeShield);
+			}
+			return iframeShield;
+		}
+
+		document.querySelector('.toggle-summary').addEventListener('click', function (e) {
+			e.preventDefault();
+
+			if (window.innerWidth < 600) {
+				// Mobile behavior
+				book.classList.toggle('with-summary');
+			} else {
+				// Desktop behavior
+				var isVisible = book.classList.contains('with-summary');
+				if (isVisible) {
+					// Closing
+					if (summary.style.width) {
+						lastSidebarWidth = summary.style.width;
+					}
+					book.classList.remove('with-summary');
+					body.style.left = '0px';
+				} else {
+					// Opening
+					book.classList.add('with-summary');
+					if (lastSidebarWidth) {
+						summary.style.width = lastSidebarWidth;
+						body.style.left = lastSidebarWidth;
+						resizer.style.left = lastSidebarWidth;
+					} else {
+						// Reset to default if no width is stored
+						summary.style.width = ''; // Let CSS handle it
+						body.style.left = ''; // Let CSS handle it
+						resizer.style.left = ''; // Let CSS handle it
+					}
+				}
+			}
+		});
+
+		document.querySelector('.toggle-search').addEventListener('click', function (e) {
+			e.preventDefault();
+
+			// If search results are currently shown, this button should act like "clear search" first.
+			var searchContainer = document.querySelector('.search-container');
+			if (searchContainer && searchContainer.style.display === 'block') {
+				endSearch(); // endSearch handles clearing input, hiding results, etc.
+				var searchInput = document.querySelector('.book-search input');
+				setTimeout(function () {
+					searchInput.focus();
+				}, 300);
+				return; // Stop further execution
+			}
+
+			if (!book.classList.contains('with-summary')) {
+				document.querySelector('.toggle-summary').click();
+			}
+
+			var isOpening = !book.classList.contains('with-search');
+			book.classList.toggle('with-search');
+
+			var searchInput = document.querySelector('.book-search input');
+			if (isOpening) {
+				document.querySelector('.book-search').style.display = 'block';
+				setTimeout(function () {
+					searchInput.focus();
+				}, 300);
+			} else {
+				searchInput.blur();
+				// The 'with-search' class removal will hide the search bar via CSS,
+				// so we don't need to manually hide '.book-search'
+			}
+		});
+
+		// Font size settings
+		var fontSettingsBtn = document.querySelector('.toggle-font-settings');
+		var fontSettingsDropdown = document.querySelector('.font-settings-dropdown');
+		var iframe = document.querySelector('iframe[name="content-frame"]');
+
+		fontSettingsBtn.addEventListener('click', function (e) {
+			e.preventDefault();
+			try {
+				var iframe = document.querySelector('iframe[name="content-frame"]');
+				var href = iframe.contentWindow.location.href;
+			} catch (e) {
+				alert('请搭建在网站服务器上访问支持此功能');
+				return;
+			}
+			var isVisible = fontSettingsDropdown.style.display === 'flex';
+			fontSettingsDropdown.style.display = isVisible ? 'none' : 'flex';
+		});
+
+		// Close dropdown when clicking outside
+		document.addEventListener('click', function (e) {
+			if (!fontSettingsBtn.contains(e.target) && !fontSettingsDropdown.contains(e.target)) {
+				fontSettingsDropdown.style.display = 'none';
+			}
+		});
+
+		// Load saved font size and update active state
+		var savedFontSize = localStorage.getItem('fontScale') || '1.0';
+		applyFontScale(parseFloat(savedFontSize));
+
+		// Handle font size option clicks
+		var fontSizeOptions = document.querySelectorAll('.font-size-option');
+
+		// Update active state based on saved value using numeric comparison for reliability
+		var hasActive = false;
+		var savedScale = parseFloat(savedFontSize);
+
+		fontSizeOptions.forEach(function (option) {
+			var optionScale = parseFloat(option.getAttribute('data-size'));
+			if (optionScale === savedScale) {
+				option.classList.add('active');
+				hasActive = true;
+			} else {
+				option.classList.remove('active');
+			}
+		});
+
+		// Ensure at least one option is active (default to 1.0 if none)
+		if (!hasActive) {
+			var defaultOption = document.querySelector('.font-size-option[data-size="1.0"]');
+			if (defaultOption) {
+				defaultOption.classList.add('active');
+			}
+		}
+
+		// Add click handlers
+		fontSizeOptions.forEach(function (option) {
+			option.addEventListener('click', function () {
+				var scale = parseFloat(this.getAttribute('data-size'));
+
+				// Update active state
+				fontSizeOptions.forEach(function (opt) {
+					opt.classList.remove('active');
+				});
+				this.classList.add('active');
+
+				// Apply scale
+				applyFontScale(scale);
+
+				// Save to localStorage using the original data-size string
+				localStorage.setItem('fontScale', this.getAttribute('data-size'));
+
+				// Close dropdown
+				fontSettingsDropdown.style.display = 'none';
+			});
+		});
+
+		function applyFontScale(scale) {
+			try {
+				var iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+				if (iframeDoc && iframeDoc.body) {
+					iframeDoc.body.style.zoom = scale;
+					// For Firefox compatibility
+					iframeDoc.body.style.MozTransform = 'scale(' + scale + ')';
+					iframeDoc.body.style.MozTransformOrigin = '0 0';
+				}
+			} catch (e) {
+				console.warn('Cannot apply font scale to iframe:', e);
+			}
+		}
+
+		// Reapply font scale when iframe loads new content
+		iframe.addEventListener('load', function () {
+			// 该监听器现在由全局 prepareIframeForDisplay 代为执行核心逻辑
+		});
+
+		var summaryContainer = document.querySelector('#summary-title');
+		summaryContainer.addEventListener('click', function (e) {
+			var target = e.target || e.srcElement;
+			var anchor = target.closest('a');
+			var isMiddleClick = (e.button === 1);
+			var wantsNewTab = e.ctrlKey || e.metaKey || e.shiftKey || isMiddleClick;
+			if (!anchor || wantsNewTab) return;
+
+			var chapterLi = anchor.parentElement;
+			if (chapterLi.classList.contains('has-children')) {
+				if (anchor.getAttribute('href') === "#") {
+					e.preventDefault();
+					chapterLi.classList.toggle('collapsed');
+					return;
+				}
+			}
+
+			// 处理实际的文档跳转
+			if (anchor.getAttribute('href') != "#") {
+				e.preventDefault();
+				isManualSidebarClick = true;
+
+				var iframe = document.querySelector('iframe[name="content-frame"]');
+				if (iframe) {
+					// 清除所有 sessionTag 状态，确保后续 load 事件能正常执行
+					iframe.sessionTag = null;
+					iframe.hasDoneEarlyLayout = false;
+					iframe.classList.remove('loaded');
+					currentLoadingSession = 0;
+
+					// 启动加载会话
+					if (typeof startProgress_ === 'function') {
+						startProgress_();
+					}
+
+					var filePart = anchor.href.split('?file=')[1];
+					iframe.src = "docs/" + filePart;
+					// 不在这里调用 updateMainPageUrl，让 iframe load 事件统一处理
+				}
+
+				// 移动端处理
+				if (window.innerWidth < 600) {
+					document.querySelector('.toggle-summary').click();
+				}
+			}
+
+			// 更新高亮
+			if (chapterLi.classList.contains('chapter')) {
+				var activeElements = summaryContainer.querySelectorAll('.chapter.active');
+				for (var i = 0; i < activeElements.length; i++) {
+					activeElements[i].classList.remove('active');
+				}
+				chapterLi.classList.add('active');
+			}
+		});
+
+		var isResizing = false;
+		var startX, startWidth;
+
+		function onResizeStart(e) {
+			var isTouch = e.type === 'touchstart';
+			if (isTouch && e.touches.length > 1) return;
+
+			if (!isTouch) e.preventDefault(); 
+
+			isResizing = true;
+			startX = isTouch ? e.touches[0].clientX : e.clientX;
+			startWidth = summary.offsetWidth;
+
+			document.body.classList.add('is-resizing');
+			document.body.style.cursor = 'col-resize';
+			summary.style.transition = 'none';
+			body.style.transition = 'none';
+			resizer.style.zIndex = '10000';
+
+			var shield = createIframeShield();
+			shield.style.display = 'block';
+
+			if (isTouch) {
+				document.addEventListener('touchmove', onResizeMove, { passive: false });
+				document.addEventListener('touchend', onResizeEnd);
+			} else {
+				document.addEventListener('mousemove', onResizeMove);
+				document.addEventListener('mouseup', onResizeEnd);
+			}
+		}
+
+		function onResizeMove(e) {
+			if (!isResizing) return;
+			var clientX = e.type === 'touchmove' ? (e.touches[0] ? e.touches[0].clientX : startX) : e.clientX;
+			var dx = clientX - startX;
+			var newWidth = Math.max(200, Math.min(800, startWidth + dx));
+			summary.style.width = newWidth + 'px';
+			body.style.left = newWidth + 'px';
+			resizer.style.left = newWidth + 'px';
+
+			if (e.type === 'touchmove') e.preventDefault();
+		}
+
+		function onResizeEnd() {
+			if (!isResizing) return;
+			isResizing = false;
+			document.body.classList.remove('is-resizing');
+			document.body.style.cursor = '';
+			summary.style.transition = '';
+			body.style.transition = '';
+			resizer.style.zIndex = '';
+
+			if (iframeShield) {
+				iframeShield.style.display = 'none';
+			}
+
+			document.removeEventListener('mousemove', onResizeMove);
+			document.removeEventListener('mouseup', onResizeEnd);
+			document.removeEventListener('touchmove', onResizeMove);
+			document.removeEventListener('touchend', onResizeEnd);
+		}
+
+		resizer.addEventListener('mousedown', onResizeStart);
+		resizer.addEventListener('touchstart', onResizeStart, { passive: false });
+
+		function processIframeLinks(iframe) {
+			var docsKeyword = '/docs/';
+			var doc = iframe.contentDocument || (iframe.contentWindow && iframe.contentWindow.document);
+			if (!doc) return;
+
+			var anchors = doc.getElementsByTagName('a');
+			for (var i = 0; i < anchors.length; i++) {
+				var a = anchors[i];
+				if (!a.href) continue;
+
+				var fullHref = a.href; // 绝对路径，如 https://xxx/docs/bar.html
+				var idx = fullHref.lastIndexOf(docsKeyword);
+				if (idx === -1) {
+					if ((fullHref.toLowerCase().indexOf('http://') === 0 || fullHref.toLowerCase().indexOf('https://') === 0) && !a.getAttribute('target')) {
+						a.target = '_parent';
+					}
+					continue;
+				}
+
+				a.setAttribute('raw-url', a.href);
+
+				// 提取 docs/ 之后的路径部分
+				var afterDocs = fullHref.substring(idx + docsKeyword.length);
+				var origin = fullHref.substring(0, fullHref.indexOf(docsKeyword));
+				a.href = origin + '/?file=' + afterDocs;
+
+				// 点击事件
+				a.addEventListener('click', function (e) {
+					var isMiddleClick = (e.button === 1);
+					var wantsNewTab = e.ctrlKey || e.metaKey || e.shiftKey || isMiddleClick;
+					if (wantsNewTab) return; // 新标签照常
+					e.preventDefault();
+					var target = e.currentTarget || e.srcElement;
+					var docsPath = target.getAttribute('raw-url');
+					if (!docsPath) return;
+					var currentUrl = iframe.contentWindow.location.href;
+					if (currentUrl.split('#')[0] === docsPath.split('#')[0]) {
+						iframe.src = docsPath;
+						return false;
+					}
+
+					startProgress_();
+					isIframeManualClick = true; // 标记内部点击
+					iframe.src = docsPath;
+					return false;
+				}, false);
+			}
+		}
+
+		// --- Table of Contents (TOC) Logic ---
+		var isClickNavigating = false; // 提升为模块级，防止 initTOC 重调时产生新闭包导致 flag 失效
+		function initTOC(iframe, skipNav) {
+			var doc = iframe.contentDocument || iframe.contentWindow.document;
+			if (!doc || !doc.body) return;
+
+			var layoutWrapper = doc.getElementById('injected-layout-wrapper');
+			var contentArea, tocArea, tocInner, tocHeader, tocList;
+
+			if (!layoutWrapper) {
+				// Create layout structure
+				layoutWrapper = doc.createElement('div');
+				layoutWrapper.id = 'injected-layout-wrapper';
+				layoutWrapper.className = 'layout-container';
+
+				contentArea = doc.createElement('div');
+				contentArea.className = 'content-area';
+
+				tocArea = doc.createElement('div');
+				tocArea.className = 'toc-area';
+
+				tocInner = doc.createElement('div');
+				tocInner.className = 'toc-area-inner';
+
+				tocHeader = doc.createElement('div');
+				tocHeader.className = 'toc-header';
+				tocHeader.textContent = '页面导航';
+
+				tocList = doc.createElement('ul');
+				tocList.className = 'toc-list';
+
+				tocInner.appendChild(tocHeader);
+				tocInner.appendChild(tocList);
+				tocArea.appendChild(tocInner);
+
+				// Move existing body children to contentArea
+				while (doc.body.firstChild) {
+					contentArea.appendChild(doc.body.firstChild);
+				}
+
+				layoutWrapper.appendChild(contentArea);
+				layoutWrapper.appendChild(tocArea);
+				doc.body.appendChild(layoutWrapper);
+			} else {
+				contentArea = doc.querySelector('.content-area');
+				tocArea = doc.querySelector('.toc-area');
+				tocList = doc.querySelector('.toc-list');
+				if (!contentArea || !tocList) return;
+				if (tocList.children.length > 0) return; // Already has content
+			}
+
+			// --- Table of Contents (TOC) Scanning ---
+
+
+			// Select all headers in contentArea
+			var headers = contentArea.querySelectorAll('h1, h2, h3, h4, h5, h6');
+			if (headers.length === 0) {
+				tocArea.style.display = 'none'; // Hide if no headers
+				return;
+			}
+
+			var minLevel = 6;
+			for (var i = 0; i < headers.length; i++) {
+				var h = headers[i];
+				if (!h.textContent.trim()) continue; // Skip empty headers
+				var level = parseInt(h.tagName.substring(1));
+				if (level < minLevel) minLevel = level;
+			}
+
+			for (var i = 0; i < headers.length; i++) {
+				var h = headers[i];
+				// Filter empty headers again or relying on index logic if we were building a new array.
+				// Since we are iterating the live NodeList, we must skip here too.
+				if (!h.textContent.trim()) continue;
+
+				// Add an ID if not present so we can scroll to it
+				if (!h.id) {
+					h.id = 'toc-header-' + i;
+				}
+
+				var level = parseInt(h.tagName.substring(1));
+				var indent = level - minLevel;
+				var indentStr = '';
+				for (var j = 0; j < indent; j++) indentStr += '\u3000'; // Chinese space
+
+				var li = doc.createElement('li');
+				var a = doc.createElement('a');
+				a.textContent = indentStr + h.textContent;
+				a.href = 'javascript:void(0)';
+				a.setAttribute('data-target', h.id);
+				a.title = h.textContent; // Tooltip for full text
+
+				a.addEventListener('click', function (e) {
+					e.preventDefault();
+					var targetId = this.getAttribute('data-target');
+					var targetElem = doc.getElementById(targetId);
+					if (targetElem) {
+						isClickNavigating = true;
+						var win = (doc.defaultView || doc.parentWindow);
+						// 用 scrollIntoView 代替手算 offsetTop，避免图片未加载时位置不准需多次点击的问题
+						targetElem.scrollIntoView();
+
+						updateActiveTOC(doc, targetId);
+						// 用滚动停止检测代替固定100ms，防止长页面滚动未结束时flag提前复位导致高亮回弹
+						var _scrollEndTimer = null;
+						var _win = win;
+						var _onScrollEnd = function () {
+							clearTimeout(_scrollEndTimer);
+							_scrollEndTimer = setTimeout(function () {
+								isClickNavigating = false;
+								_win.removeEventListener('scroll', _onScrollEnd);
+							}, 150);
+						};
+						_win.addEventListener('scroll', _onScrollEnd);
+						setTimeout(function () { isClickNavigating = false; _win.removeEventListener('scroll', _onScrollEnd); }, 2000);
+					}
+				});
+
+				li.appendChild(a);
+				tocList.appendChild(li);
+			}
+
+			// Ensure TOC is visible if headers were found
+			if (headers.length > 0) {
+				tocArea.style.display = '';
+			}
+
+			// Scroll listener
+			var ticking = false;
+			iframe.contentWindow.addEventListener('scroll', function () {
+				if (isClickNavigating) return;
+				if (!ticking) {
+					window.requestAnimationFrame(function () {
+						var currentId = null;
+						// 用 getBoundingClientRect 实时判断，避免 offsetTop 在图片未加载时不准的问题
+						for (var i = 0; i < headers.length; i++) {
+							var rect = headers[i].getBoundingClientRect();
+							if (rect.top <= 120) {
+								currentId = headers[i].id;
+							} else {
+								break;
+							}
+						}
+
+						updateActiveTOC(doc, currentId);
+						ticking = false;
+					});
+
+					ticking = true;
+				}
+			});
+		}
+
+		// --- 底部导航注入逻辑：在页面DOM完全解析到结尾后，或者是完全 load 事件时调用注入 ---
+		window.injectFooterNav = function (iframe) {
+			var doc = iframe.contentDocument || iframe.contentWindow.document;
+			if (!doc) return;
+			var contentArea = doc.querySelector('.content-area');
+			if (!contentArea || doc.getElementById('injected-navigation')) return;
+
+			// 在注入前做最后一次清理，确保导航栏是在所有内容之后的
+			window.moveOrphansToContentArea(iframe);
+
+			var allLinks = Array.from(document.querySelectorAll('.summary .chapter a'))
+				.filter(function (a) {
+					var h = a.getAttribute('href');
+					return h && h.indexOf('?file=') > -1;
+				});
+
+			var currentHref = iframe.contentWindow.location.href;
+			var currentFile = safeDecode(currentHref.substring(currentHref.lastIndexOf('/') + 1).split('#')[0]);
+
+			var currentIndex = -1;
+			for (var i = 0; i < allLinks.length; i++) {
+				var href = allLinks[i].getAttribute('href');
+				var filePart = href.split('?file=')[1];
+				if (filePart) {
+					var file = safeDecode(filePart.split('#')[0]);
+					if (file === currentFile) {
+						currentIndex = i;
+						break;
+					}
+				}
+			}
+
+			if (currentIndex === -1) return;
+
+			var navDiv = doc.createElement('div');
+			navDiv.id = 'injected-navigation';
+			navDiv.className = 'page-navigation';
+
+			var getCleanHref = function (linkEl) {
+				var h = linkEl.getAttribute('href');
+				return h.split('?file=')[1] || h;
+			};
+
+			var prevHtml = currentIndex > 0 ?
+				'<a href="' + getCleanHref(allLinks[currentIndex - 1]) + '">上一篇：' + allLinks[currentIndex - 1].textContent.trim() + '</a>' : '<span></span>';
+			var nextHtml = currentIndex < allLinks.length - 1 ?
+				'<a href="' + getCleanHref(allLinks[currentIndex + 1]) + '">下一篇：' + allLinks[currentIndex + 1].textContent.trim() + '</a>' : '<span></span>';
+
+			navDiv.innerHTML = prevHtml + nextHtml;
+			contentArea.appendChild(navDiv);
+
+			if (typeof processIframeLinks === 'function') {
+				processIframeLinks(iframe);
+			}
+		};
+
+		function updateActiveTOC(doc, id) {
+			var tocLinks = doc.querySelectorAll('.toc-list li a');
+			var tocInner = doc.querySelector('.toc-area-inner');
+
+			// 强力清除：先干掉所有旧的选中状态，解决移动端焦点残留/多选 BUG
+			for (var k = 0; k < tocLinks.length; k++) {
+				tocLinks[k].parentElement.classList.remove('active');
+			}
+
+			if (!id) return;
+
+			for (var i = 0; i < tocLinks.length; i++) {
+				var link = tocLinks[i];
+				if (link.getAttribute('data-target') === id) {
+					link.parentElement.classList.add('active');
+
+					// Scroll TOC container to keep active item in view
+					var li = link.parentElement;
+					if (tocInner) {
+						var liTop = li.offsetTop;
+						var liBottom = liTop + li.offsetHeight;
+						var containerTop = tocInner.scrollTop;
+						var containerHeight = tocInner.offsetHeight;
+
+						if (liTop < containerTop) {
+							tocInner.scrollTop = liTop;
+						} else if (liBottom > containerTop + containerHeight) {
+							tocInner.scrollTop = liBottom - containerHeight;
+						}
+					}
+					break; // 找到一个就打完收工，确保唯一性
+				}
+			}
+		}
+
+		// Hook into iframe load
+		var iframe = document.querySelector('iframe[name="content-frame"]');
+		if (iframe) {
+			iframe.addEventListener('load', function () {
+				// initTOC 已整合进 prepareIframeForDisplay
+			});
+		}
+
+		// Progress Bar Logic is now inside the first DOMContentLoaded listener.
+	</script>
+</body>
+
+</html>
