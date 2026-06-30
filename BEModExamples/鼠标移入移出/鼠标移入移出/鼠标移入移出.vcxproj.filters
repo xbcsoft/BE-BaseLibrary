@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="BEBuild">
+      <UniqueIdentifier>{ccaaaa6b-ef2e-4626-9649-5082585ad755}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="程序集">
+      <UniqueIdentifier>{7d02dc0e-e52c-4c29-be1c-d379c0edf469}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{d69359df-ec44-47d4-930c-e0866618fb26}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="BEBuild\鼠标移入移出">
+      <UniqueIdentifier>{bb2fba08-5f22-4e64-92f9-3b3345a66dbb}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="窗口\_\_启动窗口_.cpp">
+      <Filter>BEBuild</Filter>
+    </ClCompile>
+    <ClCompile Include="窗口\_启动窗口.cpp">
+      <Filter>程序集</Filter>
+    </ClCompile>
+    <ClCompile Include="BEMod\鼠标移入移出\鼠标移入移出.cpp">
+      <Filter>BEBuild\鼠标移入移出</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BEMod\BEMod.h">
+      <Filter>BEBuild</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="鼠标移入移出.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

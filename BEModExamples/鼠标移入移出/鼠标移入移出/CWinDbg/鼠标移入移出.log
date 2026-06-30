@@ -1,0 +1,7 @@
+﻿F:\Program Files\Visual Studio 2017\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(391,5): warning MSB8028: 中间目录(CWinDbg\)包含从另一个项目(鼠标移入移出.vcxproj)共享的文件。   这会导致错误的清除和重新生成行为。
+  鼠标移入移出.cpp
+  main.cpp
+  _启动窗口_.cpp
+  _启动窗口.cpp
+  正在生成代码...
+  鼠标移入移出.vcxproj -> C:\Users\admin\Desktop\鼠标移入移出\CWinDbg\鼠标移入移出.exe
