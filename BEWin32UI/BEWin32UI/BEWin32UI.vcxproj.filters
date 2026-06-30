@@ -1,0 +1,161 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="BEBuild">
+      <UniqueIdentifier>{4081fc0c-6941-483e-8d7e-a487cd478c78}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\helper">
+      <UniqueIdentifier>{3bda1d03-ad8c-4ae0-ab0c-3655d9c17a5a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="程序集">
+      <UniqueIdentifier>{bfa0b570-7086-408a-8fa3-cd3e4d0ccb99}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\中文UI">
+      <UniqueIdentifier>{0dc69231-9ecf-498e-af79-87a9328d895e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\中文UI\基础类">
+      <UniqueIdentifier>{65a23c31-2991-4bda-9176-15b6d7ab1738}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="窗口\_\_启动窗口_.cpp">
+      <Filter>BEBuild</Filter>
+    </ClCompile>
+    <ClCompile Include="BEMod\#SymbolsG.cpp">
+      <Filter>BEBuild</Filter>
+    </ClCompile>
+    <ClCompile Include="中文UI\选择夹.cpp">
+      <Filter>源文件\中文UI</Filter>
+    </ClCompile>
+    <ClCompile Include="中文UI\按钮.cpp">
+      <Filter>源文件\中文UI</Filter>
+    </ClCompile>
+    <ClCompile Include="中文UI\编辑框.cpp">
+      <Filter>源文件\中文UI</Filter>
+    </ClCompile>
+    <ClCompile Include="中文UI\窗口.cpp">
+      <Filter>源文件\中文UI</Filter>
+    </ClCompile>
+    <ClCompile Include="中文UI\标签.cpp">
+      <Filter>源文件\中文UI</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="中文UI\超级链接框.cpp">
+      <Filter>源文件\中文UI</Filter>
+    </ClCompile>
+    <ClCompile Include="中文UI\分组框.cpp">
+      <Filter>源文件\中文UI</Filter>
+    </ClCompile>
+    <ClCompile Include="中文UI\单选框.cpp">
+      <Filter>源文件\中文UI</Filter>
+    </ClCompile>
+    <ClCompile Include="中文UI\容器类.cpp">
+      <Filter>源文件\中文UI\基础类</Filter>
+    </ClCompile>
+    <ClCompile Include="中文UI\控件类.cpp">
+      <Filter>源文件\中文UI\基础类</Filter>
+    </ClCompile>
+    <ClCompile Include="中文UI\窗口基类.cpp">
+      <Filter>源文件\中文UI\基础类</Filter>
+    </ClCompile>
+    <ClCompile Include="中文UI\选择框.cpp">
+      <Filter>源文件\中文UI</Filter>
+    </ClCompile>
+    <ClCompile Include="中文UI\外形框.cpp">
+      <Filter>源文件\中文UI</Filter>
+    </ClCompile>
+    <ClCompile Include="中文UI\进度条.cpp">
+      <Filter>源文件\中文UI</Filter>
+    </ClCompile>
+    <ClCompile Include="中文UI\滑块条.cpp">
+      <Filter>源文件\中文UI</Filter>
+    </ClCompile>
+    <ClCompile Include="中文UI\图片框.cpp">
+      <Filter>源文件\中文UI</Filter>
+    </ClCompile>
+    <ClCompile Include="中文UI\helper\窗口辅助核心.cpp">
+      <Filter>源文件\helper</Filter>
+    </ClCompile>
+    <ClCompile Include="中文UI\helper\句柄管理.cpp">
+      <Filter>源文件\helper</Filter>
+    </ClCompile>
+    <ClCompile Include="中文UI\helper\位图.cpp">
+      <Filter>源文件\helper</Filter>
+    </ClCompile>
+    <ClCompile Include="中文UI\helper\字体.cpp">
+      <Filter>源文件\helper</Filter>
+    </ClCompile>
+    <ClCompile Include="窗口\_启动窗口.cpp">
+      <Filter>程序集</Filter>
+    </ClCompile>
+    <ClCompile Include="中文UI\helper\绘制上下文.cpp">
+      <Filter>源文件\helper</Filter>
+    </ClCompile>
+    <ClCompile Include="中文UI\时钟.cpp">
+      <Filter>源文件\中文UI</Filter>
+    </ClCompile>
+    <ClCompile Include="中文UI\组合框.cpp">
+      <Filter>源文件\中文UI</Filter>
+    </ClCompile>
+    <ClCompile Include="窗口\窗口1.cpp">
+      <Filter>程序集</Filter>
+    </ClCompile>
+    <ClCompile Include="窗口\_\窗口1_.cpp">
+      <Filter>BEBuild</Filter>
+    </ClCompile>
+    <ClCompile Include="中文UI\菜单.cpp">
+      <Filter>源文件\中文UI</Filter>
+    </ClCompile>
+    <ClCompile Include="中文UI\输入框.cpp">
+      <Filter>源文件\中文UI</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="BEMod\BEMod.h">
+      <Filter>BEBuild</Filter>
+    </ClInclude>
+    <ClInclude Include="runtime.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="BEWin32UI.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="VSDllSDK.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="中文UI\多夹接口.h">
+      <Filter>源文件\中文UI\基础类</Filter>
+    </ClInclude>
+    <ClInclude Include="中文UI\helper\窗口常量.h">
+      <Filter>源文件\helper</Filter>
+    </ClInclude>
+    <ClInclude Include="中文UI\子容器.hpp">
+      <Filter>源文件\中文UI\基础类</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="BEWin32UI.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

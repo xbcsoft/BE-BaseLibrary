@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <BEModG>$(Registry:HKEY_CURRENT_USER\Software\xbcsoft\BE@InstallPath)\BEModG</BEModG>
+    <IncludePath>$(IncludePath);BEMod;$(BEModG);</IncludePath>
+    <LibraryPath>$(LibraryPath);$(BEModG);</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+  </ItemDefinitionGroup>
+</Project>

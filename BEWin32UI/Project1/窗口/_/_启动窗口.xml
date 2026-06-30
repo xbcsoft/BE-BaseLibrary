@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<窗口 name="_启动窗口" version="1.0" rect="50,50,380,250">
+	<属性 name="可视" type="可空|布尔" value=""/>
+	<属性 name="禁止" type="布尔" value="false"/>
+	<属性 name="类名" type="文本" value="WTWindow"/>
+	<属性 name="标题" type="文本" value=""/>
+	<属性 name="图标" type="可空|数据"/>
+	<属性 name="图标ID" type="可空|整数"/>
+	<属性 name="边框" type="枚举" value="2"/>
+	<属性 name="位置" type="可空|枚举" value="1"/>
+	<属性 name="背景色" type="颜色" value="15790320"/>
+	<属性 name="控制按钮" type="布尔" value="false"/>
+	<属性 name="最小化按钮" type="布尔" value="false"/>
+	<属性 name="最大化按钮" type="布尔" value="false"/>
+	<属性 name="Esc键关闭" type="布尔" value="true"/>
+	<属性 name="随意移动" type="布尔" value="false"/>
+	<属性 name="在任务栏显示" type="布尔" value="true"/>
+	<属性 name="保持标题栏点燃" type="布尔" value="false"/>
+	<属性 name="子控件焦点导航" type="布尔" value="false"/>
+</窗口>
