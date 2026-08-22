@@ -1,10 +1,10 @@
 ﻿#pragma once
 /**@ModuleTitle: 白易核心基础库
-*  @version:     0.6.0
+*  @version:     0.7
 *  @platform:    anysys(x86|x64)
 *  @compiler:    msvc141
 *  @author:      xbcsoft
-*  @datetime:    06-30
+*  @datetime:
 *  @description:
 */
 #define  _BE_CHARSETUTF8

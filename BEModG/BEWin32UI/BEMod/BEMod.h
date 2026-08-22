@@ -12,7 +12,7 @@ extern 窗口* _g_interWnd;
 #pragma endregion
 
 #pragma region BEWin32Base
-//#version 0.6
+//#version 0.7
 #include <BEWin32Base/BEWin32Base.h>
 #ifndef _LIB
 #ifdef _DEBUG

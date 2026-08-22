@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "stdafx.h"
+#include "环境存取.h"
 
 定义_枚举型(MB, int,
 	确认 = MB_OK,
@@ -109,7 +110,7 @@ void 恢复鼠标();
  */
 void 延时(int 欲等待的毫秒);
 
-StrW 取绝对路径(c_StrW path);
+StrX 取绝对路径(c_StrX path);
 
 /**读配置项
  * @param 配置文件名
@@ -144,27 +145,6 @@ Arraybe<StrX> 取配置节名(c_StrX 配置文件名);
 Arraybe<StrX> 取配置项名(c_StrX 配置文件名, c_StrX 节名称);
 
 
-/**多文件对话框
- * @param 标题
- * @param 过滤器 格式："文本文件（*.txt）|*.txt"
- * @param 初始过滤器
- * @param 初始目录
- * @param 不改变目录
- * @param 父窗口<可空> 默认为GetActiveWindow()
- * @return 返回用户所选择或输入后的结果文本数组。
- */
-Arraybe<StrW> 多文件对话框(c_StrX 标题, c_StrX 过滤器, int 初始过滤器,
-	c_StrX 初始目录 = "", bool 不改变目录 = true, NilOpt<HWND> 父窗口 = nil);
-
-typedef NTSTATUS(WINAPI* RtlGetVersion_PTR)(void*);
-
-/**取系统版本
- * @param 系统版本 <参考 可空> 返回系统名称文本，如 "Windows 10"
- * @param 内核NT版本 <参考 可空> 返回内核版本，如 "10.0"
- * @return 返回操作系统内部版本号 (BuildVersion)
- */
-int 取系统版本(NilOpt<StrA&> 系统版本 = nil, NilOpt<StrA&> 内核NT版本 = nil);
-
 /**创建线程
  * @param 子程序指针
 DWORD WINAPI 线程函数(LPVOID param) {
@@ -188,23 +168,23 @@ DWORD 创建线程(PTHREAD_START_ROUTINE 子程序指针, void* 参数 = 0, 可�
 int 创建进程(c_StrX 程序路径, c_StrX 命令行 = "", c_StrX 运行目录 = "",
 	bool 隐藏窗口 = false, 可空<PROCESS_INFORMATION&> 进程结构 = nil);
 
-extern HashTbe<int, be::function<int>> g_DelayCallMap;
+
 
 void CALLBACK __DelayCallTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
 
 /**推迟调用子程序
  * @tparam 互斥=false 是否互斥。为真时若ID已在等待则忽略；为假时若ID已在等待则重置（重载）时钟。
  * @param 推迟时间 延时调用的毫秒数
- * @param 任意子程序指针 传入的回调函数或Lambda表达式
+ * @param 任意子程序指针 传入的回调函数或Lambda表达式(任意可变参数->void)
  * @param ID=空 指定由本函数之前返回的ID进行互斥/重置检查
  * @param ...参数 传递给子程序的可变参数
  * @return 定时器ID，失败返回0
  */
 template<bool 互斥 = false, typename Func, typename... Args>
-int 推迟调用子程序(int 推迟时间, Func 任意子程序指针, 可空<int> ID = 空, Args... args)
+int 推迟调用子程序(int 推迟时间, Func 任意子程序指针, 可空<UINT_PTR> ID = 空, Args... args)
 {
 	if (ID != 空) {
-		int oldId = (int)ID;
+		UINT_PTR oldId = ID;
 		if (g_DelayCallMap.find(oldId)) {
 			if constexpr (互斥) {
 				return oldId; // 互斥模式：直接返回原 ID
@@ -218,7 +198,7 @@ int 推迟调用子程序(int 推迟时间, Func 任意子程序指针, 可空<i
 
 	UINT_PTR osTimerId = SetTimer(NULL, 0, 推迟时间, __DelayCallTimerProc);
 	if (osTimerId) {
-		g_DelayCallMap[(int)osTimerId] = [=](int) mutable {
+		g_DelayCallMap[osTimerId] = [=]() {
 			任意子程序指针(args...);
 		};
 		return (int)osTimerId;

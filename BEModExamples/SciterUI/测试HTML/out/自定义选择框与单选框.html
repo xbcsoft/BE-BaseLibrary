@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Sciter 自定义选择框与单选框</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+        }
+
+        body {
+            background: #1e1e1e;
+            color: #ffffff;
+            font-size: 13px;
+            padding: 16px 20px;
+            margin: 0;
+        }
+
+        .demo-row {
+            flow: horizontal;
+            content-vertical-align: middle;
+            margin-bottom: 14px;
+        }
+
+        .demo-label {
+            color: #aaaaaa;
+            width: 60px;
+            white-space: nowrap;
+        }
+
+        /* ============================================================ */
+        /* 1:1 完全复刻自 index.html / metro.css 的复选框与单选框样式   */
+        /* ============================================================ */
+        .gui-check {
+            flow: horizontal;
+            content-vertical-align: middle;
+            border-spacing: 6px;
+            color: #e8ecf1;
+            white-space: nowrap;
+            cursor: default;
+            margin-right: 16px;
+        }
+
+        .gui-check input[type="checkbox"],
+        .gui-check input[type="radio"] {
+            display: none;
+        }
+
+        .gui-check-box,
+        .gui-radio-box {
+            display: block;
+            width: 16px;
+            height: 16px;
+            flow: stack;
+            content-horizontal-align: center;
+            content-vertical-align: middle;
+            border: 1px solid rgba(255, 255, 255, .25);
+            background-color: rgba(255, 255, 255, .05);
+            transition: border-color .15s ease, background-color .15s ease, box-shadow .15s ease;
+        }
+
+        .gui-check-box {
+            border-radius: 1px;
+        }
+
+        .gui-radio-box {
+            border-radius: 50%;
+            border-width: 1px;
+            background-color: transparent;
+            box-shadow: 0 0 1px rgba(255, 255, 255, .15);
+        }
+
+        .gui-check-mark {
+            display: none;
+            width: 6px;
+            height: 10px;
+            margin-top: -2px;
+            border-right: 1.5px solid #ffffff;
+            border-bottom: 1.5px solid #ffffff;
+            transform: rotate(45deg);
+        }
+
+        .gui-radio-dot {
+            visibility: hidden;
+            opacity: 0;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #0078d7;
+            transition: opacity .15s ease, transform .15s ease;
+            transform: scale(0.5);
+        }
+
+        .gui-check input[type="checkbox"]:checked+.gui-check-box {
+            background-color: #0078d7;
+            border-color: #0078d7;
+        }
+
+        .gui-check input[type="checkbox"]:checked+.gui-check-box .gui-check-mark {
+            display: block;
+        }
+
+        .gui-check input[type="radio"]:checked+.gui-radio-box {
+            border-color: #1c8ce3;
+            box-shadow: 0 0 1.1px #1c8ce3;
+        }
+
+        .gui-check input[type="radio"]:checked+.gui-radio-box .gui-radio-dot {
+            visibility: visible;
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .gui-check:hover .gui-check-box,
+        .gui-check:hover .gui-radio-box {
+            border-color: #1c8ce3;
+            box-shadow: 0 0 0 2.6px rgba(0, 120, 215, .35);
+        }
+
+        .gui-check:hover input[type="checkbox"]:checked+.gui-check-box {
+            background-color: #1c8ce3;
+            border-color: #1c8ce3;
+        }
+
+        .gui-check:hover input[type="radio"]:checked+.gui-radio-box {
+            border-color: #1c8ce3;
+            box-shadow: 0 0 0 2.6px rgba(0, 120, 215, .35);
+        }
+
+        .gui-check:active input[type="checkbox"]:checked+.gui-check-box {
+            background-color: #005a9e;
+            border-color: #005a9e;
+        }
+
+        .gui-check input:disabled+.gui-check-box,
+        .gui-check input:disabled+.gui-radio-box {
+            opacity: .45;
+            box-shadow: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- 复选框 (Checkbox) -->
+    <div class="demo-row">
+        <span class="demo-label">复选框:</span>
+        <label class="gui-check">
+            <input type="checkbox" checked>
+            <span class="gui-check-box"><span class="gui-check-mark"></span></span>
+            <span>选项 A</span>
+        </label>
+        <label class="gui-check">
+            <input type="checkbox">
+            <span class="gui-check-box"><span class="gui-check-mark"></span></span>
+            <span>选项 B</span>
+        </label>
+        <label class="gui-check">
+            <input type="checkbox" disabled checked>
+            <span class="gui-check-box"><span class="gui-check-mark"></span></span>
+            <span>禁用</span>
+        </label>
+    </div>
+
+    <!-- 单选框 (Radio) -->
+    <div class="demo-row">
+        <span class="demo-label">单选框:</span>
+        <label class="gui-check">
+            <input type="radio" name="demoRadio" checked>
+            <span class="gui-radio-box"><span class="gui-radio-dot"></span></span>
+            <span>单选 1</span>
+        </label>
+        <label class="gui-check">
+            <input type="radio" name="demoRadio">
+            <span class="gui-radio-box"><span class="gui-radio-dot"></span></span>
+            <span>单选 2</span>
+        </label>
+        <label class="gui-check">
+            <input type="radio" name="demoRadio" disabled>
+            <span class="gui-radio-box"><span class="gui-radio-dot"></span></span>
+            <span>禁用</span>
+        </label>
+    </div>
+
+</body>
+
+</html>

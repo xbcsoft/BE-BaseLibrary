@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>SciterUI 嵌入内存图片示例</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            width: *;
+            height: *;
+            background: #f8fafc;
+        }
+
+        body {
+            width: *;
+            height: *;
+            margin: 0;
+            padding: 16px;
+            overflow-x: hidden;
+            overflow-y: auto;
+            background: #f8fafc;
+            font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+            color: #1e293b;
+        }
+
+        .main-container {
+            width: *;
+            flow: vertical;
+            border-spacing: 12px;
+        }
+
+        /* 顶部标题与徽章 */
+        .header-row {
+            width: *;
+            flow: horizontal;
+            content-vertical-align: middle;
+            border-spacing: 10px;
+        }
+
+        .header-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #0f172a;
+        }
+
+        .tag-badge {
+            background: #e0e7ff;
+            color: #4338ca;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        /* 卡片行展示 */
+        .card-row {
+            width: *;
+            flow: horizontal;
+            border-spacing: 12px;
+        }
+
+        .card {
+            width: 1*;
+            min-width: 0;
+            flow: vertical;
+            content-horizontal-align: center;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 8px;
+        }
+
+        /* 图片容器 */
+        .img-box {
+            width: 68px;
+            height: 68px;
+            flow: horizontal;
+            content-horizontal-align: center;
+            content-vertical-align: middle;
+            background: #f1f5f9;
+            border: 1px dashed #cbd5e1;
+            border-radius: 6px;
+            margin-bottom: 6px;
+        }
+
+        .img-box img {
+            max-width: 52px;
+            max-height: 52px;
+        }
+
+        /* JS 自绘背景容器 (不配置 background-image url) */
+        .bg-box {
+            width: 68px;
+            height: 68px;
+            background: #f1f5f9;
+            border: 1px dashed #cbd5e1;
+            border-radius: 6px;
+            margin-bottom: 6px;
+        }
+
+        .card-caption {
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        /* 底部信息提示面板 */
+        .info-panel {
+            width: *;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 12px;
+            line-height: 1.6;
+            color: #334155;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+        }
+
+        .info-panel code {
+            background: #f1f5f9;
+            color: #0f172a;
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-family: Consolas, monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header-row">
+            <span class="header-title">C++ 内存图片注入展示</span>
+            <span class="tag-badge">R::apple (36.5 KB)</span>
+        </div>
+
+        <div class="card-row">
+            <div class="card">
+                <div class="card-title">&lt;img&gt; URL 拦截加载</div>
+                <div class="img-box">
+                    <img src="apple.png" alt="内存图片" />
+                </div>
+                <div class="card-caption">src="apple.png"</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">JS 内存 URL 注册设背景</div>
+                <div class="bg-box"></div>
+                <div class="card-caption">document.bindImage</div>
+            </div>
+        </div>
+
+        <div class="info-panel">
+            <div style="margin-bottom: 6px;">💡 <b>方式 1 (URL 拦截)</b>：左侧 <code>&lt;img&gt;</code> 在 C++ <code>事件_资源加载</code> 中拦截 <code>apple.png</code>，调用 <code>资源返回(pld, R::apple)</code> 注入缓存。</div>
+            <div style="margin-bottom: 6px;">🎨 <b>方式 2 (JS 内存 URL 注册)</b>：C++ 端将 <code>R::apple</code> 字节集传给 JS，JS 通过 <code>Graphics.Image.fromBytes(bytes)</code> 解析并调用 <code>document.bindImage("in-memory:apple", img)</code> 直接注册内存 URL，<b>完全无需 Base64 转码</b>！</div>
+            <div>📌 <b>尺寸说明</b>：左右两侧均指定了 52px 居中渲染，大小与留白保持一致。</div>
+        </div>
+    </div>
+
+    <script type="module">
+        import * as sciter from "@sciter";
+
+        // 供 C++ 端直接调用的全局函数
+        globalThis.设置背景字节集 = function(selector, bytes) {
+            const el = document.querySelector(selector);
+            if (!el || !bytes) return;
+
+            try {
+                // 【推荐方案】Sciter 原生内存 URL 注册：无需 Base64 转换，零额外内存开销
+                const img = Graphics.Image.fromBytes(bytes);
+                if (img) {
+                    // 1. 将图像对象直接绑定到一个自定义内存 URL
+                    document.bindImage("in-memory:apple-bg", img);
+
+                    // 2. CSS background-image 直接引用该内存 URL
+                    el.style.backgroundImage = 'url("in-memory:apple-bg")';
+                    el.style.backgroundRepeat = "no-repeat";
+                    el.style.backgroundPosition = "center";
+                    el.style.backgroundSize = "52px 52px";
+                    return;
+                }
+            } catch (e) {
+                console.error("bindImage 异常，尝试 Data URL 降级:", e);
+            }
+
+            try {
+                // 【备选方案】Sciter 官方内置 Base64 转换：sciter.toBase64(ArrayBuffer)
+                const base64Data = sciter.toBase64(bytes);
+                el.style.backgroundImage = 'url("data:image/png;base64,' + base64Data + '")';
+                el.style.backgroundRepeat = "no-repeat";
+                el.style.backgroundPosition = "center";
+                el.style.backgroundSize = "52px 52px";
+            } catch (e) {
+                console.error("设置背景图片失败:", e);
+            }
+        };
+    </script>
+</body>
+</html>

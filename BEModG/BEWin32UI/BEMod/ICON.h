@@ -1,6 +1,6 @@
 ﻿#pragma once
 #ifndef _LIB
-#pragma comment(lib,"BEMod/ICON.lib")
+#pragma comment(lib,"BEWin32UI/BEMod/ICON.lib")
 #endif
 #ifndef EXTBYTE
 #define EXTBYTE extern unsigned char

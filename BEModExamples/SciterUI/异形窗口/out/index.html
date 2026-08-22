@@ -1,0 +1,136 @@
+﻿<html window-frame="transparent">
+<head>
+  <meta charset='utf-8'>
+  <style>
+    html, body { 
+      width: *; 
+      height: *; 
+      margin: 0; 
+      padding: 0; 
+      background: transparent;
+    }
+    
+    body { 
+      color: #e2e2ec; 
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; 
+      overflow: hidden; 
+      position: relative;
+    }
+    
+    /* 核心背景霓虹炫光（居中放置，透过半透明卡片并向外围散发炫光） */
+    .neon-glow {
+      position: absolute;
+      width: 280px;
+      height: 180px;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle at center, rgba(137, 180, 250, 0.4) 0%, rgba(203, 166, 247, 0.2) 40%, rgba(0, 0, 0, 0) 70%);
+      z-index: 1;
+    }
+    
+    .container {
+      width: *;
+      height: *;
+      z-index: 2;
+      position: relative;
+    }
+    
+    .card { 
+      width: 280px;
+      height: 175px;
+      margin: *; 
+      background: rgba(12, 12, 24, 0.85); 
+      border: 1px solid rgba(203, 166, 247, 0.75); 
+      border-radius: 16px; 
+      padding: 0 15px 20px 15px; 
+      box-sizing: border-box;
+      box-shadow: 0 0 30px rgba(203, 166, 247, 0.55), inset 0 0 15px rgba(203, 166, 247, 0.25); 
+      text-align: center;
+    }
+    
+    .drag-zone {
+      width: *;
+      padding-top: 20px;
+    }
+    
+    /* 状态指示徽章 */
+    .status-badge {
+      display: inline-block;
+      background: rgba(166, 227, 161, 0.08);
+      border: 1px solid rgba(166, 227, 161, 0.35);
+      border-radius: 50px;
+      padding: 4px 12px;
+      margin-bottom: 12px;
+      box-shadow: 0 0 8px rgba(166, 227, 161, 0.1);
+    }
+    
+    .status-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background-color: #a6e3a1;
+      border-radius: 50%;
+      margin-right: 6px;
+      box-shadow: 0 0 8px #a6e3a1;
+    }
+    
+    .status-text {
+      font-size: 9px;
+      font-weight: 600;
+      color: #a6e3a1;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    /* 标题文字发光 */
+    h1 { 
+      margin: 0 0 8px 0; 
+      font-size: 20px; 
+      font-weight: 700;
+      color: #ffffff;
+      text-shadow: 0 0 8px rgba(255, 255, 255, 0.45), 0 0 15px rgba(137, 180, 250, 0.4);
+    }
+    
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, rgba(137, 180, 250, 0) 0%, rgba(137, 180, 250, 0.35) 50%, rgba(137, 180, 250, 0) 100%);
+      margin: 12px 0;
+    }
+    
+    p { 
+      margin: 0; 
+      color: #bac2de; 
+      font-size: 11px; 
+      line-height: 1.6;
+    }
+    
+    .footer-note {
+      margin-top: 18px;
+      font-size: 9px;
+      color: #6c7086;
+      letter-spacing: 0.5px;
+    }
+  </style>
+</head>
+<body role="window-caption">
+
+  <!-- 居中背景霓虹发光层，照亮卡片外围 -->
+  <div class="neon-glow"></div>
+  
+  <div class="container">
+    <div class='card'>
+      <div class="drag-zone">
+        <div class="status-badge">
+          <span class="status-dot"></span>
+          <span class="status-text">SCITER ENGINE ON</span>
+        </div>
+      </div>
+      <h1>Hello from Sciter.JS</h1>
+      <div class="divider"></div>
+      <p>极简 · 高效 · 跨平台<br>使用 HTML/CSS/JS 构建原生级桌面 UI</p>
+      <div class="footer-note">白易 Win32UI 深度融合案例</div>
+    </div>
+  </div>
+</body>
+</html>

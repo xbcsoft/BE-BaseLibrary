@@ -181,7 +181,7 @@
     </PostBuildEvent>
     <PreBuildEvent />
     <PreBuildEvent>
-      <Command>MakeBEC.exe -excludesrc=main.cpp -excludezip=main.cpp Debug Release Source -outbec="$(BEInstall)/BEModCollection/正则表达式(IE版).bec"</Command>
+      <Command>MakeBEC.exe -excludesrc=main.cpp -excludezip=main.cpp Debug Release Source -outbec="$(BEInstall)/BEModCollection/语言级基础扩展/正则表达式(IE版).bec"</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Source|x64'">
@@ -254,7 +254,7 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="RegExpie.h" />
+    <ClCompile Include="RegExpie.cpp" />
     <ClCompile Include="main.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>

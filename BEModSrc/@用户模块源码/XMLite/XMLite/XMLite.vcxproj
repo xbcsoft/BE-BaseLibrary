@@ -264,7 +264,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\%40用户模块源码\XMLite\XMLite\BEMod\BEMod.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="XMLite.h" />
+    <ClCompile Include="XMLite.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

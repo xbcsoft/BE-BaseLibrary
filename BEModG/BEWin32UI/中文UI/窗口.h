@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "容器类.h"
 #include "控件类.h"
 
@@ -64,6 +64,17 @@ public:
 
 	void 位置_(窗口位置 位置);
 
+	bool 位置是否最小化();
+
+	bool 位置是否最大化();
+
+	void 位置还原();
+
+	/**激活窗口（含两种方式）
+	 * @param 激活类型=0 默认仅设置线程的活动窗口，非0则使用常规激活
+	 */
+	void 激活(char 激活类型 = 0);
+
 	bool 销毁();
 
 	/**必须在初始创建参数时采用[在任务栏显示=假]后续才可动态设置此方案
@@ -128,6 +139,7 @@ public:
 	bool 保持标题栏点燃_, 子控件焦点导航;
 	bool _是否有托盘图标 = false;
 	bool _首次激活已触发 = false;
+	bool 最大化按钮, 最小化按钮;
 public:
 	virtual void 载入(窗口* 父窗 = 0, bool 模态 = 0);
 	virtual void 事件_创建完毕();

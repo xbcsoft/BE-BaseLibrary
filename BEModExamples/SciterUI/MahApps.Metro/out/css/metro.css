@@ -1,0 +1,1602 @@
+/* ==========================================================================
+   MahApps.Metro UI Component Library for Sciter UI
+   Strictly adheres to sciter_compatibility_guide.md
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Sciter Custom Scrollbar Set
+   -------------------------------------------------------------------------- */
+@set metro-scrollbar {
+    .base {
+        width: 8dip;
+        height: 8dip;
+        background: transparent;
+    }
+
+    .slider {
+        margin: 2dip;
+        border-radius: 4dip;
+        background: rgba(128, 128, 128, 0.35);
+    }
+
+    .slider:hover {
+        background: rgba(128, 128, 128, 0.65);
+    }
+
+    .slider:active {
+        background: var(--accent-color, #0078d7);
+    }
+}
+
+/* --------------------------------------------------------------------------
+   Metro Card Component
+   -------------------------------------------------------------------------- */
+.metro-card {
+    width: 1*;
+    min-width: 0;
+    flow: vertical;
+    background: #2d2d30;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 2px;
+    padding: 16px;
+}
+
+body.theme-light .metro-card {
+    background: #f5f5f5;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.card-header {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #e0e0e0;
+}
+
+body.theme-light .card-header {
+    color: #222222;
+}
+
+/* --------------------------------------------------------------------------
+   6. Metro Buttons Component
+   -------------------------------------------------------------------------- */
+button:not(.title-btn),
+.metro-btn {
+    behavior: button;
+    flow: horizontal;
+    content-vertical-align: middle;
+    content-horizontal-align: center;
+    height: 32px;
+    padding: 0 16px;
+    font-size: 13px;
+    font-weight: 400;
+    border-radius: 0px;
+    background: #3e3e42;
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    cursor: default;
+    min-width: 76px;
+    white-space: nowrap;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+body.theme-light button:not(.title-btn),
+body.theme-light .metro-btn {
+    background: #e1e1e1;
+    color: #222222;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+button:not(.title-btn):hover,
+.metro-btn:hover {
+    background: #505054;
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+body.theme-light button:not(.title-btn):hover,
+body.theme-light .metro-btn:hover {
+    background: #d0d0d0;
+    border-color: rgba(0, 0, 0, 0.3);
+}
+
+button:not(.title-btn):active,
+.metro-btn:active {
+    background: #2a2a2c;
+    transition: background-color 0s, border-color 0s, color 0s;
+}
+
+body.theme-light button:not(.title-btn):active,
+body.theme-light .metro-btn:active {
+    background: #b5b5b5;
+    transition: background-color 0s, border-color 0s, color 0s;
+}
+
+/* Accent Button */
+.metro-btn-accent {
+    background: var(--accent-color, #0078d7);
+    color: #ffffff;
+    border: 1px solid var(--accent-color, #0078d7);
+}
+
+.metro-btn-accent:hover {
+    background: var(--accent-hover, #1c8ce3);
+    border-color: var(--accent-hover, #1c8ce3);
+}
+
+.metro-btn-accent:active {
+    background: var(--accent-active, #005a9e);
+    border-color: var(--accent-active, #005a9e);
+    transition: background-color 0s, border-color 0s, color 0s;
+}
+
+/* Outline Button */
+.metro-btn-outline {
+    background: transparent;
+    color: var(--accent-color, #0078d7);
+    border: 1px solid var(--accent-color, #0078d7);
+}
+
+.metro-btn-outline:hover {
+    background: var(--accent-color, #0078d7);
+    color: #ffffff;
+    border-color: var(--accent-color, #0078d7);
+}
+
+.metro-btn-outline:active {
+    background: var(--accent-active, #005a9e);
+    color: #ffffff;
+    border-color: var(--accent-active, #005a9e);
+    transition: background-color 0s, border-color 0s, color 0s;
+}
+
+/* Danger Button */
+.metro-btn-danger {
+    background: #ce3a3a;
+    color: #ffffff;
+    border: 1px solid #ce3a3a;
+}
+
+.metro-btn-danger:hover {
+    background: #e54747;
+}
+
+/* Theme-qualified variants must outrank the generic light button rule. */
+body.theme-light .metro-btn-accent {
+    background: var(--accent-color, #0078d7);
+    color: #ffffff;
+    border-color: var(--accent-color, #0078d7);
+}
+
+body.theme-light .metro-btn-accent:hover {
+    background: var(--accent-hover, #1c8ce3);
+    color: #ffffff;
+    border-color: var(--accent-hover, #1c8ce3);
+}
+
+body.theme-light .metro-btn-accent:active {
+    background: var(--accent-active, #005a9e);
+    color: #ffffff;
+    border-color: var(--accent-active, #005a9e);
+    transition: background-color 0s, border-color 0s, color 0s;
+}
+
+body.theme-light .metro-btn-outline {
+    background: transparent;
+    color: var(--accent-color, #0078d7);
+    border-color: var(--accent-color, #0078d7);
+}
+
+body.theme-light .metro-btn-outline:hover {
+    background: var(--accent-color, #0078d7);
+    color: #ffffff;
+    border-color: var(--accent-color, #0078d7);
+}
+
+body.theme-light .metro-btn-outline:active {
+    background: var(--accent-active, #005a9e);
+    color: #ffffff;
+    border-color: var(--accent-active, #005a9e);
+    transition: background-color 0s, border-color 0s, color 0s;
+}
+
+body.theme-light .metro-btn-danger {
+    background: #ce3a3a;
+    color: #ffffff;
+    border-color: #ce3a3a;
+}
+
+body.theme-light .metro-btn-danger:hover {
+    background: #e54747;
+    color: #ffffff;
+    border-color: #e54747;
+}
+
+body.theme-light .metro-btn-danger:active {
+    background: #a82222;
+    color: #ffffff;
+    border-color: #a82222;
+    transition: background-color 0s, border-color 0s, color 0s;
+}
+
+/* Disabled Button */
+.metro-btn:disabled,
+button:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+
+/* Button Group */
+.metro-btn-group {
+    flow: horizontal;
+    border-spacing: 0;
+    margin: 8px * 8px *;
+}
+
+.metro-btn-group>.metro-btn {
+    min-width: 74px;
+    padding: 0 12px;
+    border-radius: 0;
+    border-right: none;
+}
+
+.metro-btn-group>.metro-btn:last-child {
+    border-right: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* --------------------------------------------------------------------------
+   7. Form Inputs & Textarea
+   -------------------------------------------------------------------------- */
+.metro-input-group {
+    flow: horizontal;
+    border-spacing: 8px;
+    content-vertical-align: middle;
+    margin-bottom: 10px;
+}
+
+.metro-label {
+    width: 80px;
+    min-width: 80px;
+    white-space: nowrap;
+    font-size: 13px;
+    color: #cccccc;
+}
+
+body.theme-light .metro-label {
+    color: #444444;
+}
+
+input[type="text"],
+input[type="password"],
+.metro-input {
+    width: 1*;
+    min-width: 0;
+    height: 32px;
+    content-vertical-align: middle;
+    padding: 0 10px;
+    font-size: 13px;
+    background: #1e1e1e;
+    color: #ffffff;
+    border: 1px solid #555555;
+    border-radius: 0;
+    transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, color 0.15s ease;
+}
+
+body.theme-light input[type="text"],
+body.theme-light input[type="password"],
+body.theme-light .metro-input {
+    background: #ffffff;
+    color: #222222;
+    border: 1px solid #cccccc;
+}
+
+textarea,
+.metro-textarea {
+    width: 1*;
+    min-width: 0;
+    height: 80px;
+    padding: 8px 10px;
+    font-size: 13px;
+    background: #1e1e1e;
+    color: #ffffff;
+    border: 1px solid #555555;
+    border-radius: 0;
+    overflow-y: auto;
+    vertical-scrollbar: metro-scrollbar;
+    transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, color 0.15s ease;
+}
+
+body.theme-light textarea,
+body.theme-light .metro-textarea {
+    background: #ffffff;
+    color: #222222;
+    border: 1px solid #cccccc;
+}
+
+/* Text controls use the same restrained ignition cue as the custom select. */
+input[type="text"]:hover,
+input[type="password"]:hover,
+textarea:hover,
+.metro-input:hover,
+.metro-textarea:hover,
+select:hover,
+.metro-native-select:hover,
+body.theme-light input[type="text"]:hover,
+body.theme-light input[type="password"]:hover,
+body.theme-light textarea:hover,
+body.theme-light .metro-input:hover,
+body.theme-light .metro-textarea:hover,
+body.theme-light select:hover,
+body.theme-light .metro-native-select:hover {
+    border-color: var(--accent-hover, #1c8ce3);
+    box-shadow: 0 0 0 3px var(--accent-glow, rgba(0, 120, 215, .35));
+}
+
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+textarea:focus,
+.metro-input:focus,
+.metro-textarea:focus,
+input[type="text"][text-menu-open],
+input[type="password"][text-menu-open],
+textarea[text-menu-open],
+.metro-input[text-menu-open],
+.metro-textarea[text-menu-open],
+select:focus,
+.metro-native-select:focus,
+body.theme-light input[type="text"]:focus,
+body.theme-light input[type="password"]:focus,
+body.theme-light textarea:focus,
+body.theme-light .metro-input:focus,
+body.theme-light .metro-textarea:focus,
+body.theme-light select:focus,
+body.theme-light .metro-native-select:focus {
+    border-color: var(--accent-color, #0078d7);
+    box-shadow: 0 0 0 3px var(--accent-glow, rgba(0, 120, 215, .35));
+    outline: none;
+}
+
+/* --------------------------------------------------------------------------
+   8. Dropdown & Sciter Native Popup
+   -------------------------------------------------------------------------- */
+.metro-select {
+    behavior: clickable;
+    width: 1*;
+    min-width: 0;
+    height: 32px;
+    flow: horizontal;
+    content-vertical-align: middle;
+    padding: 0 10px;
+    font-size: 13px;
+    background: #252526;
+    color: #ffffff;
+    border: 1px solid #555555;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, color 0.15s ease;
+}
+
+body.theme-light .metro-select {
+    background: #ffffff;
+    color: #222222;
+    border: 1px solid #cccccc;
+}
+
+.metro-select-caption {
+    width: 1*;
+    font-size: 13px;
+    color: inherit;
+}
+
+.metro-select-arrow {
+    font-size: 10px;
+    color: #888888;
+    margin-left: 6px;
+}
+
+select,
+.metro-native-select {
+    width: 1*;
+    min-width: 0;
+    height: 32px;
+    padding: 0 10px;
+    content-vertical-align: middle;
+    font-size: 13px;
+    background: #252526;
+    color: #ffffff;
+    border: 1px solid #555555;
+    transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, color 0.15s ease;
+}
+
+body.theme-light .metro-native-select {
+    background: #ffffff;
+    color: #222222;
+    border-color: #cccccc;
+}
+
+/* Popup element */
+popup.metro-popup {
+    background: #252526;
+    border: 1px solid var(--accent-color, #0078d7);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    padding: 4px 0;
+    flow: vertical;
+    max-height: 200px;
+    overflow-y: auto;
+    vertical-scrollbar: metro-scrollbar;
+}
+
+body.theme-light popup.metro-popup {
+    background: #ffffff;
+    border: 1px solid var(--accent-color, #0078d7);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.metro-popup-item {
+    behavior: clickable;
+    background: transparent;
+    height: 30px;
+    padding: 0 12px;
+    flow: horizontal;
+    content-vertical-align: middle;
+    font-size: 13px;
+    color: #dddddd;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+body.theme-light .metro-popup-item {
+    color: #333333;
+}
+
+.metro-popup-item:hover {
+    background: var(--accent-color, #0078d7);
+    color: #ffffff;
+}
+
+/* --------------------------------------------------------------------------
+   9. Checkbox & Radio Buttons
+   -------------------------------------------------------------------------- */
+.metro-checkbox-label,
+.metro-radio-label {
+    flow: horizontal;
+    border-spacing: 8px;
+    content-vertical-align: middle;
+    font-size: 13px;
+    cursor: pointer;
+    color: #dddddd;
+    margin-right: 16px;
+}
+
+body.theme-light .metro-checkbox-label,
+body.theme-light .metro-radio-label {
+    color: #333333;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+    display: none;
+}
+
+.metro-check-box,
+.metro-radio-box {
+    display: block;
+    width: 18px;
+    height: 18px;
+    background: #1e1e1e;
+    border: 2px solid #777777;
+    box-sizing: border-box;
+}
+
+.metro-check-box {
+    border-radius: 0;
+}
+
+body.theme-light .metro-check-box,
+body.theme-light .metro-radio-box {
+    background: #ffffff;
+    border: 2px solid #888888;
+}
+
+.metro-checkbox-label input:checked+.metro-check-box {
+    background: var(--accent-color, #0078d7);
+    border-color: var(--accent-color, #0078d7);
+    foreground-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'><path fill='none' stroke='white' stroke-width='2' stroke-linecap='square' d='M2.5 7L5.5 10L11.5 3.5'/></svg>");
+    foreground-position: 50% 50%;
+    foreground-repeat: no-repeat;
+}
+
+.metro-radio-box {
+    border-radius: 9px;
+}
+
+.metro-radio-label input:checked+.metro-radio-box {
+    border-color: var(--accent-color, #0078d7);
+    background: radial-gradient(circle at 50% 50%, var(--accent-color, #0078d7) 0, var(--accent-color, #0078d7) 4px, transparent 5px);
+}
+
+/* --------------------------------------------------------------------------
+   10. Toggle Switch Component
+   -------------------------------------------------------------------------- */
+.metro-switch {
+    position: relative;
+    width: 48px;
+    height: 24px;
+    display: inline-block;
+}
+
+.metro-switch input {
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0.01;
+    z-index: 3;
+}
+
+.metro-switch-track {
+    width: 48px;
+    height: 24px;
+    background: #444444;
+    border: 2px solid #666666;
+    border-radius: 12px;
+    box-sizing: border-box;
+    position: relative;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+body.theme-light .metro-switch-track {
+    background: #cccccc;
+    border: 2px solid #aaaaaa;
+}
+
+.metro-switch-knob {
+    position: absolute;
+    left: 2px;
+    top: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    background: #ffffff;
+    transform: translate(0, 0);
+    transition: transform 0.2s ease;
+}
+
+.metro-switch input:checked+.metro-switch-track {
+    background: var(--accent-color, #0078d7);
+    border-color: var(--accent-color, #0078d7);
+}
+
+.metro-switch input:checked+.metro-switch-track .metro-switch-knob {
+    transform: translate(24px, 0);
+}
+
+/* --------------------------------------------------------------------------
+   11. Sciter Slider Component (input type="hslider")
+   -------------------------------------------------------------------------- */
+input[type="hslider"].metro-slider {
+    width: 1*;
+    min-width: 0;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    border: none;
+}
+
+body.theme-light input[type="hslider"].metro-slider {
+    background: rgba(0, 0, 0, 0.12);
+}
+
+input[type="hslider"].metro-slider>button {
+    width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    background: var(--accent-color, #0078d7);
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.25);
+    transition: background-color .12s ease, border-color .12s ease, box-shadow .12s ease;
+}
+
+input[type="hslider"].metro-slider:hover>button,
+body.theme-light input[type="hslider"].metro-slider:hover>button {
+    background: var(--accent-hover, #1c8ce3);
+    box-shadow: 0 0 0 3px var(--accent-glow, rgba(0, 120, 215, .35));
+}
+
+/* --------------------------------------------------------------------------
+   12. Progress & Radial Progress Bar
+   -------------------------------------------------------------------------- */
+.metro-progress {
+    width: 1*;
+    min-width: 0;
+    height: 8px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.12);
+    overflow: hidden;
+}
+
+body.theme-light .metro-progress {
+    background: rgba(0, 0, 0, 0.10);
+}
+
+.metro-progress-fill {
+    height: 100%;
+    background: var(--accent-color, #0078d7);
+    transition: width 0.3s ease;
+}
+
+/* Radial Ring */
+.progress-ring {
+    width: 48px;
+    height: 48px;
+    position: relative;
+}
+
+.progress-ring-svg {
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.progress-ring-text {
+    fill: #ffffff;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+body.theme-light .progress-ring-text {
+    fill: #222222;
+}
+
+.progress-ring span {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 48px;
+    height: 48px;
+    content-horizontal-align: center;
+    content-vertical-align: middle;
+    font-size: 11px;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+body.theme-light .progress-ring span {
+    color: #222222;
+}
+
+/* --------------------------------------------------------------------------
+   13. Metro Tiles & Badges
+   -------------------------------------------------------------------------- */
+.metro-tile {
+    behavior: clickable;
+    width: 140px;
+    height: 90px;
+    padding: 12px;
+    flow: vertical;
+    background: var(--accent-color, #0078d7);
+    color: #ffffff;
+    cursor: pointer;
+    transition: transform 0.10s ease;
+}
+
+.metro-tile:hover {
+    transform: scale(1.03);
+}
+
+.metro-tile:active {
+    transform: scale(0.96);
+}
+
+.tile-icon {
+    font-size: 24px;
+    margin-bottom: auto;
+}
+
+.tile-title {
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.metro-badge {
+    display: block;
+    width: max-content;
+    min-width: 0;
+    white-space: nowrap;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 2px;
+    background: var(--accent-color, #0078d7);
+    color: #ffffff;
+}
+
+.metro-badge-success {
+    background: #60a917;
+}
+
+.metro-badge-warning {
+    background: #f0a30a;
+}
+
+.metro-badge-danger {
+    background: #ce3a3a;
+}
+
+/* --------------------------------------------------------------------------
+   14. Metro Tabs Component
+   -------------------------------------------------------------------------- */
+.metro-tabs {
+    width: *;
+    flow: vertical;
+}
+
+.tab-header {
+    width: *;
+    flow: horizontal;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+    border-spacing: 24px;
+    margin-bottom: 16px;
+}
+
+body.theme-light .tab-header {
+    border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+.tab-item {
+    behavior: clickable;
+    padding: 8px 4px;
+    font-size: 14px;
+    font-weight: 400;
+    color: #aaaaaa;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+body.theme-light .tab-item {
+    color: #666666;
+}
+
+.tab-item:hover {
+    color: #ffffff;
+}
+
+body.theme-light .tab-item:hover {
+    color: #222222;
+}
+
+.tab-item.active {
+    color: var(--accent-color, #0078d7);
+    border-bottom: 2px solid var(--accent-color, #0078d7);
+}
+
+.tab-pane {
+    display: none;
+    width: *;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+/* --------------------------------------------------------------------------
+   15. Data Table / Grid
+   -------------------------------------------------------------------------- */
+.metro-table {
+    width: *;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.metro-table th {
+    background: #2d2d30;
+    color: #ffffff;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid var(--accent-color, #0078d7);
+}
+
+body.theme-light .metro-table th {
+    background: #e8e8e8;
+    color: #222222;
+}
+
+.metro-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    color: #cccccc;
+}
+
+body.theme-light .metro-table td {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    color: #444444;
+}
+
+.metro-table tr:hover td {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+body.theme-light .metro-table tr:hover td {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+/* --------------------------------------------------------------------------
+   16. Flyout Overlay & Message Dialog
+   -------------------------------------------------------------------------- */
+.metro-dialog-overlay {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 99;
+    flow: vertical;
+    content-horizontal-align: center;
+    content-vertical-align: middle;
+}
+
+.metro-dialog-overlay.active {
+    display: block;
+}
+
+.metro-dialog-box {
+    width: 400px;
+    background: #252526;
+    border: 2px solid var(--accent-color, #0078d7);
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    margin: *;
+}
+
+body.theme-light .metro-dialog-box {
+    background: #ffffff;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.dialog-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--accent-color, #0078d7);
+    margin-bottom: 10px;
+}
+
+.dialog-body {
+    font-size: 13px;
+    color: #cccccc;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+body.theme-light .dialog-body {
+    color: #444444;
+}
+
+.dialog-actions {
+    width: *;
+    flow: horizontal;
+    border-spacing: 10px;
+}
+
+.dialog-actions .metro-btn {
+    min-width: 88px;
+    margin-left: *;
+}
+
+.metro-flyout {
+    box-sizing: border-box;
+    display: block;
+    position: absolute;
+    left: 100%;
+    top: 34px;
+    bottom: 0;
+    width: 320px;
+    height: *;
+    visibility: hidden;
+    background: #2d2d30;
+    border-left: 2px solid var(--accent-color, #0078d7);
+    padding: 20px;
+    box-shadow: -5px 0 20px rgba(0, 0, 0, 0.4);
+    z-index: 90;
+    flow: vertical;
+    transform: translate(0, 0);
+    transition: transform 0.24s ease, visibility 0.24s ease;
+}
+
+body.theme-light .metro-flyout {
+    background: #f5f5f5;
+    box-shadow: -5px 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.metro-flyout.active {
+    visibility: visible;
+    transform: translate(-100%, 0);
+}
+
+popup.metro-context-menu {
+    width: 160px;
+    min-width: 160px;
+    padding: 3px 0;
+    background: #252526;
+    border: 1px solid var(--accent-color, #0078d7);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .45);
+    flow: vertical;
+}
+
+body.theme-light popup.metro-context-menu {
+    background: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .24);
+}
+
+.context-command-item {
+    height: 26px;
+    padding: 0 14px;
+    flow: horizontal;
+    content-vertical-align: middle;
+    color: #dddddd;
+    cursor: default;
+    font-size: 12px;
+    background: transparent;
+    transition: background-color 0.12s ease-out, color 0.12s ease-out;
+}
+
+body.theme-light .context-command-item {
+    color: #222222;
+}
+
+.context-command-item:hover {
+    background: var(--accent-color, #0078d7);
+    color: #ffffff;
+}
+
+.context-command-item:active {
+    background: var(--accent-active, #005a9e);
+    color: #ffffff;
+    transition: background-color 0s, color 0s;
+}
+
+.context-command-item[disabled],
+.context-command-item[disabled]:hover {
+    behavior: none;
+    background: transparent;
+    color: #777777;
+    cursor: default;
+}
+
+body.theme-light .context-command-item[disabled],
+body.theme-light .context-command-item[disabled]:hover {
+    color: #aaaaaa;
+}
+
+.context-command-item>span:first-child {
+    width: 1*;
+}
+
+.context-shortcut {
+    color: #999999;
+    font-size: 10px;
+    margin-left: 8px;
+    transition: color 0.12s ease-out;
+}
+
+.context-command-item:hover .context-shortcut {
+    color: #ffffff;
+}
+
+.context-command-item[disabled] .context-shortcut {
+    color: #666666;
+}
+
+body.theme-light .context-command-item[disabled] .context-shortcut {
+    color: #bbbbbb;
+}
+
+.context-menu-separator {
+    height: 1px;
+    margin: 3px 8px;
+    background: rgba(255, 255, 255, .12);
+}
+
+body.theme-light .context-menu-separator {
+    background: rgba(0, 0, 0, .12);
+}
+
+/* --------------------------------------------------------------------------
+   17. Skeleton Loader
+   -------------------------------------------------------------------------- */
+.metro-skeleton {
+    width: *;
+    height: 12px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.1);
+    margin-bottom: 8px;
+}
+
+body.theme-light .metro-skeleton {
+    background: rgba(0, 0, 0, 0.08);
+}
+
+/* --------------------------------------------------------------------------
+   18. Verified component overrides
+   -------------------------------------------------------------------------- */
+.metric-badge {
+    width: max-content;
+    min-width: 0;
+    content-horizontal-align: center;
+}
+
+.runtime-log {
+    display: block;
+    width: *;
+    height: 120px;
+    overflow-y: auto;
+    vertical-scrollbar: metro-scrollbar;
+    padding: 12px;
+    background: #151515;
+    color: var(--accent-color, #0078d7);
+    border: 1px solid #444444;
+    font-family: Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.45;
+    white-space: pre;
+    text-selection-background-color: var(--accent-color, #0078d7);
+    text-selection-color: #ffffff;
+}
+
+.metro-btn {
+    behavior: clickable;
+}
+
+.metro-btn[disabled] {
+    behavior: none;
+    opacity: .45;
+}
+
+.metro-btn-group {
+    width: 240px;
+    margin: 8px 0;
+    flow: horizontal;
+    border-spacing: 0;
+}
+
+.metro-btn-group>.metro-btn {
+    width: 80px;
+    min-width: 80px;
+    padding: 0;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.metro-btn-group>.metro-btn:active,
+body.theme-light .metro-btn-group>.metro-btn:active {
+    transition: background-color 0s, border-color 0s;
+    background: var(--accent-active, #005a9e);
+    border-color: var(--accent-active, #005a9e);
+}
+
+.metro-btn-group>.metro-btn.selected,
+.metro-btn-group>.metro-btn.selected:hover,
+.metro-btn-group>.metro-btn.selected:active,
+.metro-btn-accent.selected,
+.metro-btn-accent.selected:hover,
+.metro-btn-accent.selected:active,
+body.theme-light .metro-btn-group>.metro-btn.selected,
+body.theme-light .metro-btn-group>.metro-btn.selected:hover,
+body.theme-light .metro-btn-group>.metro-btn.selected:active,
+body.theme-light .metro-btn-accent.selected,
+body.theme-light .metro-btn-accent.selected:hover,
+body.theme-light .metro-btn-accent.selected:active {
+    background: var(--accent-active, #005a9e);
+    border-color: var(--accent-active, #005a9e);
+    color: #ffffff;
+}
+
+.metro-btn-danger:hover {
+    background: #e54747;
+    border-color: #e54747;
+}
+
+.metro-btn-danger:active {
+    background: #a82222;
+    border-color: #a82222;
+    transition: background-color 0s, border-color 0s;
+}
+
+input[type="text"],
+input[type="password"],
+textarea,
+.metro-input,
+.metro-textarea {
+    caret-color: #ffffff;
+    text-selection-caret-color: #ffffff;
+    text-selection-background-color: var(--accent-color, #0078d7);
+    text-selection-color: #ffffff;
+}
+
+body.theme-light input[type="text"],
+body.theme-light input[type="password"],
+body.theme-light textarea,
+body.theme-light .metro-input,
+body.theme-light .metro-textarea {
+    caret-color: #111111;
+    text-selection-caret-color: #111111;
+    text-selection-background-color: var(--accent-color, #0078d7);
+    text-selection-color: #ffffff;
+}
+
+.metro-select,
+.metro-combobox {
+    box-sizing: border-box;
+    behavior: none;
+    width: 1*;
+    min-width: 0;
+    height: 32px;
+    flow: horizontal;
+    content-vertical-align: middle;
+    padding: 0 10px;
+    background: #252526;
+    color: #ffffff;
+    border: 1px solid #555555;
+    cursor: default;
+    transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, color 0.15s ease;
+}
+
+.metro-select:hover,
+.metro-combobox:hover,
+body.theme-light .metro-select:hover,
+body.theme-light .metro-combobox:hover {
+    background-color: #29292b;
+    border-color: var(--accent-hover, #1c8ce3);
+    box-shadow: 0 0 0 3px var(--accent-glow, rgba(0, 120, 215, .35));
+}
+
+body.theme-light .metro-select:hover,
+body.theme-light .metro-combobox:hover {
+    background-color: #fafafa;
+    border-color: var(--accent-hover, #1c8ce3);
+    box-shadow: 0 0 0 3px var(--accent-glow, rgba(0, 120, 215, .35));
+}
+
+.metro-select:active,
+body.theme-light .metro-select:active {
+    background-color: #202022;
+    border-color: var(--accent-active, #005a9e);
+    box-shadow: 0 0 0 3px var(--accent-glow, rgba(0, 120, 215, .35));
+}
+
+body.theme-light .metro-select:active {
+    background-color: #f1f1f1;
+    border-color: var(--accent-active, #005a9e);
+    box-shadow: 0 0 0 3px var(--accent-glow, rgba(0, 120, 215, .35));
+}
+
+.metro-select.open,
+.metro-combobox.open,
+.metro-combobox:focus,
+body.theme-light .metro-select.open,
+body.theme-light .metro-combobox.open,
+body.theme-light .metro-combobox:focus {
+    border-color: var(--accent-color, #0078d7);
+    box-shadow: 0 0 0 3px var(--accent-glow, rgba(0, 120, 215, .35));
+}
+
+body.theme-light .metro-select.open,
+body.theme-light .metro-combobox.open,
+body.theme-light .metro-combobox:focus {
+    background-color: #ffffff;
+    border-color: var(--accent-color, #0078d7);
+    box-shadow: 0 0 0 3px var(--accent-glow, rgba(0, 120, 215, .35));
+}
+
+.metro-select .caption {
+    display: block;
+    width: 1*;
+    min-width: 0;
+    height: 100%;
+    line-height: 32px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.metro-combobox .combo-input,
+.metro-combobox .combo-input:hover,
+.metro-combobox .combo-input:focus,
+.metro-combobox .combo-input:active,
+body.theme-light .metro-combobox .combo-input,
+body.theme-light .metro-combobox .combo-input:hover,
+body.theme-light .metro-combobox .combo-input:focus,
+body.theme-light .metro-combobox .combo-input:active {
+    display: block;
+    width: 1*;
+    min-width: 0;
+    height: 100%;
+    line-height: 30px;
+    content-vertical-align: middle;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    color: #ffffff;
+    padding: 0 !important;
+    margin: 0 !important;
+    font-size: 13px;
+    cursor: text;
+}
+
+body.theme-light .metro-combobox .combo-input,
+body.theme-light .metro-combobox .combo-input:hover,
+body.theme-light .metro-combobox .combo-input:focus,
+body.theme-light .metro-combobox .combo-input:active {
+    color: #222222;
+}
+
+.select-arrow {
+    width: 12px;
+    min-width: 12px;
+    margin-left: 8px;
+    color: #888;
+    font-size: 10px;
+    content-horizontal-align: center;
+    transition: color .10s ease, transform .10s ease;
+}
+
+.metro-select:hover .select-arrow,
+.metro-combobox:hover .select-arrow {
+    color: var(--accent-color, #0078d7);
+}
+
+.metro-select:active .select-arrow {
+    color: var(--accent-active, #005a9e);
+}
+
+.metro-select.open .select-arrow,
+.metro-combobox.open .select-arrow {
+    color: var(--accent-color, #0078d7);
+}
+
+.metro-select-popup {
+    box-sizing: border-box;
+    width: max-content;
+    max-height: 220px;
+    overflow-y: auto;
+    vertical-scrollbar: metro-scrollbar;
+    padding: 4px;
+    flow: vertical;
+    background: #252526;
+    border: 1px solid var(--accent-color, #0078d7);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .4);
+}
+
+.metro-select-popup .option-item {
+    min-height: 30px;
+    padding: 0 10px;
+    flow: horizontal;
+    content-vertical-align: middle;
+    color: #dddddd;
+    background: transparent;
+    white-space: nowrap;
+    cursor: default;
+    transition: background-color 0.12s ease-out, color 0.12s ease-out;
+}
+
+.metro-select-popup .option-item.hot {
+    background: var(--accent-color, #0078d7);
+    color: #ffffff;
+}
+
+.metro-select-popup .option-item:active {
+    background: var(--accent-active, #005a9e);
+    color: #ffffff;
+}
+
+body.theme-light .metro-select,
+body.theme-light .metro-combobox {
+    background: #ffffff;
+    color: #222222;
+    border-color: #cccccc;
+}
+
+body.theme-light .metro-select-popup {
+    background: #ffffff;
+}
+
+body.theme-light .metro-select-popup .option-item {
+    color: #333333;
+}
+
+body.theme-light .metro-select-popup .option-item.hot {
+    color: #ffffff;
+}
+
+.custom-slider {
+    width: 1*;
+    min-width: 0;
+    height: 24px;
+    cursor: default;
+    position: relative;
+    flow: stack;
+    content-vertical-align: middle;
+}
+
+.custom-slider-track {
+    width: *;
+    height: 8px;
+    background: rgba(255, 255, 255, .15);
+    border: 1px solid rgba(255, 255, 255, .08);
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color .12s ease, box-shadow .12s ease;
+}
+
+.custom-slider-fill {
+    width: 0;
+    height: *;
+    background: var(--accent-color, #0078d7);
+    border-radius: 4px;
+}
+
+.custom-slider-thumb {
+    width: 16px;
+    height: 16px;
+    background: var(--accent-color, #0078d7);
+    border: 2px solid #ffffff;
+    border-radius: 8px;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    margin-top: -8px;
+    margin-left: -8px;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.25);
+    transition: background-color .12s ease, box-shadow .12s ease;
+}
+
+.custom-slider:hover .custom-slider-thumb,
+body.theme-light .custom-slider:hover .custom-slider-thumb {
+    background: var(--accent-hover, #1c8ce3);
+    box-shadow: 0 0 0 3px var(--accent-glow, rgba(0, 120, 215, .35));
+}
+
+.custom-slider-thumb:active {
+    background: var(--accent-active, #005a9e);
+}
+
+body.theme-light .custom-slider-track {
+    background: rgba(0, 0, 0, .10);
+    border-color: rgba(0, 0, 0, .08);
+}
+
+.gui-check {
+    flow: horizontal;
+    content-vertical-align: middle;
+    border-spacing: 6px;
+    color: #e8ecf1;
+    white-space: nowrap;
+    cursor: default;
+    margin-right: 16px;
+}
+
+.gui-check input[type="checkbox"],
+.gui-check input[type="radio"] {
+    display: none;
+}
+
+.gui-check-box,
+.gui-radio-box {
+    display: block;
+    width: 16px;
+    height: 16px;
+    flow: stack;
+    content-horizontal-align: center;
+    content-vertical-align: middle;
+    border: 1px solid rgba(255, 255, 255, .25);
+    background-color: rgba(255, 255, 255, .05);
+    transition: border-color .15s ease, background-color .15s ease, box-shadow .15s ease;
+}
+
+.gui-check-box {
+    border-radius: 1px;
+}
+
+.gui-radio-box {
+    border-radius: 50%;
+    border-width: 1px;
+    background-color: transparent;
+    box-shadow: 0 0 1px rgba(255, 255, 255, .15);
+}
+
+.gui-check-mark {
+    display: none;
+    width: 6px;
+    height: 10px;
+    margin-top: -2px;
+    border-right: 1.5px solid #ffffff;
+    border-bottom: 1.5px solid #ffffff;
+    transform: rotate(45deg);
+}
+
+.gui-radio-dot {
+    visibility: hidden;
+    opacity: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--accent-color, #0078d7);
+    transition: opacity .15s ease, transform .15s ease;
+    transform: scale(0.5);
+}
+
+.gui-check input[type="checkbox"]:checked+.gui-check-box {
+    background-color: var(--accent-color, #0078d7);
+    border-color: var(--accent-color, #0078d7);
+}
+
+.gui-check input[type="checkbox"]:checked+.gui-check-box .gui-check-mark {
+    display: block;
+}
+
+.gui-check input[type="radio"]:checked+.gui-radio-box {
+    border-color: var(--accent-hover, #1c8ce3);
+    box-shadow: 0 0 1.1px var(--accent-hover, #1c8ce3);
+}
+
+.gui-check input[type="radio"]:checked+.gui-radio-box .gui-radio-dot {
+    visibility: visible;
+    opacity: 1;
+    transform: scale(1);
+}
+
+.gui-check:hover .gui-check-box,
+.gui-check:hover .gui-radio-box,
+body.theme-light .gui-check:hover .gui-check-box,
+body.theme-light .gui-check:hover .gui-radio-box {
+    border-color: var(--accent-hover, #1c8ce3);
+    box-shadow: 0 0 0 2.6px var(--accent-glow, rgba(0, 120, 215, .35));
+}
+
+.gui-check:hover input[type="checkbox"]:checked+.gui-check-box {
+    background-color: var(--accent-hover, #1c8ce3);
+    border-color: var(--accent-hover, #1c8ce3);
+}
+
+.gui-check:hover input[type="radio"]:checked+.gui-radio-box {
+    border-color: var(--accent-hover, #1c8ce3);
+    box-shadow: 0 0 0 2.6px var(--accent-glow, rgba(0, 120, 215, .35));
+}
+
+.gui-check:active input[type="checkbox"]:checked+.gui-check-box {
+    background-color: var(--accent-active, #005a9e);
+    border-color: var(--accent-active, #005a9e);
+}
+
+.gui-check input:disabled+.gui-check-box,
+.gui-check input:disabled+.gui-radio-box {
+    opacity: .45;
+    box-shadow: none;
+}
+
+body.theme-light .gui-check {
+    color: #333333;
+}
+
+body.theme-light .gui-check input[type="radio"]:checked+.gui-radio-box {
+    border-color: var(--accent-hover, #1c8ce3);
+    box-shadow: 0 0 1.2px var(--accent-hover, #1c8ce3);
+}
+
+body.theme-light .gui-check-box,
+body.theme-light .gui-radio-box {
+    background-color: #ffffff;
+    border-color: rgba(0, 0, 0, .35);
+    box-shadow: 0 0 1px rgba(0, 0, 0, .15);
+}
+
+body.theme-light .gui-check input[type="checkbox"]:checked+.gui-check-box {
+    background-color: var(--accent-color, #0078d7);
+    border-color: var(--accent-color, #0078d7);
+}
+
+
+
+.gui-switch {
+    width: 42px;
+    height: 24px;
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.gui-switch input {
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 42px;
+    height: 24px;
+    opacity: 0;
+    z-index: 2;
+    cursor: pointer;
+    margin: 0;
+}
+
+.gui-switch-track {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 42px;
+    height: 24px;
+    padding: 3px;
+    background: rgba(255, 255, 255, .12);
+    border: 1px solid rgba(255, 255, 255, .09);
+    border-radius: 12px;
+    transition: background .18s ease, border-color .18s ease, box-shadow .12s ease;
+}
+
+.gui-switch-knob {
+    display: block;
+    width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .35);
+    transform: translate(0, 0);
+    transition: transform .18s ease;
+}
+
+.gui-switch input:checked+.gui-switch-track {
+    background: var(--accent-color, #0078d7);
+    border-color: var(--accent-color, #0078d7);
+}
+
+.gui-switch input:checked+.gui-switch-track .gui-switch-knob {
+    transform: translate(18px, 0);
+}
+
+.gui-switch:hover .gui-switch-track,
+body.theme-light .gui-switch:hover .gui-switch-track {
+    border-color: var(--accent-hover, #1c8ce3);
+    box-shadow: 0 0 0 3px var(--accent-glow, rgba(0, 120, 215, .35));
+}
+
+.gui-switch:hover input:checked+.gui-switch-track {
+    background: var(--accent-hover, #1c8ce3);
+    border-color: var(--accent-hover, #1c8ce3);
+}
+
+.gui-switch:active input:checked+.gui-switch-track {
+    background: var(--accent-active, #005a9e);
+    border-color: var(--accent-active, #005a9e);
+}
+
+body.theme-light .gui-switch-track {
+    background: rgba(0, 0, 0, .18);
+    border-color: rgba(0, 0, 0, .14);
+}
+
+.metro-progress {
+    flow: horizontal;
+    border-spacing: 0;
+    background: rgba(255, 255, 255, .12);
+}
+
+.metro-progress-fill {
+    display: block;
+    width: 3*;
+    height: 100%;
+    background: var(--accent-color, #0078d7);
+    border-radius: 4px;
+}
+
+.metro-progress-remainder {
+    display: block;
+    width: 1*;
+    height: 100%;
+    background: transparent;
+}
+
+body.theme-light .metro-progress {
+    background: rgba(0, 0, 0, .10);
+}

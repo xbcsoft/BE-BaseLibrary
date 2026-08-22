@@ -124,6 +124,10 @@ constexpr T&& forward(remove_reference<T>& arg) noexcept {
 	return static_cast<T&&>(arg);
 }
 
+template <typename T>
+constexpr remove_reference<T>&& move(T&& t) noexcept {
+	return static_cast<remove_reference<T>&&>(t);
+}
 
 /**越界访问异常
  * @field length 容器当前长度（元素/字符个数）
@@ -135,6 +139,85 @@ struct range_error {
 	range_error() : length(0), index(0) {}
 	range_error(ssize_t l, ssize_t i) : length(l), index(i) {}
 };
+
+
+/**High-performance lightweight delegate (SOO - Small Object Optimization).
+ * Stores lambdas in a fixed buffer to avoid heap allocation.
+ */
+template<typename Signature, size_t STACK_CAP = 32>
+class function;
+
+template<typename Ret, typename... Args, size_t STACK_CAP>
+class function<Ret(Args...), STACK_CAP> {
+	Ret(*m_invoker)(void*, Args...) = nullptr;
+	void(*m_destructor)(void*) = nullptr;
+	alignas(8) char m_storage[STACK_CAP];
+
+public:
+	function() = default;
+	~function() { clear(); }
+
+	function(const function&) = delete;
+	function& operator=(const function&) = delete;
+
+	function(function&& other) noexcept {
+		move_from(other);
+	}
+
+	function& operator=(function&& other) noexcept {
+		if (this != &other) {
+			clear();
+			move_from(other);
+		}
+		return *this;
+	}
+
+	void clear() {
+		if (m_destructor) {
+			m_destructor(m_storage);
+			m_destructor = nullptr;
+		}
+		m_invoker = nullptr;
+	}
+
+	template<typename F>
+	function(F f) {
+		*this = f;
+	}
+
+	template<typename F>
+	function& operator=(F f) {
+		static_assert(sizeof(F) <= STACK_CAP, "Lambda too large for be::function STACK_CAP");
+		clear();
+		new (m_storage) F(f);
+		m_invoker = [](void* storage, Args... args) -> Ret {
+			return (*(F*)storage)(be::forward<Args>(args)...);
+		};
+		m_destructor = [](void* storage) {
+			((F*)storage)->~F();
+		};
+		return *this;
+	}
+
+	Ret operator()(Args... args) const {
+		if (m_invoker) {
+			return m_invoker(const_cast<void*>((const void*)m_storage), be::forward<Args>(args)...);
+		}
+		return Ret();
+	}
+
+	explicit operator bool() const { return m_invoker != nullptr; }
+
+private:
+	void move_from(function& other) {
+		m_invoker = other.m_invoker;
+		m_destructor = other.m_destructor;
+		memcpy(m_storage, other.m_storage, STACK_CAP);
+		other.m_invoker = nullptr;
+		other.m_destructor = nullptr;
+	}
+};
+
 
 } // namespace be
 

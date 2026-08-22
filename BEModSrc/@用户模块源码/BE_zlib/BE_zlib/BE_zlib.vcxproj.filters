@@ -24,50 +24,50 @@
     <ClCompile Include="BE_zlib.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="native\gzlib.c">
-      <Filter>源文件</Filter>
+    <ClCompile Include="..\..\..\%40用户模块源码\BE_zlib\BE_zlib\BEMod\infback.c">
+      <Filter>BEBuild</Filter>
     </ClCompile>
-    <ClCompile Include="native\gzread.c">
-      <Filter>源文件</Filter>
+    <ClCompile Include="..\..\..\%40用户模块源码\BE_zlib\BE_zlib\BEMod\inffast.c">
+      <Filter>BEBuild</Filter>
     </ClCompile>
-    <ClCompile Include="native\gzwrite.c">
-      <Filter>源文件</Filter>
+    <ClCompile Include="..\..\..\%40用户模块源码\BE_zlib\BE_zlib\BEMod\inflate.c">
+      <Filter>BEBuild</Filter>
     </ClCompile>
-    <ClCompile Include="native\infback.c">
-      <Filter>源文件</Filter>
+    <ClCompile Include="..\..\..\%40用户模块源码\BE_zlib\BE_zlib\BEMod\inftrees.c">
+      <Filter>BEBuild</Filter>
     </ClCompile>
-    <ClCompile Include="native\inffast.c">
-      <Filter>源文件</Filter>
+    <ClCompile Include="..\..\..\%40用户模块源码\BE_zlib\BE_zlib\BEMod\trees.c">
+      <Filter>BEBuild</Filter>
     </ClCompile>
-    <ClCompile Include="native\inflate.c">
-      <Filter>源文件</Filter>
+    <ClCompile Include="..\..\..\%40用户模块源码\BE_zlib\BE_zlib\BEMod\uncompr.c">
+      <Filter>BEBuild</Filter>
     </ClCompile>
-    <ClCompile Include="native\inftrees.c">
-      <Filter>源文件</Filter>
+    <ClCompile Include="..\..\..\%40用户模块源码\BE_zlib\BE_zlib\BEMod\zutil.c">
+      <Filter>BEBuild</Filter>
     </ClCompile>
-    <ClCompile Include="native\trees.c">
-      <Filter>源文件</Filter>
+    <ClCompile Include="..\..\..\%40用户模块源码\BE_zlib\BE_zlib\BEMod\adler32.c">
+      <Filter>BEBuild</Filter>
     </ClCompile>
-    <ClCompile Include="native\uncompr.c">
-      <Filter>源文件</Filter>
+    <ClCompile Include="..\..\..\%40用户模块源码\BE_zlib\BE_zlib\BEMod\compress.c">
+      <Filter>BEBuild</Filter>
     </ClCompile>
-    <ClCompile Include="native\zutil.c">
-      <Filter>源文件</Filter>
+    <ClCompile Include="..\..\..\%40用户模块源码\BE_zlib\BE_zlib\BEMod\crc32.c">
+      <Filter>BEBuild</Filter>
     </ClCompile>
-    <ClCompile Include="native\adler32.c">
-      <Filter>源文件</Filter>
+    <ClCompile Include="..\..\..\%40用户模块源码\BE_zlib\BE_zlib\BEMod\deflate.c">
+      <Filter>BEBuild</Filter>
     </ClCompile>
-    <ClCompile Include="native\compress.c">
-      <Filter>源文件</Filter>
+    <ClCompile Include="..\..\..\%40用户模块源码\BE_zlib\BE_zlib\BEMod\gzclose.c">
+      <Filter>BEBuild</Filter>
     </ClCompile>
-    <ClCompile Include="native\crc32.c">
-      <Filter>源文件</Filter>
+    <ClCompile Include="..\..\..\%40用户模块源码\BE_zlib\BE_zlib\BEMod\gzlib.c">
+      <Filter>BEBuild</Filter>
     </ClCompile>
-    <ClCompile Include="native\deflate.c">
-      <Filter>源文件</Filter>
+    <ClCompile Include="..\..\..\%40用户模块源码\BE_zlib\BE_zlib\BEMod\gzread.c">
+      <Filter>BEBuild</Filter>
     </ClCompile>
-    <ClCompile Include="native\gzclose.c">
-      <Filter>源文件</Filter>
+    <ClCompile Include="..\..\..\%40用户模块源码\BE_zlib\BE_zlib\BEMod\gzwrite.c">
+      <Filter>BEBuild</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

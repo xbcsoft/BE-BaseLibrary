@@ -9,9 +9,9 @@ int CALLBACK wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	return Win32消息循环();
 }
 
-#ifdef _CWinDbg
-int main() //窗口程序的调试请使用cw_printf、cw_print(在beout.hpp)
-{ //#define cw_printf printf 、#define cw_print be::print
+#if DBG==1
+int main() //窗口程序的调试请使用dbg_printf、dbg_print(在beout.hpp)
+{ //#define dbg_printf printf 、#define dbg_print be::print
 	全局初始化配置(GetModuleHandle(0), true);
 	_启动窗口.初显(true).载入();
 	return Win32消息循环();

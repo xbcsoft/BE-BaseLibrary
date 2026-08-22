@@ -1,0 +1,162 @@
+<html window-frame="transparent">
+<head>
+    <meta charset="UTF-8">
+    <title>托盘自绘菜单</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            width: *;
+            height: *;
+            overflow: hidden;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Microsoft YaHei', sans-serif;
+            cursor: default;
+        }
+
+        /* 菜单主容器 */
+        .menu-box {
+            margin: 0;
+            padding: 4px;
+            width: *;
+            height: *;
+            box-sizing: border-box;
+            background: #ffffff;
+            border: 1px solid #bbb;
+            border-radius: 4px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22);
+            flow: vertical;
+            cursor: default;
+        }
+
+        .context-command-item {
+            padding: 6px 10px;
+            flow: horizontal;
+            content-vertical-align: middle;
+            cursor: default;
+            border-radius: 2px;
+        }
+
+        /* 使用 JS 受控的点燃态 class，杜绝原生 hover 伪类残留 */
+        .context-command-item.hovered {
+            color: #ffffff;
+            background: #83158f; /* 核心标志性高亮紫 */
+        }
+
+        .context-command-item[disabled] {
+            color: #aaa;
+            background: #ffffff;
+            cursor: default;
+        }
+
+        .context-command-item span {
+            width: 1*;
+            font-size: 12px;
+            cursor: default;
+        }
+
+        .context-command-item kbd {
+            color: #888;
+            font-size: 11px;
+            cursor: default;
+        }
+
+        .context-command-item.hovered kbd {
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        hr {
+            width: *;
+            height: 1px;
+            margin: 3px 0;
+            background: #eee;
+            border: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="menu-box" id="menuBox">
+        <div class="context-command-item" data-command="show-main">
+            <span>显示主窗口</span>
+            <kbd>Show</kbd>
+        </div>
+        <div class="context-command-item" data-command="hide-main">
+            <span>隐藏主窗口</span>
+            <kbd>Hide</kbd>
+        </div>
+        <div class="context-command-item" data-command="toggle-topmost">
+            <span>窗口置顶</span>
+            <kbd id="menuTopmostKbd">未置顶</kbd>
+        </div>
+        <hr>
+        <div class="context-command-item" data-command="about">
+            <span>关于本程序</span>
+            <kbd>About</kbd>
+        </div>
+        <hr>
+        <div class="context-command-item" data-command="quit">
+            <span>退出程序</span>
+            <kbd>Exit</kbd>
+        </div>
+    </div>
+
+    <script>
+        function clearMenuHoverState() {
+            document.querySelectorAll(".context-command-item").forEach(function (el) {
+                el.classList.remove("hovered");
+            });
+        }
+
+        function updateMenuState(isTop) {
+            // 每次重新弹出时，重置所有项为初始非高亮态
+            clearMenuHoverState();
+            var kbdEl = document.getElementById("menuTopmostKbd");
+            if (kbdEl) {
+                kbdEl.innerText = isTop ? "✓ 已置顶" : "未置顶";
+                kbdEl.style.color = isTop ? "#83158f" : "#888888";
+            }
+        }
+
+        var menuBox = document.getElementById("menuBox");
+
+        // 鼠标在菜单内移动时点燃对应项
+        menuBox.addEventListener("mousemove", function (evt) {
+            var targetItem = evt.target.closest(".context-command-item");
+            document.querySelectorAll(".context-command-item").forEach(function (el) {
+                if (el === targetItem && !el.hasAttribute("disabled")) {
+                    el.classList.add("hovered");
+                } else {
+                    el.classList.remove("hovered");
+                }
+            });
+        });
+
+        // 鼠标移出菜单时清空点燃态
+        menuBox.addEventListener("mouseleave", function () {
+            clearMenuHoverState();
+        });
+
+        // 点击菜单项：JS 自行隐藏自身窗口，并触发原生业务命令
+        menuBox.addEventListener("mouseup", function (evt) {
+            var item = evt.target.closest(".context-command-item");
+            if (!item || item.hasAttribute("disabled")) return;
+            evt.preventDefault();
+            evt.stopPropagation();
+
+            clearMenuHoverState();
+
+            // 通过 Sciter 官方 JS API 直接隐藏自身窗口
+            Window.this.state = Window.WINDOW_HIDDEN;
+
+            var command = item.getAttribute("data-command");
+            if (typeof onMenuCommand === "function") {
+                var res = onMenuCommand(command);
+                if (command === "toggle-topmost") {
+                    updateMenuState(res);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

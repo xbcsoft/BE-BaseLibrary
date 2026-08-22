@@ -28,7 +28,7 @@ void test1(int iterations) {
 }
 
 void test1_no_sso(int iterations) {
-	std::cout << "测试超长常量字符串构造拼接后赋值(绕过SSO): "<<iterations<<"次：\n";
+	std::cout << "测试较长常量字符串构造拼接后赋值(绕过SSO): "<<iterations<<"次：\n";
 
 	DWORD start = GetTickCount();
 	std::string str;

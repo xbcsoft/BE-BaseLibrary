@@ -1,4 +1,4 @@
-/**@ModuleTitle:白易远程控制台日志输出
+﻿/**@ModuleTitle:白易远程控制台日志输出
 *  @version:     1.0
 *  @platform:    win32(x86|x64)
 *  @compiler:    source
@@ -10,8 +10,7 @@
 
 #include "stdafx.h"
 
-#ifndef _BE_RELEASE
-
+#ifdef DBG
 
 namespace {
 

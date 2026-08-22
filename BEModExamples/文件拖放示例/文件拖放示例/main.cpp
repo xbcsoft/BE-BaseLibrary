@@ -9,7 +9,7 @@ int CALLBACK wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	return Win32消息循环();
 }
 
-#ifdef _CWinDbg
+#if DBG==1
 int main()
 {
 	全局初始化配置(GetModuleHandle(0), true);

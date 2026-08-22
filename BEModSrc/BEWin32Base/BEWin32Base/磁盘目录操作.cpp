@@ -1,6 +1,6 @@
 ﻿#include "stdafx.h"
 #include "Win32日期时间.h"
-#include <shellapi.h> //for SHFileOperationW
+#include "环境存取.h"
 
 int64 取文件大小(c_StrX 文件路径) {
 	WIN32_FILE_ATTRIBUTE_DATA wad;
@@ -129,9 +129,44 @@ bool 置磁盘卷标(c_StrX 磁盘驱动器字符, c_StrX 欲置入的卷标文�
  * @return 成功返回真，失败返回假。
  */
 bool 创建目录(c_StrX 欲创建的目录名称) {
-	const charW* 目录 = 欲创建的目录名称;
-	if (!目录 || !目录[0]) return false;
-	return CreateDirectoryW(目录, NULL) != FALSE;
+	return CreateDirectoryW(欲创建的目录名称, NULL) != FALSE;
+}
+
+/**创建目录Ex
+ * @param 欲创建的目录名称 欲创建的目录路径（可以为多级目录）
+ * @return 成功返回真，失败返回假。
+ */
+bool 创建目录Ex(c_StrX 欲创建的目录名称) {
+	charW absPath[MAX_PATH] = { 0 };
+	if (GetFullPathNameW(欲创建的目录名称, MAX_PATH, absPath, nullptr) == 0) {
+		return false;
+	}
+	动态库 dll;
+	typedef int (WINAPI* SHCreateDirectoryExW_t)(HWND, LPCWSTR, const SECURITY_ATTRIBUTES*);
+	SHCreateDirectoryExW_t pSHCreateDirectoryExW = (SHCreateDirectoryExW_t)dll.加载("shell32.dll", "SHCreateDirectoryExW");
+	if (pSHCreateDirectoryExW) {
+		int ret = pSHCreateDirectoryExW(NULL, absPath, NULL);
+		return ret == ERROR_SUCCESS || ret == ERROR_ALREADY_EXISTS;
+	}
+	return false;
+}
+
+bool 目录是否存在(c_StrX 欲测试的目录名称);
+bool 写到文件(c_StrX 文件路径, const Bytes& dat);
+
+/**写到文件Ex
+ * @param 文件路径 目标文件路径，如果目录不存在则自动创建多级目录
+ * @param 写入数据 欲写入的字节集数据
+ * @return 成功返回真，失败返回假。
+ */
+bool 写到文件Ex(c_StrX 文件路径, const Bytes& 写入数据) {
+	StrW dir = 路径_去文件名<W>(文件路径);
+	if (dir.len() > 0 && !目录是否存在(dir)) {
+		if (!创建目录Ex(dir)) {
+			return false;
+		}
+	}
+	return 写到文件(文件路径, 写入数据);
 }
 
 /**删除目录
@@ -460,7 +495,7 @@ public:
 // 收集=false → 调用 回调，返回false终止; 收集=true → push进 结果数组
 template<bool 带完整路径, bool 收集> inline
 bool _枚举ImplBase(const StrW& base, bool 是否递归, int 类型,
-	bool(*回调)(const StrW&), Arraybe<StrW>& 结果) {
+	bool(*回调)(const StrW&, void*), void* 附加参数, Arraybe<StrW>& 结果) {
 
 	WIN32_FIND_DATAW fd = { 0 };
 	HANDLE h = FindFirstFileW(base + _W("*"), &fd);
@@ -474,19 +509,19 @@ bool _枚举ImplBase(const StrW& base, bool 是否递归, int 类型,
 		if (isDir) {
 			if (name == _W(".") || name == _W("..")) continue;
 			if (是否递归) {
-				cont = _枚举ImplBase<带完整路径, 收集>(base + name + _W("\\"), 是否递归, 类型, 回调, 结果);
+				cont = _枚举ImplBase<带完整路径, 收集>(base + name + _W("\\"), 是否递归, 类型, 回调, 附加参数, 结果);
 				if (!cont) break;
 			}
 			if (类型 & FILE_ATTRIBUTE_DIRECTORY) {
 				StrW item;
 				if constexpr (带完整路径) item = base + name; else item = name;
-				if constexpr (收集) { 结果.push(item); } else { cont = 回调(item); }
+				if constexpr (收集) { 结果.push(item); } else { cont = 回调(item, 附加参数); }
 			}
 		} else {
 			if (类型 & FILE_ATTRIBUTE_NORMAL) {
 				StrW item;
 				if constexpr (带完整路径) item = base + name; else item = name;
-				if constexpr (收集) { 结果.push(item); } else { cont = 回调(item); }
+				if constexpr (收集) { 结果.push(item); } else { cont = 回调(item, 附加参数); }
 			}
 		}
 		if (!cont) break;
@@ -503,19 +538,19 @@ bool _枚举ImplBase(const StrW& base, bool 是否递归, int 类型,
 
 template<bool 带完整路径, bool 收集>
 bool _枚举ImplBase(const StrW& base, bool 是否递归, int 类型,
-	bool(*回调)(const StrW&), Arraybe<StrW>& 结果);
+	bool(*回调)(const StrW&, void*), void* 附加参数, Arraybe<StrW>& 结果);
 
 template bool _枚举ImplBase<false, false>(
-	const StrW&, bool, int, bool(*)(const StrW&), Arraybe<StrW>&);
+	const StrW&, bool, int, bool(*)(const StrW&, void*), void*, Arraybe<StrW>&);
 
 template bool _枚举ImplBase<false, true>(
-	const StrW&, bool, int, bool(*)(const StrW&), Arraybe<StrW>&);
+	const StrW&, bool, int, bool(*)(const StrW&, void*), void*, Arraybe<StrW>&);
 
 template bool _枚举ImplBase<true, false>(
-	const StrW&, bool, int, bool(*)(const StrW&), Arraybe<StrW>&);
+	const StrW&, bool, int, bool(*)(const StrW&, void*), void*, Arraybe<StrW>&);
 
 template bool _枚举ImplBase<true, true>(
-	const StrW&, bool, int, bool(*)(const StrW&), Arraybe<StrW>&);
+	const StrW&, bool, int, bool(*)(const StrW&, void*), void*, Arraybe<StrW>&);
 
 
 /**文件_枚举
@@ -524,21 +559,22 @@ template bool _枚举ImplBase<true, true>(
  * @param 目录 起始目录路径
  * @param 是否递归 为真时递归进入所有子目录
  * @param 寻找类型=空 #寻找文件::正常文件 | #寻找文件::子目录 | ... (若为空则默认为 正常文件)
- * @param 回调 bool(*)(const StrW&) — 收集=true 时可省略
+ * @param 回调 bool(*)(const StrW&, void*) — 收集=true 时可省略
+ * @param 附加参数=nullptr 传递给回调函数的附加参数指针
  * @return 模板参数<收集>为真返回Arraybe<StrW>，否则返回void
  */
 template<bool 带完整路径 = false, bool 收集 = false>
-auto 文件_枚举(c_StrX 目录, bool 是否递归, 可空<int> 寻找类型 = 空, bool(*回调)(const StrW&) = nullptr) {
+auto 文件_枚举(c_StrX 目录, bool 是否递归, 可空<int> 寻找类型 = 空, bool(*回调)(const StrW&, void*) = nullptr, void* 附加参数 = nullptr) {
 	int 类型 = 寻找类型.OR(寻找文件::正常文件);
 	StrW base = 目录;
 	if (base.len() > 0) { charW c = ((const charW*)base)[base.len()-1]; if (c != L'\\' && c != L'/') base += _W("\\"); }
 	if constexpr (收集) {
 		Arraybe<StrW> 结果;
-		_枚举ImplBase<带完整路径, true>(base, 是否递归, 类型, nullptr, 结果);
+		_枚举ImplBase<带完整路径, true>(base, 是否递归, 类型, nullptr, nullptr, 结果);
 		return 结果;
 	} else {
 		Arraybe<StrW> _; //回调模式不使用，编译器会优化掉
-		_枚举ImplBase<带完整路径, false>(base, 是否递归, 类型, 回调, _);
+		_枚举ImplBase<带完整路径, false>(base, 是否递归, 类型, 回调, 附加参数, _);
 	}
 }
 #pragma endregion

@@ -1,4 +1,5 @@
 ﻿#include "stdafx.h"
+#include "环境存取.h"
 
 定义_枚举型(MB, int,
 	确认 = MB_OK,
@@ -193,7 +194,7 @@ void 恢复鼠标() {
  */
 void 延时(int 欲等待的毫秒) { Sleep(欲等待的毫秒); }
 
-StrW 取绝对路径(c_StrW path);
+StrX 取绝对路径(c_StrX path);
 
 /**读配置项
  * @param 配置文件名
@@ -207,13 +208,11 @@ StrX 读配置项(c_StrX 配置文件名, c_StrX 节名称, c_StrX 配置项名�
 	DWORD size = 2048;
 	StrW buf(size);
 	while (true) {
-		DWORD ret = GetPrivateProfileStringW(节名称, 配置项名称, 默认文本, (charW*)buf, size, absPath);
+		DWORD ret = GetPrivateProfileStringW(节名称, 配置项名称, 默认文本, buf, size, absPath);
 		if (ret < size - 1) {
-			buf.reset(ret);
-			return StrX(buf);
+			return StrX(StrW(buf, ret));
 		}
-		size *= 2;
-		buf.reset(size);
+		buf.reset(size *= 2);
 	}
 }
 
@@ -283,124 +282,6 @@ Arraybe<StrX> 取配置项名(c_StrX 配置文件名, c_StrX 节名称) {
 }
 
 
-/**多文件对话框
- * @param 标题
- * @param 过滤器 格式："文本文件（*.txt）|*.txt"
- * @param 初始过滤器
- * @param 初始目录
- * @param 不改变目录
- * @param 父窗口<可空> 默认为GetActiveWindow()
- * @return 返回用户所选择或输入后的结果文本数组。
- */
-Arraybe<StrW> 多文件对话框(c_StrX 标题, c_StrX 过滤器, int 初始过滤器,
-	c_StrX 初始目录 = "", bool 不改变目录 = true, NilOpt<HWND> 父窗口 = nil)
-{
-	Arraybe<StrW> res;
-	OPENFILENAMEW ofn = { sizeof(ofn) };
-	charW szFile[32768] = { 0 };
-	ofn.hwndOwner = (父窗口 != nil) ? (HWND)父窗口 : GetActiveWindow();
-	ofn.lpstrFile = szFile;
-	ofn.nMaxFile = 32768;
-
-	StrW wFilter = 过滤器;
-	for (size_t i = 0; i < wFilter.len(); ++i) {
-		if (wFilter.at(i) == L'|') wFilter.at(i) = L'\0';
-	}
-	wFilter.bytes.append(2);
-	((charW*)wFilter._buf())[wFilter.len() - 1] = L'\0';
-
-	ofn.lpstrFilter = wFilter;
-	ofn.nFilterIndex = 初始过滤器 + 1;
-	ofn.lpstrTitle = 标题;
-	ofn.lpstrInitialDir = 初始目录 ? (const charW*)初始目录 : NULL;
-	ofn.Flags = OFN_ALLOWMULTISELECT | OFN_EXPLORER | OFN_FILEMUSTEXIST;
-	if (不改变目录) ofn.Flags |= OFN_NOCHANGEDIR;
-
-	if (GetOpenFileNameW(&ofn)) {
-		charW* p = szFile;
-		StrW dir = p;
-		p += wcslen(p) + 1;
-		if (*p == 0) {
-			res.push(dir);
-		} else {
-			while (*p) {
-				StrW fullPath = dir;
-				if (fullPath.bytes.size > 0) {
-					charW lastChar = fullPath.at(-1);
-					if (lastChar != L'\\' && lastChar != L'/') fullPath += _W("\\");
-				}
-				fullPath += p;
-				res.push(fullPath);
-				p += wcslen(p) + 1;
-			}
-		}
-	}
-	return res;
-}
-
-typedef NTSTATUS(WINAPI* RtlGetVersion_PTR)(void*);
-
-/**取系统版本
- * @param 系统版本 <参考 可空> 返回系统名称文本，如 "Windows 10"
- * @param 内核NT版本 <参考 可空> 返回内核版本，如 "10.0"
- * @return 返回操作系统内部版本号 (BuildVersion)
- */
-int 取系统版本(NilOpt<StrA&> 系统版本 = nil, NilOpt<StrA&> 内核NT版本 = nil)
-{
-	OSVERSIONINFOEXA osvi = { sizeof(osvi) };
-	HMODULE hNtdll = LoadLibraryA("ntdll.dll");
-	RtlGetVersion_PTR pRtlGetVersion = hNtdll ?
-		(RtlGetVersion_PTR)GetProcAddress(hNtdll, "RtlGetVersion") : nullptr;
-
-	bool isRtlGetVersionSuccess = false;
-	if (pRtlGetVersion) {
-		isRtlGetVersionSuccess = (pRtlGetVersion(&osvi) == 0);
-	}
-
-	StrA sysName = "未知系统";
-	StrA ntVerStr;
-
-	if (!isRtlGetVersionSuccess) {
-		// RtlGetVersion 失败，走降级逻辑 (p == 0)
-#pragma warning(push)
-#pragma warning(disable: 4996)
-		GetVersionExA((OSVERSIONINFOA*)&osvi);
-#pragma warning(pop)
-		if (hNtdll) FreeLibrary(hNtdll);
-
-		ntVerStr = sprintF("%d.%d", osvi.dwMajorVersion, osvi.dwMinorVersion);
-		if (ntVerStr == "5.0") sysName = "Windows 2000";
-		else if (ntVerStr == "5.1") sysName = "Windows XP";
-		else if (ntVerStr == "5.2") sysName = "Windows Server 2003";
-		else if (ntVerStr == "6.0") sysName = "Windows Vista";
-		else if (ntVerStr == "6.1") sysName = "Windows 7";
-		else if (ntVerStr == "6.2") sysName = "Windows 8";
-
-		if (内核NT版本 != nil) 内核NT版本 = ntVerStr;
-		if (系统版本 != nil) 系统版本 = sysName;
-		return (int)osvi.dwBuildNumber;
-	}
-
-	if (hNtdll) FreeLibrary(hNtdll);
-
-	// RtlGetVersion 成功逻辑
-	ntVerStr = sprintF("%d.%d", osvi.dwMajorVersion, osvi.dwMinorVersion);
-	if (ntVerStr == "5.1") sysName = "Windows XP";
-	else if (ntVerStr == "5.2") sysName = "Windows Server 2003";
-	else if (ntVerStr == "6.0") sysName = "Windows Vista";
-	else if (ntVerStr == "6.1") sysName = "Windows 7";
-	else if (ntVerStr == "6.2") sysName = "Windows 8";
-	else if (osvi.dwMajorVersion == 10) {
-		if (osvi.dwBuildNumber >= 22000) sysName = "Windows 11";
-		else if (osvi.dwBuildNumber >= 10240) sysName = "Windows 10";
-	}
-
-	if (内核NT版本 != nil) 内核NT版本 = ntVerStr;
-	if (系统版本 != nil) 系统版本 = sysName;
-
-	return (int)osvi.dwBuildNumber;
-}
-
 /**创建线程
  * @param 子程序指针
 DWORD WINAPI 线程函数(LPVOID param) {
@@ -464,31 +345,33 @@ int 创建进程(c_StrX 程序路径, c_StrX 命令行 = "", c_StrX 运行目录
 	return 0;
 }
 
-HashTbe<int, be::function<int>> g_DelayCallMap;
+#pragma region BE_IGNORE
+HashTbe<UINT_PTR, be::function<void()>> g_DelayCallMap;
+#pragma endregion
 
 void CALLBACK __DelayCallTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime) {
 	KillTimer(hwnd, idEvent);
-	be::function<int>* funcPtr = g_DelayCallMap.find((int)idEvent);
+	auto funcPtr = g_DelayCallMap.find(idEvent);
 	if (funcPtr && *funcPtr) {
-		be::function<int> func = (be::function<int>&&)*funcPtr;
-		g_DelayCallMap.del((int)idEvent);
-		func(0);
+		be::function<void()> func = be::move(*funcPtr);
+		g_DelayCallMap.del(idEvent);
+		func();
 	}
 }
 
 /**推迟调用子程序
  * @tparam 互斥=false 是否互斥。为真时若ID已在等待则忽略；为假时若ID已在等待则重置（重载）时钟。
  * @param 推迟时间 延时调用的毫秒数
- * @param 任意子程序指针 传入的回调函数或Lambda表达式
+ * @param 任意子程序指针 传入的回调函数或Lambda表达式(任意可变参数->void)
  * @param ID=空 指定由本函数之前返回的ID进行互斥/重置检查
  * @param ...参数 传递给子程序的可变参数
  * @return 定时器ID，失败返回0
  */
 template<bool 互斥 = false, typename Func, typename... Args>
-int 推迟调用子程序(int 推迟时间, Func 任意子程序指针, 可空<int> ID = 空, Args... args)
+int 推迟调用子程序(int 推迟时间, Func 任意子程序指针, 可空<UINT_PTR> ID = 空, Args... args)
 {
 	if (ID != 空) {
-		int oldId = (int)ID;
+		UINT_PTR oldId = ID;
 		if (g_DelayCallMap.find(oldId)) {
 			if constexpr (互斥) {
 				return oldId; // 互斥模式：直接返回原 ID
@@ -502,7 +385,7 @@ int 推迟调用子程序(int 推迟时间, Func 任意子程序指针, 可空<i
 
 	UINT_PTR osTimerId = SetTimer(NULL, 0, 推迟时间, __DelayCallTimerProc);
 	if (osTimerId) {
-		g_DelayCallMap[(int)osTimerId] = [=](int) mutable {
+		g_DelayCallMap[osTimerId] = [=]() {
 			任意子程序指针(args...);
 		};
 		return (int)osTimerId;

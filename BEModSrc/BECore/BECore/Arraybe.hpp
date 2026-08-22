@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "BytesStr.hpp"
 
 namespace be {
@@ -72,8 +72,13 @@ public:
 
 
 public: //操作运算符
+#ifdef _DEBUG
+	T_ELE& operator[](int i) { return at(i); }
+	const T_ELE& operator[](int i) const { return at(i); }
+#else
 	T_ELE& operator[](int i) { return pArr[i]; }
 	const T_ELE& operator[](int i) const { return pArr[i]; }
+#endif
 	T_ELE& at(int i);
 	const T_ELE& at(int i) const { return const_cast<Arraybe&>(*this).at(i); }
 	Arraybe<T_ELE>& operator=(const Arraybe& arr) {

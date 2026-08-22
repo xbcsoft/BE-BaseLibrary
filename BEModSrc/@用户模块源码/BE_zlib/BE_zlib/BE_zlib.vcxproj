@@ -143,7 +143,7 @@
       </Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>MakeBEC.exe -excludesrc=native/* main.cpp -excludezip=*.cpp *.c *.ixx *.cppm Source x64/Source -outbec="$(SolutionDir)/$(SolutionName).bec"</Command>
+      <Command>MakeBEC.exe -excludesrc=native/* main.cpp -excludezip=*.cpp *.c *.ixx *.cppm Source x64/Source -outbec="$(BEInstall)/BEModCollection/$(SolutionName).bec"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -265,6 +265,21 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\%40用户模块源码\BE_zlib\BE_zlib\BEMod\adler32.c" />
+    <ClCompile Include="..\..\..\%40用户模块源码\BE_zlib\BE_zlib\BEMod\compress.c" />
+    <ClCompile Include="..\..\..\%40用户模块源码\BE_zlib\BE_zlib\BEMod\crc32.c" />
+    <ClCompile Include="..\..\..\%40用户模块源码\BE_zlib\BE_zlib\BEMod\deflate.c" />
+    <ClCompile Include="..\..\..\%40用户模块源码\BE_zlib\BE_zlib\BEMod\gzclose.c" />
+    <ClCompile Include="..\..\..\%40用户模块源码\BE_zlib\BE_zlib\BEMod\gzlib.c" />
+    <ClCompile Include="..\..\..\%40用户模块源码\BE_zlib\BE_zlib\BEMod\gzread.c" />
+    <ClCompile Include="..\..\..\%40用户模块源码\BE_zlib\BE_zlib\BEMod\gzwrite.c" />
+    <ClCompile Include="..\..\..\%40用户模块源码\BE_zlib\BE_zlib\BEMod\infback.c" />
+    <ClCompile Include="..\..\..\%40用户模块源码\BE_zlib\BE_zlib\BEMod\inffast.c" />
+    <ClCompile Include="..\..\..\%40用户模块源码\BE_zlib\BE_zlib\BEMod\inflate.c" />
+    <ClCompile Include="..\..\..\%40用户模块源码\BE_zlib\BE_zlib\BEMod\inftrees.c" />
+    <ClCompile Include="..\..\..\%40用户模块源码\BE_zlib\BE_zlib\BEMod\trees.c" />
+    <ClCompile Include="..\..\..\%40用户模块源码\BE_zlib\BE_zlib\BEMod\uncompr.c" />
+    <ClCompile Include="..\..\..\%40用户模块源码\BE_zlib\BE_zlib\BEMod\zutil.c" />
     <ClCompile Include="BE_zlib.cpp" />
     <ClCompile Include="main.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -272,21 +287,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="native\adler32.c" />
-    <ClCompile Include="native\compress.c" />
-    <ClCompile Include="native\crc32.c" />
-    <ClCompile Include="native\deflate.c" />
-    <ClCompile Include="native\gzclose.c" />
-    <ClCompile Include="native\gzlib.c" />
-    <ClCompile Include="native\gzread.c" />
-    <ClCompile Include="native\gzwrite.c" />
-    <ClCompile Include="native\infback.c" />
-    <ClCompile Include="native\inffast.c" />
-    <ClCompile Include="native\inflate.c" />
-    <ClCompile Include="native\inftrees.c" />
-    <ClCompile Include="native\trees.c" />
-    <ClCompile Include="native\uncompr.c" />
-    <ClCompile Include="native\zutil.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BEMod\BEMod.h" />

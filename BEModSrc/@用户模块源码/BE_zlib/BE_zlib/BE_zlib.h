@@ -8,7 +8,7 @@
 *  @description:
 */
 #include "stdafx.h"
-#include "native\zlib.h"
+#include "BEMod\zlib.h"
 
 //#beExcludeNamespaceSymbol(Bytes)
 

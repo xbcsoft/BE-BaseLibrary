@@ -140,11 +140,6 @@ public:
 		宽度 = rdpi((float)w_); 高度 = rdpi((float)h_);
 	}
 
-
-	void 激活() {
-		SetActiveWindow(窗口句柄);
-	}
-
 	void 获取焦点() {
 		SetFocus(窗口句柄);
 	}
@@ -162,8 +157,13 @@ public:
 	void 窗口置父(容器类* 父容器, bool 加入父容器列表 = false);
 
 	void 可视_(bool is = true) {
-		可视 = is;
-		ShowWindow(窗口句柄, is);
+		int show = 0;
+		if (可视 = is) {
+			show = SW_SHOWNA;
+		}
+		//注：SW_SHOWNA==8（仅可视），而SW_RESTORE/SW_SHOWNORMAL==1
+		//这会强行将已是最小化/最大化的窗口还原（Restore）原本的常规大小和位置
+		ShowWindow(窗口句柄, show);
 	}
 
 	void 禁止_(bool is = true) {
@@ -226,8 +226,8 @@ public:
 	 * @param a
 	 * @return
 	 */
-	bool 标记_置整数(int a) {
-		if (标记_._buf())return false;
+	bool 标记_置整数(size_t a) {
+		if (标记_!=L"")return false;
 		标记_.bytes.size = a;
 		return true;
 	}
@@ -235,8 +235,8 @@ public:
 	/**当且仅当标记未被置为字符串时可使用取整数
 	 * @return
 	 */
-	int 标记_取整数() {
-		if (标记_._buf())return 0;
+	size_t 标记_取整数() {
+		if (标记_!=L"")return false;
 		return 标记_.bytes.size;
 	}
 
@@ -261,13 +261,13 @@ public:
 		return true;
 	}
 
-	/**若要同时获取控制键的状态可调 控制键_是否被按下()
+	/**若要同时获取控制键的状态可调 控制键_是否按下()
 	 * @param key
 	 */
 	virtual bool 通用事件_按下某键(BYTE key) {
 		return true;
 	}
-	/**若要同时获取控制键的状态可调 控制键_是否被按下()
+	/**若要同时获取控制键的状态可调 控制键_是否按下()
 	 * @param key
 	 */
 	virtual bool 通用事件_放开某键(BYTE key) {

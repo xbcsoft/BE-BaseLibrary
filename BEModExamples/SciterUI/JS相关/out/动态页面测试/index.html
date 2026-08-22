@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<style>
+		.sub-page {
+			padding: 10px;
+			background: #222;
+			color: #fff;
+			margin-bottom: 10px;
+		}.sub-page h3,h2{margin:0;}
+	</style>
+</head>
+<body>
+
+<!-- 方案1-1：传统做子页面 -->
+<include src="sub_view1-1.html" />
+<!--纯静态插入，也可用下面子iframe（但有DOM隔离）
+<iframe src="sub_view1-1.html" style="width:100%;height:50px;"></iframe> -->
+
+<!-- 方案1-2：传统做法纯fetch下载HTML页面 -->
+<div id="app-content1-2" class="sub-page"></div>
+<script type="module">
+	const resp = await fetch("sub_view1-2.html");
+	document.$("#app-content1-2").innerHTML = resp.text() +
+	`		<div style="font-size:12px;color:lightgray">注：如果你看到这里页面有个一闪，主要这是异步动态插入未知的新页面，解决方案是:
+			<br>1. 如果能够提前知道载入页面的大小可以先给个外层div其width/height，可稍微缓解症状
+			<br>2. 白易原生那边设定初始窗口参数[可视=假]，而后等页面JS执行完(下一行)再进行窗口可视：<br>Window.this.state = Window.WINDOW_SHOWN;
+		</div>`;
+</script>
+
+<!-- 方案1-3：扁平化 template 模板（演示：模板整体替换导致 DOM 重建与挂载属性丢失）-->
+<div class="sub-page" id="app-content1-3">
+<template>
+	<div id="ele_1-3">
+		<h3>{{title}}</h3>
+		<p>初始用户: <b>{{user}}</b></p>
+	</div>
+</template>
+</div>
+
+<script>
+	function renderTemplate1_3(title, user) {
+		const container = document.$("#app-content1-3");
+		if (!container) return;
+
+		const tpl = container.$("template");
+		if (!tpl) return;
+
+		let html = tpl.innerHTML
+			.replaceAll("{{title}}", title || "这是从方案1-3 template 渲染出的标题")
+			.replaceAll("{{user}}", user || "小白菜");
+
+		const lastEl = container.lastElementChild;
+		if (lastEl && lastEl.tag === "template") {
+			// 1. 如果最后一个元素为 template：提取内容并插入
+			container.insertAdjacentHTML("beforeend", html);
+		} else if (lastEl) {
+			// 2. 如果不为 template：整体替换 DOM 节点（销毁旧节点，生成新节点）
+			lastEl.outerHTML = html;
+		}
+	}
+
+	// ① 首次渲染：生成 ele_1-3 节点
+	renderTemplate1_3("这是首次从 template 渲染出的标题", "小白菜");
+
+	// ② 给首次生成的 DOM 节点挂载自定义属性
+	document.$("#ele_1-3")['_my'] = 111;
+	console.log("【首次渲染】读取验证:", document.$("#ele_1-3")['_my']); // 111
+
+	// ③ 延时触发二次渲染（验证：重新由模板替换后，DOM 节点被整体销毁重建，_my 属性消失变为 undefined）
+	setTimeout(function(){
+		console.log("--- 开始第二次模板渲染（触发 DOM 整体重建）---");
+		renderTemplate1_3("这是第二次渲染的标题（DOM已重建）", "大黑菜");
+		
+		const currentEl = document.$("#ele_1-3");
+		console.log("【重建模板后】ele_1-3 的 _my 属性 =", currentEl['_my']);
+	}, 1000);
+</script>
+
+
+<!-- 方案2-1：就地声明 虚拟DOM组件（响应式差量更新） -->
+<div id="app-content2-1"><script>
+	function tick() {
+		const velement = <div id="ele_tick">
+		<h2>方案2-1：虚拟DOM组件（响应式差量更新）</h2>
+		<h3>现在时间：{new Date().toLocaleTimeString()}</h3>
+		<p>patch多遍只会局部刷新DOM</p>
+		</div>; //这里不是字符串~必须无任何引号包裹
+		
+		//不知道这里边为何用不了document.$()
+		document.getElementById('app-content2-1').patch(velement);
+		
+		//调试输出里可看下，若该属性存在则说明没有被覆盖
+		console.log(document.getElementById('ele_tick')['_my']);
+	}
+	// 【虚拟DOM基本原理】：修改状态后，由 Sciter 自动执行 Diff 差量对比，只刷新局部内容
+	setInterval(tick, 1000);
+	tick();
+	document.$('#ele_tick')['_my'] = 666;
+</script></div>
+
+
+<!-- 方案2-2：对象化虚拟DOM（数据驱动更新） -->
+<div id="app-content2-2"><script>
+	// 直接在当前页面内定义 Reactor 虚拟 DOM 类组件
+	class SubPageInline extends Element {
+		title = "这是方案2-2内置script自渲染的标题";
+		user = "虚拟DOM渲染";
+
+		// 接收外部传入参数（props）
+		this(props) {
+			if (props?.title) this.title = props.title;
+			if (props?.user) this.user = props.user;
+		}
+
+		componentDidMount() {
+			// 将自己 (this) 登记到 window 上，或主动通知C++（需注册回调）
+			window.subPageInstance = this;
+		}
+		render() {return (
+			<div class="sub-page">
+				<h2>{this.title}</h2>
+				<p>当前用户: <b>{this.user}</b></p>
+				<button onClick={() => this.changeUser("大黑菜 #虚拟DOM精准局部更新成功！")
+				}>点击修改上面 user 用户名</button>
+				<div id='btn_cpp' style="width:100px;height:40px;"></div>
+			</div>
+		)}
+
+		changeUser(val) {
+			this.componentUpdate({ user: val });
+		}
+	}
+
+	// 首次挂载到容器中
+	document.$("#app-content2-2").patch(<SubPageInline/>);
+</script></div>
+
+<div id="app-content2-3"><script>
+	// 声明计次循环数据
+	const loopItems = ["#Alpha", "#Beta", "#Gamma"];
+
+	// 方式：通过标准 for 计次循环生成虚拟 DOM 节点数组
+	const countList = [];
+	for (let i = 1; i <= 3; i++) {
+		countList.push(<li key={i}>计次循环生成子项 {loopItems[i-1]}</li>);
+	}
+
+	document.$('#app-content2-3').patch(
+	<div>
+		可复用多次已声明的虚拟DOM【
+			<SubPageInline user="虚拟DOM渲染1" />
+			<SubPageInline user="虚拟DOM渲染2" />
+
+		{/* 追加列表元素：演示 JSX 计次循环机制 */}
+		<div class="sub-page" style="margin: 10px; background: #1a1a1a;">
+			<h3>计次循环列表渲染演示</h3>
+			
+			<p>1. 通过 Array.map 动态循环渲染：</p>
+			<ul>{
+				loopItems.map((text, idx) => (
+					<li key={idx}>序号 [{idx + 1}] - <b>{text}</b></li>
+				))
+			}
+			</ul>
+
+			<p>2. 通过 for 计次循环插入虚拟 DOM 数组：</p>
+			<ol>
+				{ countList }
+			</ol>
+		</div>
+		】
+	</div>);
+</script></div>
+
+<!-- 方案3：动态JS子页面传参挂载容器 (3-1, 3-2) -->
+<button id="btn1">动态加载模块页面3-1</button>
+<button id="btn2">动态加载模块页面3-2</button>
+<div id="app-content3-1"></div>
+<div id="app-content3-2"></div>
+
+</body>
+</html>
+
+<!-- 方案3-x 脚本：动态加载/patch JS 组件 (3-1, 3-2) -->
+<script type="module">
+	/* 
+	 * 【ESM 模块加载机制】：
+	 * 1. 静态 import ()：引擎在解析 <script type="module"> 时会预先静态语法扫描，
+	 *    在后台【异步并行】拉取所有静态依赖（当然此过程并不阻塞页面其他 JS、UI 与事件循环），
+	 *    所有依赖下载并编译就绪后，当前脚本代码才会开始执行。
+	 * 2. 动态 import() (运行时)：预扫描阶段直接跳过，只有代码执行到该行时才发起按需拉取，
+	 *    配合 async/await 类似协程挂起让出主线程，实现真正的【按需懒加载】。
+	 */
+
+	// 方式 3-1：静态顶层导入（模块初始化时预先加载就绪）
+	import { MyPageJS } from "page.js";
+
+	// 点击按钮1：加载 3-1，传入标题参数
+	document.$("#btn1").on("click", () => {
+		document.$("#app-content3-1").patch(<MyPageJS titest="这是子页面 3-1 传参" />);
+	});
+
+	// 方式 3-2：动态运行时导入（点击时才按需触发加载，回调函数必须加 async）
+	document.$("#btn2").on("click", async () => {
+		const { MyPageJS } = await import("page.js"); // 运行时动态按需加载
+		document.$("#app-content3-2").patch(<MyPageJS titest="这是子页面 3-2 传参" />);
+	});
+</script>

@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html window-frame="transparent">
+
+<head>
+	<meta charset="UTF-8">
+	<title>MahApps.Metro 界面组件库 - Sciter UI</title>
+	<link rel="stylesheet" href="css/metro.css">
+	<link rel="stylesheet" href="css/index.css">
+</head>
+
+<body data-accent="kobalt">
+<!-- ====================================================================
+	  1. Metro Window Titlebar (Sciter Native Window Caption)
+	  ==================================================================== -->
+<div id="titlebar">
+	<!-- Window Caption Drag Region (Only text & icon, separate from buttons) -->
+	<div class="titlebar-drag-region" role="window-caption">
+		<div class="titlebar-icon"></div>
+		<span id="titlewin">MahApps.Metro WPF 风格组件库 — Sciter UI 适配版</span>
+	</div>
+
+	<!-- Action Buttons & Color Dots (Outside role="window-caption" to receive clicks) -->
+	<div class="titlebar-actions">
+			<span class="theme-pill" id="btnToggleTheme"><span class="theme-pill-icon"
+																											id="themePillIcon">🌙</span><span
+				  class="theme-pill-label" id="themePillLabel">深色</span></span>
+
+			<span class="color-dot" data-accent="kobalt" style="background:#0078d7;"
+				title="Kobalt Blue"></span>
+			<span class="color-dot" data-accent="steel" style="background:#41b883;"
+				title="Steel Green"></span>
+			<span class="color-dot" data-accent="magenta" style="background:#d80073;"
+				title="Magenta Pink"></span>
+			<span class="color-dot" data-accent="emerald" style="background:#60a917;"
+				title="Emerald Green"></span>
+			<span class="color-dot" data-accent="amber" style="background:#f0a30a;"
+				title="Amber Orange"></span>
+			<span class="color-dot" data-accent="crimson" style="background:#a20025;"
+				title="Crimson Red"></span>
+			<span class="color-dot" data-accent="purple" style="background:#7012b1;"
+				title="Purple"></span>
+	</div>
+
+	<div class="titlebar-controls">
+		<button class="title-btn" role="window-minimize">—</button>
+		<button class="title-btn" role="window-maximize">☐</button>
+		<button class="title-btn btn-close" role="window-close">✕</button>
+	</div>
+</div>
+
+<!-- ====================================================================
+	  2. Main Application Workspace
+	  ==================================================================== -->
+<div id="contentwin">
+	<!-- Sidebar Navigation -->
+	<div class="metro-sidebar">
+		<div class="sidebar-category">组件导航</div>
+
+			<div class="nav-item active" data-target="secOverview">
+			<span class="nav-icon">📊</span>
+			<span class="nav-title">概览仪表盘</span>
+		</div>
+
+			<div class="nav-item" data-target="secButtons">
+			<span class="nav-icon">🔘</span>
+			<span class="nav-title">按钮与徽章</span>
+			<span class="nav-badge">8</span>
+		</div>
+
+			<div class="nav-item" data-target="secForms">
+			<span class="nav-icon">📝</span>
+			<span class="nav-title">表单与输入框</span>
+		</div>
+
+			<div class="nav-item" data-target="secSelects">
+			<span class="nav-icon">🎚️</span>
+			<span class="nav-title">下拉框与滑块</span>
+		</div>
+
+			<div class="nav-item" data-target="secCheckboxes">
+			<span class="nav-icon">☑️</span>
+			<span class="nav-title">复选与开关</span>
+		</div>
+
+			<div class="nav-item" data-target="secProgress">
+			<span class="nav-icon">📈</span>
+			<span class="nav-title">进度与加载</span>
+		</div>
+
+			<div class="nav-item" data-target="secTabs">
+			<span class="nav-icon">📑</span>
+			<span class="nav-title">选项卡与面板</span>
+		</div>
+
+			<div class="nav-item" data-target="secTables">
+			<span class="nav-icon">📋</span>
+			<span class="nav-title">数据表格与日志</span>
+		</div>
+
+			<div class="nav-item" data-target="secDialogs">
+			<span class="nav-icon">💬</span>
+			<span class="nav-title">对话框与侧滑</span>
+		</div>
+	</div>
+
+	<!-- Main Viewport -->
+	<div class="main-viewport">
+
+		<!-- SECTION 1: Overview Dashboard -->
+		<div class="section-container" id="secOverview" style="display:block;">
+			<div class="section-header">
+				<div class="section-title">MahApps.Metro 概览仪表盘</div>
+				<div class="section-subtitle">完全基于 Sciter UI 兼容规范打造的 Windows Metro / WPF 风格高级组件库</div>
+			</div>
+
+			<!-- Metro Tiles Row -->
+			<div class="component-group">
+				<div class="group-title">Metro 磁贴 (Tiles)</div>
+				<div class="card-row">
+					<div class="metro-tile" style="background:var(--accent-color);">
+						<div class="tile-icon">⚡</div>
+						<div class="tile-title">极速响应 (Sciter 5)</div>
+					</div>
+					<div class="metro-tile" style="background:#60a917;">
+						<div class="tile-icon">🎨</div>
+						<div class="tile-title">WPF Metro 风格</div>
+					</div>
+					<div class="metro-tile" style="background:#f0a30a;">
+						<div class="tile-icon">🛠️</div>
+						<div class="tile-title">全组件解耦</div>
+					</div>
+					<div class="metro-tile" style="background:#d80073;">
+						<div class="tile-icon">🛡️</div>
+						<div class="tile-title">按需避坑兼容</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Quick Status Cards -->
+			<div class="card-row">
+				<div class="metro-card">
+					<div class="card-header">💡 Sciter 兼容亮点</div>
+					<p style="font-size:13px; line-height:1.6; color:#aaa;">
+						1. 使用 <code style="color:var(--accent-color);">flow</code> 弹性流替代 Flex/Grid 布局，杜绝换行塌陷。<br>
+						2. 使用原生 <code style="color:var(--accent-color);">&lt;popup&gt;</code> 层 + <code
+							  style="color:var(--accent-color);">@mouseup</code>，解决弹窗截断与点击吞噬。<br>
+						3. 自定义 <code style="color:var(--accent-color);">@set metro-scrollbar</code>，原生媲美 WPF Metro 滚动条。
+					</p>
+				</div>
+
+				<div class="metro-card">
+					<div class="card-header">📊 核心组件指标</div>
+					<div class="demo-row">
+						<span class="metro-label">核心组件数:</span>
+						<span class="metro-badge metric-badge">30+ 常用控件</span>
+					</div>
+					<div class="demo-row">
+						<span class="metro-label">渲染引擎:</span>
+						<span class="metro-badge metro-badge-success metric-badge">Sciter Direct2D / WARP</span>
+					</div>
+					<div class="demo-row">
+						<span class="metro-label">主题支持:</span>
+						<span class="metro-badge metro-badge-warning metric-badge">深色 / 浅色 / 7色 Accent</span>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- SECTION 2: Buttons & Badges -->
+		<div class="section-container" id="secButtons" style="visibility:hidden;height:0;overflow:hidden;">
+			<div class="section-header">
+				<div class="section-title">按钮与徽章 (Buttons & Badges)</div>
+				<div class="section-subtitle">遵循 Sciter 规范：双向居中文本、避免原生 button 文字裁切、使用 * 弹簧边距</div>
+			</div>
+
+			<div class="card-row">
+				<div class="metro-card">
+					<div class="card-header">基础按钮类型</div>
+					<div class="button-demo-line">
+						<span class="metro-btn">默认按钮</span>
+						<span class="metro-btn metro-btn-accent">Accent 强调</span>
+						<span class="metro-btn metro-btn-outline">Outline 轮廓</span>
+					</div>
+					<div class="button-demo-line second-line">
+						<span class="metro-btn metro-btn-danger">Danger 危险</span>
+						<span class="metro-btn" disabled>禁用状态</span>
+					</div>
+				</div>
+
+				<div class="metro-card">
+					<div class="card-header">组合按钮组</div>
+					<div class="metro-btn-group">
+						<span class="metro-btn metro-btn-accent">左选项</span>
+						<span class="metro-btn metro-btn-accent">中选项</span>
+						<span class="metro-btn metro-btn-accent">右选项</span>
+					</div>
+				</div>
+			</div>
+
+			<div class="card-row">
+				<div class="metro-card">
+					<div class="card-header">Metro 徽章与状态</div>
+					<div class="demo-row wrap-row">
+						<span class="metro-badge">默认 Accent</span>
+						<span class="metro-badge metro-badge-success">已成功</span>
+						<span class="metro-badge metro-badge-warning">处理中</span>
+						<span class="metro-badge metro-badge-danger">出错了</span>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- SECTION 3: Forms & Inputs -->
+		<div class="section-container" id="secForms" style="visibility:hidden;height:0;overflow:hidden;">
+			<div class="section-header">
+				<div class="section-title">表单与输入框 (Form Controls)</div>
+				<div class="section-subtitle">固定宽度 Label、content-vertical-align 文本垂直居中、弹性尺寸 min-width: 0</div>
+			</div>
+
+			<div class="card-row">
+				<div class="metro-card">
+					<div class="card-header">文本输入框</div>
+					<div class="metro-input-group">
+						<span class="metro-label">用户名:</span>
+						<input type="text" placeholder="请输入用户名...">
+					</div>
+					<div class="metro-input-group">
+						<span class="metro-label">密码:</span>
+						<input type="password" placeholder="请输入密码...">
+					</div>
+				</div>
+
+				<div class="metro-card">
+					<div class="card-header">多行文本域 (Textarea)</div>
+					<div class="metro-input-group" style="flow:vertical;">
+						<span class="metro-label" style="margin-bottom:6px;">备注说明:</span>
+						<textarea placeholder="请输入详细的多行文本内容..."></textarea>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- SECTION 4: Selects & Sliders -->
+		<div class="section-container" id="secSelects" style="visibility:hidden;height:0;overflow:hidden;">
+			<div class="section-header">
+				<div class="section-title">下拉框与滑块 (Select & Sliders)</div>
+				<div class="section-subtitle">基于 Sciter 原生 &lt;popup&gt; + hslider 控件，告别绝对定位截断</div>
+			</div>
+
+			<div class="card-row">
+				<div class="metro-card">
+					<div class="card-header">Metro 自定义下拉框 (&lt;popup&gt;)</div>
+					<div class="metro-input-group">
+						<span class="metro-label">选择驱动:</span>
+						<div class="metro-select" id="driveSelect">
+							<span class="caption">Google Drive (网盘)</span><span class="select-arrow">▼</span>
+							<popup class="metro-select-popup" id="drivePopup">
+								<div class="option-item" data-value="Google Drive (网盘)">Google Drive (网盘)</div>
+								<div class="option-item" data-value="Google Photos (相册)">Google Photos (相册)</div>
+								<div class="option-item" data-value="OneDrive (微软云盘)">OneDrive (微软云盘)</div>
+								<div class="option-item" data-value="Dropbox (文件归档)">Dropbox (文件归档)</div>
+								<div class="option-item" data-value="FTP (文件传输)">FTP (文件传输)</div>
+								<div class="option-item" data-value="SFTP (安全传输)">SFTP (安全传输)</div>
+								<div class="option-item" data-value="WebDAV (网络盘)">WebDAV (网络盘)</div>
+							</popup>
+						</div>
+					</div>
+
+					<div class="metro-input-group">
+						<span class="metro-label">选择协议:</span>
+						<div class="metro-select" id="protocolSelect">
+							<span class="caption">FTP 传输协议</span><span class="select-arrow">▼</span>
+							<popup class="metro-select-popup" id="protocolPopup">
+								<div class="option-item" data-value="FTP 传输协议">FTP 传输协议</div>
+								<div class="option-item" data-value="SFTP 安全 SSH">SFTP 安全 SSH</div>
+								<div class="option-item" data-value="WebDAV SSL">WebDAV SSL</div>
+							</popup>
+						</div>
+					</div>
+				</div>
+
+				<div class="metro-card">
+					<div class="card-header">Metro 自定义滑块</div>
+					<div class="metro-input-group">
+						<span class="metro-label">音量调节:</span>
+						<div class="custom-slider" data-value="65" data-display="valSlider1">
+							<div class="custom-slider-track">
+								<div class="custom-slider-fill"></div>
+							</div>
+							<div class="custom-slider-thumb"></div>
+						</div>
+						<span id="valSlider1" style="width:36px; text-align:right; font-size:13px;">65</span>
+					</div>
+
+					<div class="metro-input-group">
+						<span class="metro-label">透明度:</span>
+						<div class="custom-slider" data-value="85" data-display="valSlider2">
+							<div class="custom-slider-track">
+								<div class="custom-slider-fill"></div>
+							</div>
+							<div class="custom-slider-thumb"></div>
+						</div>
+						<span id="valSlider2" style="width:36px; text-align:right; font-size:13px;">85</span>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- SECTION 5: Checkboxes & Switches -->
+		<div class="section-container" id="secCheckboxes" style="visibility:hidden;height:0;overflow:hidden;">
+			<div class="section-header">
+				<div class="section-title">复选框、单选框与开关 (Checkboxes & Switches)</div>
+				<div class="section-subtitle">基于 SVG/CSS 背景的无依赖 Checkbox，支持平滑 transform 过渡 Toggle Switch</div>
+			</div>
+
+			<div class="card-row">
+				<div class="metro-card">
+					<div class="card-header">复选框 (Checkbox) & 单选框 (Radio)</div>
+					<div class="demo-row">
+						<label class="gui-check">
+							<input type="checkbox" checked>
+							<span class="gui-check-box"><span class="gui-check-mark"></span></span>
+							<span>开机自动启动</span>
+						</label>
+						<label class="gui-check">
+							<input type="checkbox">
+							<span class="gui-check-box"><span class="gui-check-mark"></span></span>
+							<span>显示桌面通知</span>
+						</label>
+					</div>
+					<div class="demo-row" style="margin-top:12px;">
+						<label class="gui-check">
+							<input type="radio" name="r1" checked>
+							<span class="gui-radio-box"><span class="gui-radio-dot"></span></span>
+							<span>模式 A (默认)</span>
+						</label>
+						<label class="gui-check">
+							<input type="radio" name="r1">
+							<span class="gui-radio-box"><span class="gui-radio-dot"></span></span>
+							<span>模式 B (高性能)</span>
+						</label>
+					</div>
+				</div>
+
+				<div class="metro-card">
+					<div class="card-header">WPF 风格 Toggle Switch</div>
+					<div class="demo-row">
+						<span class="metro-label">网络代理:</span>
+						<label class="gui-switch">
+							<input type="checkbox" checked>
+							<span class="gui-switch-track"><span class="gui-switch-knob"></span></span>
+						</label>
+					</div>
+					<div class="demo-row" style="margin-top:12px;">
+						<span class="metro-label">自动更新:</span>
+						<label class="gui-switch">
+							<input type="checkbox">
+							<span class="gui-switch-track"><span class="gui-switch-knob"></span></span>
+						</label>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- SECTION 6: Progress & Indicators -->
+		<div class="section-container" id="secProgress" style="visibility:hidden;height:0;overflow:hidden;">
+			<div class="section-header">
+				<div class="section-title">进度条与加载指示器 (Progress & Skeleton)</div>
+				<div class="section-subtitle">Sciter 专属 JS requestAnimationFrame 世代计数器，杜绝 CPU 泄漏与假死</div>
+			</div>
+
+			<div class="card-row">
+				<div class="metro-card">
+					<div class="card-header">Metro 线性进度条与环形 Progress</div>
+					<div class="demo-row" style="flow:vertical; border-spacing:6px;">
+						<span style="font-size:12px; color:#aaa;">已下载: 75%</span>
+						<div class="metro-progress">
+							<div class="metro-progress-fill"></div>
+							<div class="metro-progress-remainder"></div>
+						</div>
+					</div>
+
+					<div class="demo-row" style="margin-top:16px; content-vertical-align:middle;">
+						<div class="progress-ring">
+							<svg class="progress-ring-svg" width="48" height="48">
+								<circle cx="24" cy="24" r="18" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="4"/>
+								<path d="M24 6 A18 18 0 1 1 6 24" fill="none" stroke="var(--accent-color)" stroke-width="4"/>
+								<text x="24" y="28" text-anchor="middle" class="progress-ring-text">75%</text>
+							</svg>
+						</div>
+						<span style="font-size:13px; margin-left:12px; color:#aaa;">SVG 矢量环形进度条</span>
+					</div>
+				</div>
+
+				<div class="metro-card">
+					<div class="card-header">骨架屏加载动画 (Skeleton Loader)</div>
+					<div class="metro-skeleton" style="width:60%;"></div>
+					<div class="metro-skeleton" style="width:100%;"></div>
+					<div class="metro-skeleton" style="width:85%;"></div>
+					<div class="metro-skeleton" style="width:40%;"></div>
+				</div>
+			</div>
+		</div>
+
+		<!-- SECTION 7: Tabs & Pivot Controls -->
+		<div class="section-container" id="secTabs" style="visibility:hidden;height:0;overflow:hidden;">
+			<div class="section-header">
+				<div class="section-title">选项卡与面板 (Tabs & Pivot Controls)</div>
+				<div class="section-subtitle">WPF Metro TabControl 控件风格</div>
+			</div>
+
+			<div class="card-row">
+				<div class="metro-card">
+					<div class="metro-tabs">
+						<div class="tab-header">
+							<div class="tab-item active">常规设置</div>
+							<div class="tab-item">高级网络</div>
+							<div class="tab-item">账号授权</div>
+						</div>
+
+						<div class="tab-pane active">
+							<p style="font-size:13px; line-height:1.6; color:#aaa;">
+								这里是【常规设置】选项卡内容。<br>
+								包含应用程序的基本运行模式、语言切换与缓存清理策略。
+							</p>
+						</div>
+						<div class="tab-pane">
+							<p style="font-size:13px; line-height:1.6; color:#aaa;">
+								这里是【高级网络】选项卡内容。<br>
+								支持配置 HTTP/SOCKS5 代理服务器、自定义 DNS 解析与端口分配。
+							</p>
+						</div>
+						<div class="tab-pane">
+							<p style="font-size:13px; line-height:1.6; color:#aaa;">
+								这里是【账号授权】选项卡内容。<br>
+								管理云盘 OAuth 授权令牌与 API 秘钥配置。
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- SECTION 8: Tables & Selectable Logs -->
+		<div class="section-container" id="secTables" style="visibility:hidden;height:0;overflow:hidden;">
+			<div class="section-header">
+				<div class="section-title">数据表格与文本日志 (Tables & Logs)</div>
+				<div class="section-subtitle">支持 Sciter 原生 selectable 划选复制属性的日志视图</div>
+			</div>
+
+			<div class="card-row">
+				<div class="metro-card">
+					<div class="card-header">Metro 数据网格</div>
+					<table class="metro-table">
+						<thead>
+						<tr>
+							<th>盘符</th>
+							<th>网盘类型</th>
+							<th>连接状态</th>
+							<th>已用空间</th>
+						</tr>
+						</thead>
+						<tbody>
+						<tr>
+							<td>Z:</td>
+							<td>Google Drive</td>
+							<td><span class="metro-badge metro-badge-success">已连接</span></td>
+							<td>45.2 GB / 100 GB</td>
+						</tr>
+						<tr>
+							<td>Y:</td>
+							<td>OneDrive Pro</td>
+							<td><span class="metro-badge metro-badge-success">已连接</span></td>
+							<td>128.0 GB / 1 TB</td>
+						</tr>
+						<tr>
+							<td>X:</td>
+							<td>FTP 服务器</td>
+							<td><span class="metro-badge metro-badge-warning">连接中</span></td>
+							<td>-- / --</td>
+						</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<div class="card-row">
+				<div class="metro-card">
+					<div class="card-header">运行日志 (只读 <code style="color:var(--accent-color);">textarea</code>，支持选择与复制)</div>
+					<textarea id="runtimeLog" class="runtime-log" readonly spellcheck="false">[15:24:01] [INFO] RaiDrive Core Engine Service initialized.
+[15:24:02] [INFO] Mounting virtual disk Z: (Google Drive)...
+[15:24:03] [SUCCESS] Drive Z: mounted successfully. Mount point: Z:\
+[15:24:05] [DEBUG] WebDAV keep-alive ping sent to host.example.com...
+提示：以上日志文本可以直接用鼠标划选，并使用统一右键菜单或 Ctrl+C 复制！</textarea>
+				</div>
+			</div>
+		</div>
+
+		<!-- SECTION 9: Dialogs & Flyouts -->
+		<div class="section-container" id="secDialogs" style="visibility:hidden;height:0;overflow:hidden;">
+			<div class="section-header">
+				<div class="section-title">对话框与侧滑面板 (Dialogs & Flyouts)</div>
+				<div class="section-subtitle">WPF Metro 风格 Modal Overlay 与 Flyout Drawer 抽屉</div>
+			</div>
+
+			<div class="card-row">
+				<div class="metro-card">
+					<div class="card-header">弹窗与抽屉交互演练</div>
+					<div class="demo-row wrap-row dialog-trigger-row">
+						<span class="metro-btn metro-btn-accent" id="btnOpenDialog">打开 Metro 模态对话框</span>
+						<span class="metro-btn metro-btn-outline" id="btnOpenFlyout">切换侧滑 Flyout 抽屉</span>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div> <!-- End Main Viewport -->
+</div> <!-- End App Workspace -->
+
+<popup id="textContextMenu" class="metro-context-menu">
+	<div class="context-command-item" data-command="undo"><span>撤消</span><span class="context-shortcut">Ctrl+Z</span>
+	</div>
+	<div class="context-menu-separator"></div>
+	<div class="context-command-item" data-command="cut"><span>剪切</span><span class="context-shortcut">Ctrl+X</span>
+	</div>
+	<div class="context-command-item" data-command="copy"><span>复制</span><span class="context-shortcut">Ctrl+C</span>
+	</div>
+	<div class="context-command-item" data-command="paste"><span>粘贴</span><span class="context-shortcut">Ctrl+V</span>
+	</div>
+	<div class="context-command-item" data-command="delete"><span>删除</span><span class="context-shortcut">Del</span>
+	</div>
+	<div class="context-menu-separator"></div>
+	<div class="context-command-item" data-command="select-all"><span>全选</span><span
+			  class="context-shortcut">Ctrl+A</span></div>
+</popup>
+
+<!-- ====================================================================
+	  POPUPS (Placed at root level outside buttons for Sciter Rule #25)
+	  ==================================================================== -->
+<!-- ====================================================================
+	  OVERLAYS (Dialog & Flyout Drawers at Root Level)
+	  ==================================================================== -->
+<div class="metro-dialog-overlay" id="demoDialogOverlay">
+	<div class="metro-dialog-box">
+		<div class="dialog-title">Metro 消息提示</div>
+		<div class="dialog-body">
+			这是一个仿 MahApps.Metro 风格的深色模态对话框。<br>
+			完全符合 Sciter UI 页面渲染规范，支持多主题色彩联动。
+		</div>
+		<div class="dialog-actions">
+					<span class="metro-btn metro-btn-accent" id="btnCloseDialog">确认关闭</span>
+		</div>
+	</div>
+</div>
+
+<div class="metro-flyout" id="demoFlyout">
+	<div class="dialog-title">侧边 Flyout 设置</div>
+	<p style="font-size:13px; color:#aaa; margin-bottom:16px;">
+		在 WPF MahApps.Metro 中，Flyout 用于承载从边缘滑出的侧边配置栏。
+	</p>
+	<div class="metro-input-group">
+		<span class="metro-label">网络并发:</span>
+		<input type="text" value="16" style="width:60px;">
+	</div>
+	<div class="metro-input-group" style="margin-top:16px;">
+		<label class="metro-checkbox-label">
+			<input type="checkbox" checked>
+			<span>启用调试日志</span>
+		</label>
+	</div>
+			<span class="metro-btn metro-btn-danger" id="btnCloseFlyout" style="margin-top:auto;">关闭面板</span>
+</div>
+
+<!-- Reusable controls first, then window/application business -->
+<script src="js/metro.js"></script>
+<script src="js/index.js"></script>
+</body>
+
+</html>

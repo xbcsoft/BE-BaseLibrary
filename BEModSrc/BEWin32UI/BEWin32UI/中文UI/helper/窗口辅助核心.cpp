@@ -3,7 +3,7 @@
 #include <CommCtrl.h>
 
 AutoStr __AutoStr__(const HWND& r) {
-	return 到文本((int)r);
+	return 到文本((size_t)r);
 }
 
 float GetCurrentDeviceDPI()
@@ -194,7 +194,7 @@ void 延迟(int 欲等待的毫秒) {
    - VK_MENU(这个其实是Alt,不区分左右),VK_LMENU,VK_RMENU(左/右Alt)
  * @return
  */
-bool 控制键_是否被按下(BYTE 控制键) {
+bool 控制键_是否按下(BYTE 控制键) {
 	return GetKeyState(控制键) & 0x8000;
 }
 

@@ -1,4 +1,4 @@
-#include "容器类.h"
+﻿#include "容器类.h"
 #include "控件类.h"
 
 定义_枚举型(窗口位置, char,
@@ -97,13 +97,15 @@ public:
 		_原窗口过程 = (WNDPROC)DefWindowProcW;
 
 		//父窗口==-1针对_g_interWnd（目的仅是用来搞任务栏图标隐藏但它不计入实际窗口）
-		if (父窗口 && (int)父窗口 != -1) {
+		if (父窗口 && (size_t)父窗口 != -1) {
 			this->父窗口 = (窗口*)父窗口;
 			父窗口句柄 = this->父窗口->窗口句柄;
 			if (模态载入)this->父窗口->禁止_();
 		}
 		int 窗口风格 = 0, 窗口扩展风格 = 0;
 		边框_((窗口边框)边框, 窗口风格, 窗口扩展风格);
+
+		最大化按钮 = cs.最大化按钮; 最小化按钮 = cs.最小化按钮;
 
 		if (cs.最小化按钮) 窗口风格 |= WS_MINIMIZEBOX;
 		if (cs.最大化按钮) 窗口风格 |= WS_MAXIMIZEBOX;
@@ -122,7 +124,7 @@ public:
 		}
 
 		//为_g_interWnd直接使用系统内置静态组件类不走自定义注册窗口类
-		if ((int)父窗口 == -1)类名 = L"Static";
+		if ((size_t)父窗口 == -1)类名 = L"Static";
 		窗口句柄 = CreateWindowExW(窗口扩展风格, 类名, cs.标题,
 			窗口风格,
 			dpi(左边), dpi(顶边), dpi(宽度), dpi(高度),
@@ -130,6 +132,14 @@ public:
 		);
 		if (!窗口句柄) return false;
 
+		if ((size_t)父窗口 != -1) {
+			_初始化Esc快捷键();
+		}
+		return true;
+	}
+
+	void 完毕(bool 模态) {
+		事件_创建完毕();
 		int initShow;
 		if (!可视)
 			initShow = SW_HIDE;
@@ -143,15 +153,6 @@ public:
 		if (可视 && !(位置 & 窗口位置::最小化)) {
 			UpdateWindow(窗口句柄);
 		}
-
-		if ((int)父窗口 != -1) {
-			_初始化Esc快捷键();
-		}
-		return true;
-	}
-
-	void 完毕(bool 模态) {
-		事件_创建完毕();
 		if (模态) {
 			MSG msg;
 			while (GetMessageW(&msg, NULL, 0, 0) && 窗口句柄) {
@@ -179,7 +180,7 @@ public:
 	}
 
 	void 置图标(int 资源ID号) {
-		置图标(LoadIconW(g_hInst, (LPCTSTR)资源ID号));
+		置图标(LoadIconW(g_hInst, MAKEINTRESOURCEW(资源ID号)));
 	}
 
 	void 置图标(const Bytes& zjjIcon) {
@@ -216,7 +217,7 @@ public:
 
 	void 置托盘图标(int 资源ID号, const StrW& 提示文本 = L"") {
 		if (资源ID号 || (资源ID号==NULL&&_是否有托盘图标))
-			置托盘图标(LoadIconW(g_hInst, (LPCTSTR)资源ID号), 提示文本);
+			置托盘图标(LoadIconW(g_hInst, MAKEINTRESOURCEW(资源ID号)), 提示文本);
 	}
 
 	void 置托盘图标(const Bytes& zjjIcon, const StrW& 提示文本 = L"") {
@@ -275,6 +276,31 @@ public:
 			移动(_水平居中(宽度), _垂直居中(高度));
 		}
 		this->位置 = 位置;
+	}
+
+	bool 位置是否最小化() {
+		return IsIconic(窗口句柄);
+	}
+
+	bool 位置是否最大化() {
+		return IsZoomed(窗口句柄);
+	}
+
+	void 位置还原() {
+		ShowWindow(窗口句柄, SW_RESTORE);
+	}
+
+	/**激活窗口（含两种方式）
+	 * @param 激活类型=0 默认仅设置线程的活动窗口，非0则使用常规激活
+	 */
+	void 激活(char 激活类型 = 0) {
+		if (激活类型==0) {
+			SetActiveWindow(窗口句柄);
+		} else {
+			if (位置是否最小化())位置还原();
+			可视_(true);
+			置前台();
+		}
 	}
 
 	bool 销毁() {
@@ -463,6 +489,7 @@ public:
 	bool 保持标题栏点燃_, 子控件焦点导航;
 	bool _是否有托盘图标 = false;
 	bool _首次激活已触发 = false;
+	bool 最大化按钮, 最小化按钮;
 public:
 	virtual void 载入(窗口* 父窗 = 0, bool 模态 = 0) {}
 	virtual void 事件_创建完毕() {}
@@ -490,11 +517,10 @@ public:
 LRESULT 窗口::挂接消息(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg) {
-	case WM_SIZE: {
+	case WM_SIZE:
 		事件_尺寸被改变();
 		InvalidateRect(hwnd, NULL, TRUE);
 		break;
-	}
 	case WM_CREATE:
 		事件_创建本体();
 		break;
@@ -506,14 +532,11 @@ LRESULT 窗口::挂接消息(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			}
 		}
 		break;
-	case WM_APP + 2:
-		事件_首次激活();
-		break;
 	case WM_CLOSE:
 		if (事件_被关闭() == false) {
 			return 0;
 		}
-		if (父窗口)父窗口->激活();
+		if (父窗口) SetActiveWindow(父窗口->窗口句柄);
 	case WM_DESTROY:
 		销毁();
 		break;
@@ -550,6 +573,9 @@ LRESULT 窗口::挂接消息(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			事件_托盘(3);
 			break;
 		}
+		break;
+	case WM_APP + 2:
+		事件_首次激活();
 		break;
 	case 32885: //主窗口也拥有消息反馈事件（仿易语言）
 		return 事件_反馈(wParam, lParam);

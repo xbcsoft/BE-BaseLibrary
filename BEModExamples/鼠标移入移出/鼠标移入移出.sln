@@ -7,13 +7,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "鼠标移入移出", "鼠�
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		CWinDbg|Win32 = CWinDbg|Win32
 		Debug|Win32 = Debug|Win32
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{6182CB67-37C4-4403-83B9-A8BA2C3751A4}.CWinDbg|Win32.ActiveCfg = CWinDbg|Win32
-		{6182CB67-37C4-4403-83B9-A8BA2C3751A4}.CWinDbg|Win32.Build.0 = CWinDbg|Win32
 		{6182CB67-37C4-4403-83B9-A8BA2C3751A4}.Debug|Win32.ActiveCfg = Debug|Win32
 		{6182CB67-37C4-4403-83B9-A8BA2C3751A4}.Debug|Win32.Build.0 = Debug|Win32
 		{6182CB67-37C4-4403-83B9-A8BA2C3751A4}.Release|Win32.ActiveCfg = Release|Win32

@@ -83,9 +83,6 @@ public:
 
 	void _移动(可空<float> x = 空, 可空<float> y = 空, 可空<float> w = 空, 可空<float> h = 空, bool 重画窗口 = true);
 
-
-	void 激活();
-
 	void 获取焦点();
 
 	bool 可有焦点();
@@ -130,12 +127,12 @@ public:
 	 * @param a
 	 * @return
 	 */
-	bool 标记_置整数(int a);
+	bool 标记_置整数(size_t a);
 
 	/**当且仅当标记未被置为字符串时可使用取整数
 	 * @return
 	 */
-	int 标记_取整数();
+	size_t 标记_取整数();
 
 	void 弹出菜单(class 子菜单& menu, 可空<float> x = 空, 可空<float> y = 空);
 
@@ -146,11 +143,11 @@ public:
 	virtual bool 通用事件_鼠标右键被放开(int x, int y);
 	virtual bool 通用事件_鼠标位置被移动(int x, int y);
 
-	/**若要同时获取控制键的状态可调 控制键_是否被按下()
+	/**若要同时获取控制键的状态可调 控制键_是否按下()
 	 * @param key
 	 */
 	virtual bool 通用事件_按下某键(BYTE key);
-	/**若要同时获取控制键的状态可调 控制键_是否被按下()
+	/**若要同时获取控制键的状态可调 控制键_是否按下()
 	 * @param key
 	 */
 	virtual bool 通用事件_放开某键(BYTE key);

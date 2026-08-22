@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html window-frame="transparent">
+<head>
+    <meta charset="UTF-8">
+    <title>SciterUI 自绘标题栏与阴影标准示例</title>
+    <style>
+        html { background: transparent; }
+        body {
+            margin: 10px;
+            overflow: hidden;
+            background: #ffffff;
+            border-radius: 0;
+            box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08), 0 1px 8px rgba(0, 0, 0, 0.18);
+        }
+        button {
+				padding: 0;
+		      background: transparent;
+            border: none;
+            border-radius: 0;
+		  }
+
+        /* 激活时恢复较深阴影 */
+        html[window-active] body {
+            box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.10), 0 1px 10px rgba(0, 0, 0, 0.35);
+        }
+
+        /* 标题栏 */
+        #titlebar {
+            height: 30px;
+				flow: horizontal;
+				content-vertical-align: middle;
+            background: #f0f0f0;
+            border-bottom: 1px solid #ddd;
+        }
+        #titlewin {
+            margin-right: *;
+            padding-left: 10px;
+            font-size: 12px;
+            color: #333;
+        }
+        .title-btn {
+            behavior: clickable;
+            width: 38px;
+            height: 100%;
+            flow: horizontal;
+            content-horizontal-align: center;
+            content-vertical-align: middle;
+            font-size: 11px;
+            color: #555555;
+            transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease;
+        }
+        .title-btn:hover {
+            background: rgba(0, 0, 0, 0.08);
+            color: #000000;
+        }
+        .title-btn:active {
+            background: rgba(0, 0, 0, 0.16);
+            color: #000000;
+        }
+        .title-btn.btn-close:hover {
+            background: #e81123;
+            color: #ffffff;
+        }
+        .title-btn.btn-close:active {
+            background: #c70a18;
+            color: #ffffff;
+        }
+
+        /* 内容区 */
+        #contentwin {
+            padding: 20px;
+        }
+    </style>
+</head>
+
+<body>
+<div id="titlebar" role="window-caption">
+	<span id="titlewin">SciterUI 窗口</span>
+	<button class="title-btn" role="window-minimize">—</button>
+	<button class="title-btn" role="window-maximize">☐</button>
+	<button class="title-btn btn-close" role="window-close">✕</button>
+</div>
+
+<div id="contentwin">
+	hello world
+</div>
+</body>
+
+</html>

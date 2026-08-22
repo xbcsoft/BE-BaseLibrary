@@ -13,12 +13,13 @@ extern "C" {
 #endif
 
 //供窗口程序用作控制台打印的调试使用
-#ifdef _CWinDbg
-#define cw_printf printf
-#define cw_print be::print
+#ifdef DBG
+#define dbg_printf printf
+#define dbg_print be::print
 #else
-#define cw_printf(...)
-#define cw_print(...)
+#define dbg_printf(...)
+#define dbg_print(...)
+#define DBG 0
 #endif
 
 
@@ -27,21 +28,21 @@ inline AutoStr __AutoStr__(const T& v) {
 	return AutoStr(const_cast<T&>(v));
 }
 inline AutoStr __AutoStr__(const StrA& v) {
-	AutoStr s; s += "\""; s += v; s += "\""; return s;
+	AutoStr s = "\""; return ((s += v) += "\"");
 }
 inline AutoStr __AutoStr__(const StrU8& v) {
-	AutoStr s; s += "\""; s += v; s += "\""; return s;
+	AutoStr s = "\""; return ((s += v) += "\"");
 }
 inline AutoStr __AutoStr__(const StrW& v) {
-	AutoStr s; s += "\""; s += WtoU8(v); s += "\""; return s;
+	AutoStr s = "\""; return ((s += WtoU8(v)) += "\"");
 }
-//对常规字符串指针不进行重载，否则打印到控制台上很难看
-//inline AutoStr __AutoStr__(const char* v) {
-//	AutoStr s; s += "\""; s += v; s += "\""; return s;
-//}
-//inline AutoStr __AutoStr__(const charW* v) {
-//	AutoStr s; s += "\""; s += v; s += "\""; return s;
-//}
+//对常规字符串指针不进行双引号加入，否则打印到控制台上很难看
+inline AutoStr __AutoStr__(const char* v) {
+	return v;
+}
+inline AutoStr __AutoStr__(const charW* v) {
+	return v;
+}
 template <int N>
 inline AutoStr __AutoStr__(byte(&arr)[N]) {
 	return AutoStr(jzjj(arr));
@@ -94,6 +95,12 @@ template<typename T>
 inline AutoStr __AutoStr__(const NilOpt<const T&>& opt) {
 	if (opt.has) return __AutoStr__(*opt.p);
 	return "nil";
+}
+
+template <typename T>
+inline AutoStr __AutoStr__(T* ptr) {
+	if (!ptr) { return "0x00000000"; }
+	return sprintF("0x%p", ptr);
 }
 
 namespace be {

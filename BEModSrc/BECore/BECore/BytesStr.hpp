@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "bebase.hpp"
 #include <stdio.h>
 #include <string.h>
@@ -42,7 +42,7 @@ public:
 		explicit Ref(const char* s) :p(s) { if (s)size = strlen(s); else size = 0; }
 		explicit Ref(const charW* s) :p(s) { if (s)size = strlen<W>(s)*2; else size = 0; }
 		Ref(std::initializer_list<byte> bytes) :p(bytes.begin()), size(bytes.size()) {
-			static volatile byte _trap = *bytes.begin();
+			static volatile byte _trap; _trap = *bytes.begin();
 		}template<int N>Ref(const byte(&z)[N]) : p(z), size(N) {} //按源字节数组引用构造
 		Bytes operator+(const Ref& z) const { return Bytes(p, size, z.p, z.size); }
 		Bytes operator+(const Bytes& z) const { return Bytes(p, size, z.buf, z.size); }
@@ -114,6 +114,7 @@ public:
 	void reset(size_t newSize = 0) { if (capacity_)free(buf); _reset(newSize); }
 	void reset(byte c, size_t size) { reset(size); memset(buf, c, size); }
 	void reset(const void* dat, size_t size) { reset(size); memcpy(buf, dat, size); }
+	void reset(const Bytes& b) { reset(b.buf, b.size); }
 
 	/**调整内部容量
 	 * @param newCapacity 调整到目标容量
@@ -678,9 +679,15 @@ inline StrA _BSA(const void* p, size_t size) {
 	StrA s; s.bytes.ref(p, size);
 	return s;
 }
+inline StrA _BSA(const Bytes& b) {
+	return (StrA&)b;
+}
 inline StrW _BSW(const void* p, size_t size) {
 	StrW s; s.bytes.ref(p, size);
 	return s;
+}
+inline StrW _BSW(const Bytes& b) {
+	return (StrW&)b;
 }
 template<bool PADZERO = false>
 inline StrW BSW(Bytes&&b) {

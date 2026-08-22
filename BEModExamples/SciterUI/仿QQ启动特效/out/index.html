@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html window-frame="transparent">
+<head>
+	<meta charset="UTF-8">
+	<title>TIM - 仿QQ启动特效</title>
+	<style>
+		* {
+			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+		}
+
+		html {
+			background: transparent;
+		}
+
+		button {
+			padding: 0;
+		}
+
+		/* ======== 主窗口容器 ======== */
+		body {
+			margin: 10px;
+			background: #ffffff;
+			border-radius: 0; /* 根据需要设置 */
+			overflow: hidden;
+			box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08), 0 1px 8px rgba(0, 0, 0, 0.18);
+		}
+
+		/* 激活时恢复较深阴影；window-active 由 SciterUI 从 WM_ACTIVATE 同步 */
+		html[window-active] body {
+			box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.10), 0 1px 10px rgba(0, 0, 0, 0.35);
+		}
+
+		/* ======== 自绘标题栏 ======== */
+		#titlebar {
+			flow: horizontal;
+			content-vertical-align: middle;
+			height: 36px;
+			padding: 0 8px 0 14px;
+			background: #f5f6f8;
+			border-bottom: 1px solid #e2e4e8;
+			position: relative;
+			z-index: 10;
+		}
+
+		.titlebar-brand {
+			flow: horizontal;
+			content-vertical-align: middle;
+			margin-right: *;
+		}
+
+		.brand-icon {
+			display: inline-block;
+			width: 18px;
+			height: 18px;
+			background: #12b7f5;
+			color: #ffffff;
+			font-weight: bold;
+			font-size: 11px;
+			text-align: center;
+			line-height: 18px;
+			border-radius: 3px;
+			margin-right: 6px;
+		}
+
+		#titlewin,
+		.brand-text {
+			font-size: 13px;
+			font-weight: bold;
+			color: #2b2e33;
+			letter-spacing: 0.5px;
+		}
+
+		.title-btn {
+			behavior: clickable;
+			width: 32px;
+			height: 28px;
+			line-height: 28px;
+			text-align: center;
+			font-size: 12px;
+			background: transparent;
+			color: #666666;
+			border: none;
+			margin-left: 2px;
+			border-radius: 3px;
+		}
+
+		.title-btn:hover {
+			background: rgba(0, 0, 0, 0.07);
+			color: #111;
+		}
+
+		.title-btn:active {
+			background: rgba(0, 0, 0, 0.14);
+		}
+
+		.title-btn.btn-close:hover {
+			background: #f45454;
+			color: #fff;
+		}
+
+		.title-btn.btn-close:active {
+			background: #d83b3b;
+			color: #fff;
+		}
+
+		/* ======== 主内容布局 ======== */
+		#contentwin {
+			flow: horizontal;
+			width: *;
+			height: *;
+		}
+
+		.left-panel {
+			width: 230px;
+			height: *;
+			background: linear-gradient(135deg, #f8f9fb 0%, #eceff4 100%);
+			padding: 35px 15px 20px 15px;
+			flow: vertical;
+			content-horizontal-align: center;
+			position: relative;
+			border-right: 1px solid #eaecef;
+		}
+
+		.left-title-box {
+			text-align: center;
+			margin-bottom: 25px;
+		}
+
+		.left-title-main {
+			font-size: 20px;
+			color: #22252a;
+			font-weight: 600;
+			line-height: 1.3;
+			letter-spacing: 1px;
+		}
+
+		.left-title-sub {
+			font-size: 14px;
+			color: #787e8c;
+			font-weight: 300;
+			margin-top: 4px;
+			letter-spacing: 2px;
+		}
+
+		.illustration-box {
+			position: relative;
+			width: 160px;
+			height: 140px;
+			margin: 45px auto 0 auto;
+			text-align: center;
+			content-horizontal-align: center;
+		}
+
+		.right-panel {
+			width: *;
+			height: *;
+			background: #ffffff;
+			padding: 20px 24px;
+			flow: vertical;
+		}
+
+		.tabs-header {
+			flow: horizontal;
+			margin-bottom: 20px;
+			border-bottom: 1px solid #f0f0f2;
+			padding-bottom: 8px;
+		}
+
+		.tab-item {
+			behavior: clickable;
+			margin-right: 20px;
+			font-size: 13px;
+			color: #8a8f99;
+			padding-bottom: 6px;
+			cursor: pointer;
+			flow: horizontal;
+			content-vertical-align: middle;
+		}
+
+		.tab-item.active {
+			color: #0099ff;
+			font-weight: 600;
+			border-bottom: 2px solid #0099ff;
+		}
+
+		.tab-icon {
+			font-size: 14px;
+			margin-right: 5px;
+		}
+
+		.form-group {
+			margin-bottom: 12px;
+			position: relative;
+		}
+
+		.input-box {
+			width: 100%;
+			height: 36px;
+			border: 1px solid #dcdfe6;
+			border-radius: 4px;
+			padding: 0 12px;
+			font-size: 14px;
+			color: #333;
+			background: #fafafa;
+			outline: none;
+			text-selection-background-color: #087dd1;
+			text-selection-color: #ffffff;
+		}
+
+		.input-box:focus,
+		.input-box[text-menu-open] {
+			border-color: #0099ff;
+			box-shadow: 0 0 0 1px rgba(0, 153, 255, 0.18);
+		}
+
+		.account-arrow {
+			position: absolute;
+			right: 10px;
+			top: 10px;
+			font-size: 10px;
+			color: #999;
+		}
+
+		.password-row {
+			flow: horizontal;
+			content-vertical-align: middle;
+			position: relative;
+		}
+
+		.pwd-input-wrap {
+			width: *;
+		}
+
+		.btn-submit {
+			behavior: clickable;
+			width: 36px;
+			height: 36px;
+			background: #0099ff;
+			color: #fff;
+			border: none;
+			border-radius: 50%;
+			margin-left: 10px;
+			font-size: 16px;
+			line-height: 36px;
+			text-align: center;
+			cursor: pointer;
+			box-shadow: 0 2px 8px rgba(0, 153, 255, 0.35);
+		}
+
+		.qr-code-link {
+			position: absolute;
+			right: 1px;
+			bottom: -30px;
+			font-size: 16px;
+			color: #666;
+			cursor: pointer;
+		}
+
+		.form-footer {
+			margin-top: *;
+			margin-bottom: 4px;
+			flow: horizontal;
+			font-size: 13px;
+			color: #666;
+		}
+
+		.check-group {
+			flow: vertical;
+			margin-right: *;
+		}
+
+		.check-item {
+			margin-bottom: 8px;
+			cursor: pointer;
+			flow: horizontal;
+			content-vertical-align: middle;
+		}
+
+		.link-group {
+			flow: vertical;
+			text-align: right;
+		}
+
+		.link-item {
+			color: #888;
+			text-decoration: none;
+			margin-bottom: 8px;
+		}
+
+		/* ======== 编辑框弹出层右键菜单 ======== */
+		#text-context-menu {
+			width: 150px;
+			padding: 3px;
+			flow: vertical;
+			background: #ffffff;
+			color: #222222;
+			border: 1px solid #999999;
+			font-size: 13px;
+		}
+
+		#text-context-menu > div {
+			padding: 5px 8px;
+			flow: horizontal;
+		}
+
+		#text-context-menu > div:hover {
+			color: #ffffff;
+			background: #087dd1;
+		}
+
+		#text-context-menu > div[disabled] {
+			color: #aaaaaa;
+			background: #ffffff;
+		}
+
+		#text-context-menu span {
+			width: 1*;
+		}
+
+		#text-context-menu kbd {
+			color: #888888;
+			font-size: 10px;
+		}
+
+		#text-context-menu > div:hover kbd {
+			color: #ffffff;
+		}
+
+		#text-context-menu > div[disabled] kbd {
+			color: #bbbbbb;
+		}
+
+		#text-context-menu hr {
+			width: *;
+			height: 1px;
+			margin: 2px;
+			background: #dddddd;
+			border: 0;
+		}
+	</style>
+</head>
+
+<body>
+<div id="titlebar" role="window-caption">
+	<div class="titlebar-brand">
+		<span class="brand-icon">✶</span>
+		<span class="brand-text" id="titlewin">TIM</span>
+	</div>
+	<button class="title-btn" title="设置">⚙</button>
+	<button class="title-btn" role="window-minimize">—</button>
+	<button class="title-btn btn-close" id="btn-close" title="关闭">✕</button>
+</div>
+
+<div id="contentwin">
+	<div class="left-panel">
+		<div class="left-title-box">
+			<div class="left-title-main">在线协作</div>
+			<div class="left-title-sub">永久免费</div>
+		</div>
+		<div class="illustration-box">
+			<svg width="160" height="140" viewBox="22 40 160 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<path d="M70 140 C60 120 40 80 50 60 C55 50 70 55 75 70 L85 95" stroke="#e0e3e8" stroke-width="24"
+						stroke-linecap="round"/>
+				<path d="M85 150 C75 125 55 90 65 65 C70 52 82 55 88 72 L100 100" stroke="#f3d0b5" stroke-width="18"
+						stroke-linecap="round"/>
+				<path d="M110 150 C120 125 140 90 130 65 C125 52 113 55 107 72 L95 100" stroke="#ebd0bc" stroke-width="18"
+						stroke-linecap="round"/>
+				<path d="M70 142 L95 160" stroke="#4a5568" stroke-width="22" stroke-linecap="round"/>
+				<path d="M125 142 L100 160" stroke="#718096" stroke-width="22" stroke-linecap="round"/>
+				<rect x="74" y="132" width="16" height="12" rx="3" fill="#2d3748" transform="rotate(-25 74 132)"/>
+				<circle cx="78" cy="133" r="3" fill="#63b3ed"/>
+			</svg>
+		</div>
+	</div>
+
+	<div class="right-panel">
+		<div class="tabs-header">
+			<div class="tab-item active"><span class="tab-icon">🔔</span> QQ登录</div>
+			<div class="tab-item"><span class="tab-icon">💬</span> 微信登录</div>
+		</div>
+		<div class="form-group">
+			<input type="text" class="input-box" value="785829865" placeholder="QQ号码/手机/邮箱"/>
+			<span class="account-arrow">▼</span>
+		</div>
+		<div class="form-group password-row">
+			<div class="pwd-input-wrap">
+				<input type="password" class="input-box" value="12345678" placeholder="密码"/>
+			</div>
+			<button class="btn-submit" id="btn-login" title="安全登录">➔</button>
+			<span class="qr-code-link" title="二维码登录">🏁</span>
+		</div>
+		<div class="form-footer">
+			<div class="check-group">
+				<label class="check-item"><input type="checkbox" checked/> 记住密码</label>
+				<label class="check-item"><input type="checkbox"/> 自动登录</label>
+			</div>
+			<div class="link-group">
+				<a href="#" class="link-item">找回密码</a>
+				<a href="#" class="link-item">注册账号</a>
+			</div>
+		</div>
+	</div>
+</div>
+<popup id="text-context-menu">
+	<div class="context-command-item" data-command="undo"><span>撤销</span><kbd>Ctrl+Z</kbd></div>
+	<hr>
+	<div class="context-command-item" data-command="cut"><span>剪切</span><kbd>Ctrl+X</kbd></div>
+	<div class="context-command-item" data-command="copy"><span>复制</span><kbd>Ctrl+C</kbd></div>
+	<div class="context-command-item" data-command="paste"><span>粘贴</span><kbd>Ctrl+V</kbd></div>
+	<div class="context-command-item" data-command="delete"><span>删除</span><kbd>Del</kbd></div>
+	<hr>
+	<div class="context-command-item" data-command="select-all"><span>全选</span><kbd>Ctrl+A</kbd></div>
+</popup>
+
+<script type="module">
+import {ShutterReveal} from "./shutter-reveal.js";
+
+console.log("TIM 启动");
+
+// ============ 编辑框弹出层右键菜单 ============
+var activeTextContextTarget = null;
+var activeTextSelectionSnapshot = null;
+var executingTextMenuCommand = false;
+var textSelectionSnapshots = new WeakMap();
+var textPlaceholderSnapshots = new WeakMap();
+var textEditCommands = {
+	"undo": "edit:undo",
+	"cut": "edit:cut",
+	"copy": "edit:copy",
+	"paste": "edit:paste",
+	"delete": "edit:delete-next",
+	"select-all": "edit:selectall"
+};
+
+function getEditor(target) {
+	return target.edit || target.textarea;
+}
+
+function captureTextSelection(target) {
+	var api = getEditor(target);
+	var snapshot = {
+		text: api.selectionText || "",
+		start: api.selectionStart,
+		end: api.selectionEnd
+	};
+	textSelectionSnapshots.set(target, snapshot);
+	return snapshot;
+}
+
+function restoreTextSelection(target, snapshot) {
+	target.focus();
+	getEditor(target).selectRange(snapshot.start, snapshot.end);
+}
+
+function clearTextSelection(target) {
+	var snapshot = captureTextSelection(target);
+	getEditor(target).selectRange(snapshot.end, snapshot.end);
+}
+
+function preserveSelectionColors(target) {
+	target.setAttribute("text-menu-open", "");
+	// Sciter popup 接管焦点后，空编辑框会立即绘制 placeholder。
+	// 菜单生命周期内暂时移除，关闭时原样恢复。
+	if (target.hasAttribute("placeholder") && !textPlaceholderSnapshots.has(target)) {
+		textPlaceholderSnapshots.set(target, target.getAttribute("placeholder"));
+		target.removeAttribute("placeholder");
+	}
+}
+
+function restoreSelectionColors(target) {
+	target.removeAttribute("text-menu-open");
+	if (textPlaceholderSnapshots.has(target)) {
+		target.setAttribute("placeholder", textPlaceholderSnapshots.get(target));
+		textPlaceholderSnapshots.delete(target);
+	}
+}
+
+function cursorPosition(evt) {
+	var cursor = null;
+	try {
+		if (Window.this && typeof Window.this.cursorPos === "function") {
+			cursor = Window.this.cursorPos();
+		}
+	} catch (error) {
+		cursor = null;
+	}
+	var x = cursor && cursor.length > 1 ? cursor[0] : evt.windowX;
+	var y = cursor && cursor.length > 1 ? cursor[1] : evt.windowY;
+	if (typeof x !== "number") x = evt.clientX || 0;
+	if (typeof y !== "number") y = evt.clientY || 0;
+	return {x: x, y: y};
+}
+
+function canRunTextCommand(target, command) {
+	var nativeCommand = textEditCommands[command];
+	var hasSelection = activeTextSelectionSnapshot.text.length > 0;
+
+	if (command === "copy") return hasSelection;
+	if (command === "select-all") return target.value.length > 0;
+	if (command === "cut" || command === "delete") return hasSelection;
+	if (command === "undo") return target.hasAttribute("data-can-undo");
+
+	try {
+		if (typeof target.checkCommand === "function") {
+			return (target.checkCommand(nativeCommand) & 0x02) === 0;
+		}
+	} catch (error) {
+	}
+	return true;
+}
+
+function showTextContextMenu(evt, target) {
+	var menu = document.getElementById("text-context-menu");
+	target.focus();
+	target.state.focus = true;
+	activeTextContextTarget = target;
+	preserveSelectionColors(target);
+	var currentSelection = getEditor(target).selectionText || "";
+	activeTextSelectionSnapshot = currentSelection.length > 0
+		 ? captureTextSelection(target)
+		 : (textSelectionSnapshots.get(target) || captureTextSelection(target));
+	menu.querySelectorAll(".context-command-item").forEach(function (item) {
+		if (canRunTextCommand(target, item.getAttribute("data-command"))) {
+			item.removeAttribute("disabled");
+		} else {
+			item.setAttribute("disabled", "");
+		}
+	});
+	var cursor = cursorPosition(evt);
+	document.body.popup(menu, {
+		anchorAt: 7,
+		popupAt: 7,
+		x: cursor.x,
+		y: cursor.y
+	});
+}
+
+function runTextMenuCommand(item) {
+	if (item.hasAttribute("disabled")) return;
+	executingTextMenuCommand = true;
+	var command = item.getAttribute("data-command");
+	var nativeCommand = textEditCommands[command];
+	var editorApi = getEditor(activeTextContextTarget);
+	var exec = typeof activeTextContextTarget.execCommand === "function"
+		 ? activeTextContextTarget.execCommand.bind(activeTextContextTarget)
+		 : (typeof activeTextContextTarget.executeCommand === "function"
+			  ? activeTextContextTarget.executeCommand.bind(activeTextContextTarget)
+			  : null);
+
+	if (command !== "copy") {
+		restoreTextSelection(activeTextContextTarget, activeTextSelectionSnapshot);
+	}
+	if (command === "cut" && exec) {
+		exec("edit:cut");
+	} else if (command === "delete" && activeTextContextTarget.textarea) {
+		activeTextContextTarget.textarea.removeText();
+	} else if (command === "copy" && exec) {
+		exec("edit:copy");
+	} else if (command === "select-all") {
+		editorApi.selectAll();
+	} else if (exec) {
+		exec(nativeCommand);
+	}
+
+	document.getElementById("text-context-menu").state.popup = false;
+	if (command === "copy") activeTextContextTarget.state.focus = true;
+	restoreSelectionColors(activeTextContextTarget);
+	executingTextMenuCommand = false;
+}
+
+var textContextMenu = document.getElementById("text-context-menu");
+textContextMenu.addEventListener("popupdismissed", function () {
+	if (!activeTextContextTarget) return;
+	restoreSelectionColors(activeTextContextTarget);
+	if (!executingTextMenuCommand && !activeTextContextTarget.state.focus) {
+		clearTextSelection(activeTextContextTarget);
+	}
+});
+textContextMenu.addEventListener("mouseup", function (evt) {
+	var item = evt.target.closest(".context-command-item");
+	if (!item) return;
+	evt.preventDefault();
+	evt.stopPropagation();
+	runTextMenuCommand(item);
+});
+
+document.querySelectorAll('input[type="text"], input[type="password"], textarea').forEach(function (target) {
+	target.addEventListener("focus", function () {
+		if (activeTextContextTarget && activeTextContextTarget !== target &&
+			 activeTextContextTarget.hasAttribute("text-menu-open")) {
+			restoreSelectionColors(activeTextContextTarget);
+			clearTextSelection(activeTextContextTarget);
+		}
+	});
+	target.addEventListener("blur", function () {
+		if (!target.hasAttribute("text-menu-open")) clearTextSelection(target);
+	});
+	target.addEventListener("keyup", function () {
+		captureTextSelection(target);
+	});
+	target.addEventListener("input", function () {
+		if (!target.hasAttribute("readonly")) target.setAttribute("data-can-undo", "true");
+		captureTextSelection(target);
+	});
+	target.addEventListener("mouseup", function (evt) {
+		if (evt.button !== 2) captureTextSelection(target);
+	});
+	target.addEventListener("mousedown", function (evt) {
+		if (evt.button !== 2) return;
+		evt.preventDefault();
+		evt.stopPropagation();
+		showTextContextMenu(evt, target);
+	});
+	target.addEventListener("contextmenu", function (evt) {
+		evt.preventDefault();
+		evt.stopPropagation();
+	});
+});
+
+// 窗口状态和根节点绘制必须等 Sciter 文档 ready；
+// 前面的菜单函数与事件绑定不依赖 ready，可直接完成。
+document.on("ready", function () {
+	ShutterReveal.start("#btn-close", function() {
+		// 若原生层未注入 NativeConfirmClose() 时，默认确认关闭。
+		return typeof NativeConfirmClose !== "function" || NativeConfirmClose();
+	});
+});
+</script>
+</body>
+</html>

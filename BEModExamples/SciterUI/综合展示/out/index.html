@@ -1,0 +1,1946 @@
+<!DOCTYPE html>
+<html window-frame="transparent">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="data:,">
+    <title>SciterUI 窗口</title>
+    <link rel="stylesheet" href="sciter-ui.css">
+</head>
+
+<body class="menubar-integrated theme-light">
+
+    <!-- 通知组件 (Toast, 由 C++ 宿主推送触发) -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- 自定义右键菜单: 可编辑元素显示完整编辑菜单; 普通文本区域显示精简菜单 (复制/全选) -->
+    <div class="ctx-menu" id="ctxMenu">
+        <div class="ctx-item ctx-edit-only" data-cmd="undo"><span class="ctx-ic fluent">&#xE7A7;</span>撤销<span
+                class="ctx-kb">Ctrl+Z</span></div>
+        <div class="ctx-sep ctx-edit-only"></div>
+        <div class="ctx-item ctx-edit-only" data-cmd="cut"><span class="ctx-ic fluent">&#xE8C6;</span>剪切<span
+                class="ctx-kb">Ctrl+X</span></div>
+        <div class="ctx-item" data-cmd="copy"><span class="ctx-ic fluent">&#xE8C8;</span>复制<span
+                class="ctx-kb">Ctrl+C</span></div>
+        <div class="ctx-item ctx-edit-only" data-cmd="paste"><span class="ctx-ic fluent">&#xE77F;</span>粘贴<span
+                class="ctx-kb">Ctrl+V</span></div>
+        <div class="ctx-item ctx-edit-only" data-cmd="delete"><span class="ctx-ic fluent">&#xE74D;</span>删除<span
+                class="ctx-kb">Del</span></div>
+        <div class="ctx-sep ctx-edit-only"></div>
+        <div class="ctx-item" data-cmd="selectAll"><span class="ctx-ic fluent">&#xE8B3;</span>全选<span
+                class="ctx-kb">Ctrl+A</span></div>
+    </div>
+
+    <!-- 菜单按钮下拉菜单 -->
+    <div class="ctx-menu" id="appMenu">
+        <div class="ctx-item" data-cmd="lightweight"><span class="ctx-ic fluent">&#xE8BE;</span>轻量化模式<span
+                class="ctx-kb"></span>
+        </div>
+        <div class="ctx-sep"></div>
+        <div class="ctx-item" data-cmd="openDevTools"><span class="ctx-ic fluent">&#xEC7A;</span>开发者工具<span
+                class="ctx-kb"></span></div>
+        <div class="ctx-sep"></div>
+        <div class="ctx-item" data-cmd="close"><span class="ctx-ic">✕</span>退出<span class="ctx-kb"></span></div>
+    </div>
+
+    <!-- 系统菜单 (标题栏右键，模拟 Windows 标准系统菜单) -->
+    <div class="ctx-menu" id="sysMenu">
+        <div class="ctx-item" data-cmd="sysRestore"><span class="ctx-ic fluent">&#xE923;</span>还原<span
+                class="ctx-kb"></span></div>
+        <div class="ctx-item" data-cmd="sysMove"><span class="ctx-ic"></span>移动<span class="ctx-kb"></span></div>
+        <div class="ctx-item" data-cmd="sysSize"><span class="ctx-ic"></span>大小<span class="ctx-kb"></span></div>
+        <div class="ctx-item" data-cmd="sysMinimize"><span class="ctx-ic fluent">&#xE921;</span>最小化<span
+                class="ctx-kb"></span></div>
+        <div class="ctx-item" data-cmd="sysMaximize"><span class="ctx-ic fluent">&#xE922;</span>最大化<span
+                class="ctx-kb"></span></div>
+        <div class="ctx-sep"></div>
+        <div class="ctx-item" data-cmd="close"><span class="ctx-ic fluent">&#xE8BB;</span>关闭<span
+                class="ctx-kb">Alt+F4</span></div>
+    </div>
+
+    <!-- 标题栏 -->
+    <div id="titlebar" role="window-caption">
+        <div class="titlebar-left" role="window-caption">
+            <svg class="titlebar-logo" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <defs>
+                    <linearGradient id="auroraLg" x1="3" y1="3" x2="21" y2="21" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#22d3ee" />
+                        <stop offset="0.45" stop-color="#8b5cf6" />
+                        <stop offset="1" stop-color="#ec4899" />
+                    </linearGradient>
+                </defs>
+                <rect class="logo-bg" width="24" height="24" rx="7" />
+                <path d="M4 15C7 15 9 8 12 8C15 8 17 15 20 15" stroke="url(#auroraLg)" stroke-width="2.5"
+                    stroke-linecap="round" />
+                <path d="M4 11C7 11 9 4 12 4C15 4 17 11 20 11" stroke="url(#auroraLg)" stroke-width="1.5"
+                    stroke-linecap="round" opacity="0.4" />
+            </svg>
+            <span id="titlewin" role="window-caption">SciterUI 窗口</span>
+        </div>
+        <nav class="menubar" id="menubar">
+            <button class="menubar-item" role="button" data-menu="file">文件</button>
+            <button class="menubar-item" role="button" data-menu="edit">编辑</button>
+            <button class="menubar-item" role="button" data-menu="view">查看</button>
+            <button class="menubar-item" role="button" data-menu="help">帮助</button>
+
+            <!-- 将菜单 popup 移出 button，避免内部相对定位和回收机制导致坐标计算错误 -->
+            <popup class="ctx-menu menubar-popup" id="fileMenu">
+                <div class="ctx-item" data-cmd="newFile"><span class="ctx-ic"></span>新建<span class="ctx-kb">Ctrl+N</span></div>
+                <div class="ctx-item" data-cmd="openFile"><span class="ctx-ic"></span>打开<span class="ctx-kb">Ctrl+O</span></div>
+                <div class="ctx-sep"></div>
+                <div class="ctx-item" data-cmd="close"><span class="ctx-ic">✕</span>退出<span class="ctx-kb">Alt+F4</span></div>
+            </popup>
+            <popup class="ctx-menu menubar-popup" id="editMenu">
+                <div class="ctx-item" data-cmd="undo"><span class="ctx-ic"></span>撤销<span class="ctx-kb">Ctrl+Z</span></div>
+                <div class="ctx-item" data-cmd="redo"><span class="ctx-ic"></span>重做<span class="ctx-kb">Ctrl+Y</span></div>
+                <div class="ctx-sep"></div>
+                <div class="ctx-item" data-cmd="cut"><span class="ctx-ic"></span>剪切<span class="ctx-kb">Ctrl+X</span></div>
+                <div class="ctx-item" data-cmd="copy"><span class="ctx-ic"></span>复制<span class="ctx-kb">Ctrl+C</span></div>
+                <div class="ctx-item" data-cmd="paste"><span class="ctx-ic"></span>粘贴<span class="ctx-kb">Ctrl+V</span></div>
+                <div class="ctx-item" data-cmd="delete"><span class="ctx-ic"></span>删除<span class="ctx-kb">Del</span></div>
+                <div class="ctx-sep"></div>
+                <div class="ctx-item" data-cmd="selectAll"><span class="ctx-ic"></span>全选<span class="ctx-kb">Ctrl+A</span></div>
+            </popup>
+            <popup class="ctx-menu menubar-popup" id="viewMenu">
+                <div class="ctx-item" data-cmd="zoomIn"><span class="ctx-ic"></span>放大<span class="ctx-kb">Ctrl++</span></div>
+                <div class="ctx-item" data-cmd="zoomOut"><span class="ctx-ic"></span>缩小<span class="ctx-kb">Ctrl+-</span></div>
+                <div class="ctx-item" data-cmd="zoomReset"><span class="ctx-ic"></span>重置缩放<span class="ctx-kb">Ctrl+0</span></div>
+                <div class="ctx-sep"></div>
+                <div class="ctx-item" data-cmd="toggleMenuBar"><span class="ctx-ic" id="viewToggleIntegrated"></span>菜单栏与标题栏一体<span class="ctx-kb"></span></div>
+            </popup>
+            <popup class="ctx-menu menubar-popup" id="helpMenu">
+                <div class="ctx-item" data-cmd="about"><span class="ctx-ic"></span>关于<span class="ctx-kb"></span></div>
+            </popup>
+        </nav>
+        <div class="titlebar-drag-region" role="window-caption"></div>
+        <div class="titlebar-controls">
+            <button class="titlebar-btn" role="button" id="btnThemeToggle" title="切换色调" aria-label="切换色调">
+                <span class="glyph">&#xE708;</span>
+            </button>
+            <button class="titlebar-btn" role="button" id="btnShaped" title="打开异形窗口" aria-label="打开异形窗口">
+                <span class="glyph">&#xE8A7;</span>
+            </button>
+            <button class="titlebar-btn" role="window-minimize" id="btnMinimize" title="最小化" aria-label="最小化">
+                <span class="glyph">&#xE921;</span>
+            </button>
+            <button class="titlebar-btn" role="window-maximize" id="btnMaximize" title="最大化" aria-label="最大化">
+                <span class="glyph">&#xE922;</span>
+            </button>
+            <button class="titlebar-btn titlebar-btn-close" role="window-close" id="btnClose" title="关闭" aria-label="关闭">
+                <span class="glyph">&#xE8BB;</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 演示区: 常见 GUI 元素演示 (右键 input/textarea 显示编辑菜单) -->
+    <div id="contentwin">
+        <div class="demo-grid-row">
+            <div class="demo-card">
+                <h3>C++ 交互 · 界面 -> 宿主</h3>
+                <div class="demo-row buttons-row">
+                    <button class="gui-btn gui-btn-primary" id="btnGetSysInfo">获取系统信息</button>
+                    <button class="gui-btn gui-btn-cyan" id="btnNativeMsgBox">原生消息框</button>
+                    <button class="gui-btn gui-btn-emerald" id="btnOpenFile">选择文件</button>
+                    <button class="gui-btn gui-btn-amber" id="btnToggleTopmost">切换置顶</button>
+                    <button class="gui-btn gui-btn-pink" id="btnCaptureScreen">完整截屏</button>
+                </div>
+                <div class="demo-row">
+                    <span class="demo-label">结果</span>
+                    <div class="ipc-result" id="ipcResult">点击按钮调用 C++ 原生能力…</div>
+                </div>
+                <div class="demo-row" style="margin-top:10px;">
+                    <span class="demo-label">动画</span>
+                    <label class="gui-switch" id="switchGlobalAnimLabel" title="切换页面实时动画">
+                        <input type="checkbox" id="btnToggleGlobalAnim" checked />
+                        <span class="gui-switch-track">
+                            <span class="gui-switch-knob"></span>
+                        </span>
+                    </label>
+                    <span class="demo-value" id="globalAnimStatusText" style="margin-left:8px;">实时动画: 开启</span>
+                </div>
+            </div>
+            <div class="demo-card">
+                <h3>C++ 交互 · 宿主 -> 界面</h3>
+                <div class="demo-row">
+                    <span class="demo-label">时钟</span>
+                    <span class="ipc-clock" id="ipcClock">--:--:--</span>
+                    <span class="demo-value">C++ 每秒推送</span>
+                </div>
+                <div class="demo-row">
+                    <span class="demo-label">尺寸</span>
+                    <span class="ipc-clock" id="ipcSize">- × -</span>
+                    <span class="demo-value">C++ 窗口变化推送</span>
+                </div>
+                <div class="demo-row">
+                    <span class="demo-label">进度</span>
+                    <div class="ipc-progress">
+                        <div class="ipc-progress-bar" id="ipcProgressBar"></div>
+                    </div>
+                    <span class="demo-value" id="ipcProgressVal">0%</span>
+                </div>
+                <div class="demo-row">
+                    <span class="demo-label">日志</span>
+                    <div class="ipc-log" id="ipcLog" selectable style="user-select: text;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-grid-row">
+            <div class="demo-card">
+                <h3>输入控件</h3>
+                <div class="demo-row">
+                    <span class="demo-label">文本</span>
+                    <input type="text" class="gui-input" placeholder="右键此处显示菜单…" />
+                </div>
+                <div class="demo-row">
+                    <span class="demo-label">密码</span>
+                    <input type="password" class="gui-input" value="password" />
+                </div>
+                <div class="demo-row">
+                    <span class="demo-label">下拉</span>
+                    <div class="gui-select" id="citySelect" tabindex="0">
+                        <div class="caption">选项一</div>
+                        <svg class="arrow-svg" viewBox="0 0 10 6">
+                            <path d="M1 1 L5 5 L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+                        </svg>
+                        <popup class="gui-select-popup" id="cityPopup">
+                            <div class="option-item" data-value="选项一">选项一</div>
+                            <div class="option-item" data-value="选项二">选项二</div>
+                            <div class="option-item" data-value="选项三">选项三</div>
+                        </popup>
+                    </div>
+                </div>
+                <div class="demo-row">
+                    <span class="demo-label">文本域</span>
+                    <textarea class="gui-textarea" placeholder="多行文本输入…"></textarea>
+                </div>
+            </div>
+            <div class="demo-card">
+                <h3>选择控件</h3>
+                <div class="demo-row">
+                    <label class="gui-check"><input type="checkbox" checked />复选 A</label>
+                    <label class="gui-check"><input type="checkbox" />复选 B</label>
+                    <label class="gui-check"><input type="checkbox" disabled checked />禁用</label>
+                </div>
+                <div class="demo-row">
+                    <label class="gui-check"><input type="radio" name="r1" checked />单选 1</label>
+                    <label class="gui-check"><input type="radio" name="r1" />单选 2</label>
+                    <label class="gui-check"><input type="radio" name="r1" />单选 3</label>
+                </div>
+                <div class="demo-row">
+                    <span class="demo-label">开关</span>
+                    <label class="gui-switch">
+                        <input type="checkbox" checked />
+                        <span class="gui-switch-track">
+                            <span class="gui-switch-knob"></span>
+                        </span>
+                    </label>
+                    <label class="gui-switch">
+                        <input type="checkbox" />
+                        <span class="gui-switch-track">
+                            <span class="gui-switch-knob"></span>
+                        </span>
+                    </label>
+                </div>
+                <div class="demo-row">
+                    <span class="demo-label">背景</span>
+                    <div class="custom-slider" id="bgOpacityRange" data-value="100">
+                        <div class="custom-slider-track">
+                            <div class="custom-slider-fill"></div>
+                        </div>
+                        <div class="custom-slider-thumb"></div>
+                    </div>
+                    <span class="demo-value" id="bgOpacityValue">100%</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-grid-row">
+            <div class="demo-card">
+                <h3>按钮</h3>
+                <div class="demo-row buttons-row">
+                    <button class="gui-btn gui-btn-primary">主要按钮</button>
+                    <button class="gui-btn gui-btn-secondary">次要按钮</button>
+                </div>
+                <div class="demo-row buttons-row">
+                    <button class="gui-btn gui-btn-outline">描边按钮</button>
+                    <button class="gui-btn gui-btn-secondary" disabled>禁用按钮</button>
+                </div>
+                <div class="demo-row buttons-row">
+                    <button class="gui-btn gui-btn-cyan">青色</button>
+                    <button class="gui-btn gui-btn-emerald">绿色</button>
+                    <button class="gui-btn gui-btn-amber">琥珀</button>
+                    <button class="gui-btn gui-btn-pink">粉色</button>
+                </div>
+            </div>
+            <div class="demo-card">
+                <h3>反馈与状态</h3>
+                <div class="demo-row">
+                    <span class="demo-label">进度</span>
+                    <div class="gui-progress">
+                        <div class="gui-progress-fill" style="width: 65%%;"></div>
+                        <div class="gui-progress-rest" style="width: 35%%;"></div>
+                    </div>
+                </div>
+                <div class="demo-row wrap-row">
+                    <span class="demo-label">徽章</span>
+                    <span class="gui-badge gui-badge-violet">默认</span>
+                    <span class="gui-badge gui-badge-cyan">信息</span>
+                    <span class="gui-badge gui-badge-emerald">成功</span>
+                    <span class="gui-badge gui-badge-amber">警告</span>
+                    <span class="gui-badge gui-badge-pink">错误</span>
+                </div>
+                <div class="gui-alert gui-alert-info">这是一条信息提示。</div>
+                <div class="gui-alert gui-alert-success">操作已成功完成。</div>
+                <div class="gui-alert gui-alert-warning">请注意此项内容。</div>
+                <div class="gui-alert gui-alert-error">发生错误，请重试。</div>
+            </div>
+        </div>
+
+        <div class="demo-grid-row">
+            <div class="demo-card">
+                <h3>标签页</h3>
+                <div class="gui-tabs">
+                    <div class="gui-tabs-nav">
+                        <button class="gui-tab active" data-tab="t1">概览</button>
+                        <button class="gui-tab" data-tab="t2">详情</button>
+                        <button class="gui-tab" data-tab="t3">日志</button>
+                    </div>
+                    <div class="gui-tab-panel active" data-panel="t1">这是「概览」面板的内容，展示项目的整体信息与核心指标。</div>
+                    <div class="gui-tab-panel" data-panel="t2">这是「详情」面板，包含更细致的配置项与字段说明。</div>
+                    <div class="gui-tab-panel" data-panel="t3">这是「日志」面板，记录最近的活动轨迹与事件流。</div>
+                </div>
+            </div>
+            <div class="demo-card">
+                <h3>加载状态</h3>
+                <div class="demo-row">
+                    <span class="demo-label">环形</span>
+                    <div class="gui-spinner"></div>
+                    <span class="demo-label" style="min-width:auto;margin-left:6px">点状</span>
+                    <div class="gui-spinner-dots"><span></span><span></span><span></span></div>
+                </div>
+                <div class="demo-row">
+                    <span class="demo-label">进度环</span>
+                    <div class="gui-ring">
+                        <svg width="44" height="44">
+                            <!-- 灰色背景轨道：从 12 点钟方向 (22, 4) 出发，顺时针绘制半径 18 的圆弧 -->
+                            <path class="gui-ring-track" d="M 22 4 A 18 18 0 1 1 21.99 4" fill="none" stroke-width="3.5" />
+                            <!-- 紫色填充进度：同样从 12 点钟顺时针绘制，通过 explicit dasharray 设为 79px 填充（70%）与 34px 空白（30%） -->
+                            <path class="gui-ring-fill" d="M 22 4 A 18 18 0 1 1 21.99 4" fill="none" stroke-width="3.5"
+                                stroke-dasharray="79 34" stroke-dashoffset="0" />
+                        </svg>
+                        <span class="gui-ring-text">70%</span>
+                    </div>
+                    <span class="demo-value" style="margin-left:10px">70%</span>
+                </div>
+                <div class="demo-row" style="flow:vertical; border-spacing:8px; width:*">
+                    <span class="demo-label">骨架屏</span>
+                    <div class="gui-skeleton" style="width:*"></div>
+                    <div class="gui-skeleton" style="width:80%"></div>
+                    <div class="gui-skeleton" style="width:55%"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-grid-row">
+            <div class="demo-card">
+                <h3>数据指标</h3>
+                <div class="gui-stat-row" style="margin-bottom:12px">
+                    <div class="gui-stat">
+                        <div class="gui-stat-label">访问量</div>
+                        <div class="gui-stat-value">12.8k</div>
+                        <div class="gui-stat-delta up">↑ 23.5%</div>
+                    </div>
+                    <div class="gui-stat">
+                        <div class="gui-stat-label">活跃</div>
+                        <div class="gui-stat-value">3,421</div>
+                        <div class="gui-stat-delta up">↑ 8.1%</div>
+                    </div>
+                </div>
+                <div class="gui-stat-row">
+                    <div class="gui-stat">
+                        <div class="gui-stat-label">流失</div>
+                        <div class="gui-stat-value">186</div>
+                        <div class="gui-stat-delta down">↓ 4.2%</div>
+                    </div>
+                    <div class="gui-stat">
+                        <div class="gui-stat-label">收入</div>
+                        <div class="gui-stat-value">¥9.2k</div>
+                        <div class="gui-stat-delta up">↑ 12.7%</div>
+                    </div>
+                </div>
+            </div>
+            <div class="demo-card">
+                <h3>时间线</h3>
+                <div class="gui-timeline">
+                    <div class="gui-timeline-item">
+                        <div class="gui-timeline-time">09:24</div>
+                        <div class="gui-timeline-content">项目创建完成</div>
+                    </div>
+                    <div class="gui-timeline-item">
+                        <div class="gui-timeline-time">10:08</div>
+                        <div class="gui-timeline-content">配置文件加载成功</div>
+                    </div>
+                    <div class="gui-timeline-item">
+                        <div class="gui-timeline-time">11:32</div>
+                        <div class="gui-timeline-content">渲染管线就绪</div>
+                    </div>
+                    <div class="gui-timeline-item">
+                        <div class="gui-timeline-time">12:05</div>
+                        <div class="gui-timeline-content">界面演示启动</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-grid-row">
+            <div class="demo-card">
+                <h3>数据表格</h3>
+                <table class="gui-table">
+                    <thead>
+                        <tr>
+                            <th>名称</th>
+                            <th>类型</th>
+                            <th>状态</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>主窗口</td>
+                            <td>SciterUI</td>
+                            <td><span class="gui-badge gui-badge-emerald">运行</span></td>
+                        </tr>
+                        <tr>
+                            <td>悬浮球</td>
+                            <td>异形</td>
+                            <td><span class="gui-badge gui-badge-cyan">就绪</span></td>
+                        </tr>
+                        <tr>
+                            <td>托盘</td>
+                            <td>原生</td>
+                            <td><span class="gui-badge gui-badge-amber">等待</span></td>
+                        </tr>
+                        <tr>
+                            <td>渲染器</td>
+                            <td>DComp</td>
+                            <td><span class="gui-badge gui-badge-emerald">运行</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="demo-card">
+                <h3>列表与头像</h3>
+                <div class="gui-list-item">
+                    <span class="gui-avatar gui-avatar-violet">李</span>
+                    <div class="gui-list-info">
+                        <div class="gui-list-name">李明</div>
+                        <div class="gui-list-desc">前端工程师 · 在线</div>
+                    </div>
+                    <span class="gui-badge gui-badge-emerald">活跃</span>
+                </div>
+                <div class="gui-list-item">
+                    <span class="gui-avatar gui-avatar-cyan">王</span>
+                    <div class="gui-list-info">
+                        <div class="gui-list-name">王芳</div>
+                        <div class="gui-list-desc">UI 设计师 · 离开</div>
+                    </div>
+                    <span class="gui-badge gui-badge-amber">离开</span>
+                </div>
+                <div class="gui-list-item">
+                    <span class="gui-avatar gui-avatar-pink">赵</span>
+                    <div class="gui-list-info">
+                        <div class="gui-list-name">赵磊</div>
+                        <div class="gui-list-desc">后端工程师 · 离线</div>
+                    </div>
+                    <span class="gui-badge gui-badge-pink">离线</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-grid-row">
+            <div class="demo-card">
+                <h3>导航元素</h3>
+                <div class="demo-row">
+                    <span class="demo-label">面包屑</span>
+                    <nav class="gui-breadcrumb">
+                        <a>首页</a><span class="sep">/</span>
+                        <a>组件</a><span class="sep">/</span>
+                        <span class="current">导航</span>
+                    </nav>
+                </div>
+                <div class="demo-row" style="align-items:flex-start">
+                    <span class="demo-label">步骤</span>
+                    <div class="gui-steps">
+                        <div class="gui-step done"><span class="gui-step-num">✓</span><span
+                                class="gui-step-label">创建</span></div>
+                        <div class="gui-step-line"></div>
+                        <div class="gui-step active"><span class="gui-step-num">2</span><span
+                                class="gui-step-label">配置</span></div>
+                        <div class="gui-step-line"></div>
+                        <div class="gui-step"><span class="gui-step-num">3</span><span class="gui-step-label">部署</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="demo-row">
+                    <span class="demo-label">分页</span>
+                    <div class="gui-pagination">
+                        <span class="gui-page-btn">‹</span>
+                        <span class="gui-page-btn active">1</span>
+                        <span class="gui-page-btn">2</span>
+                        <span class="gui-page-btn">3</span>
+                        <span class="gui-page-btn">4</span>
+                        <span class="gui-page-btn">›</span>
+                    </div>
+                </div>
+            </div>
+            <div class="demo-card">
+                <h3>标签与提示</h3>
+                <div class="demo-row wrap-row">
+                    <span class="demo-label">Chip</span>
+                    <span class="gui-chip">Vue <span class="x">✕</span></span>
+                    <span class="gui-chip">React <span class="x">✕</span></span>
+                    <span class="gui-chip">Web <span class="x">✕</span></span>
+                </div>
+                <div class="demo-row">
+                    <span class="demo-label">悬浮</span>
+                    <span class="gui-btn gui-btn-outline" style="position: relative;">
+                        悬停查看
+                        <span class="gui-tooltip">这是一个工具提示</span>
+                    </span>
+                    <span class="gui-badge gui-badge-violet" style="position: relative;">
+                        悬停我
+                        <span class="gui-tooltip">徽章提示信息</span>
+                    </span>
+                </div>
+                <div class="demo-row">
+                    <span class="demo-label">快捷键</span>
+                    <span class="gui-kbd">Ctrl</span>
+                    <span style="color:var(--text-tertiary)">+</span>
+                    <span class="gui-kbd">Shift</span>
+                    <span style="color:var(--text-tertiary)">+</span>
+                    <span class="gui-kbd">P</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-grid-row">
+            <div class="demo-card">
+                <h3>文本显示区</h3>
+                <div class="gui-textview">
+                    <p>SciterUI 是一套基于 Sciter 引擎构建的轻量级桌面 GUI 框架。它将现代 Web 技术与原生 Windows
+                        窗口能力相结合，支持玻璃态半透明背景、异形窗口、DirectComposition 硬件加速渲染等特性。</p>
+                    <p>本框架使用 C++ 编写宿主程序，通过 Sciter 加载本地 HTML/CSS/JS 资源，实现界面与逻辑的解耦。前端采用纯 CSS
+                        变量驱动的主题系统，可随系统明暗模式自动切换，无需重新加载页面。</p>
+                    <p>窗口层面支持标准模式、异形裁剪模式与托盘驻留模式。标题栏、菜单栏均由 HTML 渲染，通过 postMessage 与 C++ 宿主双向通信，调用最大化、最小化、关闭、置顶等原生能力。</p>
+                    <p>滚动条样式统一采用透明轨道加内嵌圆角灰色滑块的设计语言，悬停时滑块透明度提升以提供视觉反馈。该样式同时应用于页面主滚动区、文本域输入框以及本只读文本显示区，保持全局视觉一致性。</p>
+                    <p>所有交互组件（按钮、输入框、下拉、开关、标签页、表格、时间线等）均内置明暗双主题适配，并通过 CSS 自定义属性实现细粒度颜色控制，便于二次定制与主题扩展。</p>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <script>
+        (function () {
+            const root = document.documentElement;
+
+            // ==================== 主题切换 ====================
+            function applyTheme(dark) {
+                if (dark) {
+                    document.body.classList.remove('theme-light');
+                    document.body.classList.add('theme-dark');
+                } else {
+                    document.body.classList.remove('theme-dark');
+                    document.body.classList.add('theme-light');
+                }
+                const btnTheme = document.getElementById('btnThemeToggle');
+                if (btnTheme) {
+                    const glyph = btnTheme.querySelector('.glyph');
+                    if (glyph) {
+                        glyph.textContent = dark ? '\uE706' : '\uE708';
+                    }
+                }
+                // 主题切换后需要立即刷新背景透明度
+                var bgOpacityRange = document.getElementById('bgOpacityRange');
+                if (bgOpacityRange) {
+                    applyBgOpacity(parseFloat(bgOpacityRange.getAttribute('data-value') || '100'), true); // 主题切换时立即更新，不延迟
+                }
+            }
+
+            // 主题揭示转场：优先走 C++ 注入的 beThemeReveal。
+            // 根因不是显存晚点释放，而是 morphContent 若未按 progress==1 收尾，
+            // paintForeground 会永久挂在 document 上；WARP 下每帧全屏合成 → CPU 常驻。
+            // 官方正确写法是 await morphContent(...) 结束后再 paintForeground = null。
+            var themeTransitionGen = 0;
+            async function switchThemeWithReveal(dark, sourceElement) {
+                var myGen = ++themeTransitionGen;
+                
+                // if (typeof stopAutoProgress === 'function') stopAutoProgress();
+                // if (typeof stopSkeletonShimmer === 'function') stopSkeletonShimmer();
+
+                var bodyEl = document.body;
+                var oldThemeImage = null;
+
+                try {
+                    var ratio = (Window && Window.this && Window.this.devicePixelRatio) || window.devicePixelRatio || 1;
+                    var bodyRect = bodyEl.getBoundingClientRect();
+                    var w_dip = bodyRect.width;
+                    var h_dip = bodyRect.height;
+                    // 在 High DPI (125%, 150% 等) 屏幕下，Graphics.Image 构造函数需要物理像素尺寸，
+                    // 否则渲染出的位图会被当做 DIP 再次放大，导致转场时图像看起来被放大了 1.25x/1.5x。
+                    var w_px = Math.ceil(w_dip * ratio);
+                    var h_px = Math.ceil(h_dip * ratio);
+                    
+                    // 使用纯前端的 Graphics.Image 截图，绕过 C++ 层 WARP 截图的兼容性问题
+                    if (typeof Graphics !== 'undefined' && Graphics.Image) {
+                        oldThemeImage = new Graphics.Image(w_px, h_px, bodyEl);
+                    }
+
+                    if (!oldThemeImage) {
+                        applyTheme(dark);
+                        return;
+                    }
+
+                    var sourceRect = sourceElement ? sourceElement.getBoundingClientRect() : bodyRect;
+                    var centerX = (sourceRect.left + sourceRect.width / 2) - bodyRect.left;
+                    var centerY = (sourceRect.top + sourceRect.height / 2) - bodyRect.top;
+                    var maxRadius = Math.max(
+                        Math.hypot(centerX, centerY),
+                        Math.hypot(w_dip - centerX, centerY),
+                        Math.hypot(centerX, h_dip - centerY),
+                        Math.hypot(w_dip - centerX, h_dip - centerY)
+                    );
+                    var radius = 0;
+                    
+                    // 真正的 1:1 几何覆盖方程：
+                    // 起点 (-1, -1)，终点 (w_dip, h_dip)
+                    // 画布区间宽度 = 终点 - 起点 = w_dip - (-1) = w_dip + 1
+                    // 绝不拉伸 1 个像素，四角绝对精确锁死！
+                    var clipLeft = -1;
+                    var clipTop = -1;
+                    var drawW = w_dip + 1;
+                    var drawH = h_dip + 1;
+
+                    bodyEl.paintForeground = function (graphics) {
+                        if (myGen !== themeTransitionGen) return; // 拦截旧动画的回调
+                        var path = new Graphics.Path();
+                        // 覆盖整个 body Border Box 的矩形 (-1 到 w_dip + 1)
+                        path.moveTo(clipLeft, clipTop);
+                        path.lineTo(clipLeft + drawW, clipTop);
+                        path.lineTo(clipLeft + drawW, clipTop + drawH);
+                        path.lineTo(clipLeft, clipTop + drawH);
+                        path.close();
+
+                        var c = radius * 0.55228475;
+                        path.moveTo(centerX + radius, centerY);
+                        path.bezierCurveTo(centerX + radius, centerY - c, centerX + c, centerY - radius, centerX, centerY - radius);
+                        path.bezierCurveTo(centerX - c, centerY - radius, centerX - radius, centerY - c, centerX - radius, centerY);
+                        path.bezierCurveTo(centerX - radius, centerY + c, centerX - c, centerY + radius, centerX, centerY + radius);
+                        path.bezierCurveTo(centerX + c, centerY + radius, centerX + radius, centerY + c, centerX + radius, centerY);
+                        path.close();
+
+                        graphics.pushLayer(path);
+                        graphics.draw(oldThemeImage, {
+                            x: clipLeft, y: clipTop, width: drawW, height: drawH
+                        });
+                        graphics.popLayer();
+                    };
+
+                    // 先挂上半径为 0 的旧主题快照遮罩，再切换真实主题。
+                    // 若先调用 update()，最大化时会提前提交一帧完整的新主题，造成整屏闪烁。
+                    document.body.classList.add('theme-transitioning');
+                    applyTheme(dark);
+                    if (Window && Window.this && Window.this.update) Window.this.update();
+
+                    // 执行转场动画
+                    var stepFn = function (progress) {
+                        if (myGen !== themeTransitionGen) return false; // 连续点击打断时，丢弃旧动画并停止 requestPaint
+                        radius = maxRadius * progress;
+                        bodyEl.requestPaint();
+                        return true;
+                    };
+
+                    if (typeof bodyEl.morphContent === 'function') {
+                        await bodyEl.morphContent(stepFn, { duration: 300, ease: 'circ-out' });
+                    } else if (typeof bodyEl.animate === 'function') {
+                        await bodyEl.animate(stepFn, { duration: 300, ease: 'circ-out' });
+                    }
+                } catch (err) {
+                    var ipcLog = document.getElementById('ipcLog');
+                    if (ipcLog) {
+                        var d = document.createElement('div');
+                        d.className = 'ipc-log-out';
+                        d.textContent = '【系统】前端转场错误: ' + err;
+                        ipcLog.appendChild(d);
+                    }
+                    applyTheme(dark);
+                } finally {
+                    document.body.classList.remove('theme-transitioning');
+                    if (myGen === themeTransitionGen) {
+                        if (bodyEl) bodyEl.paintForeground = null;
+                        if (bodyEl) bodyEl.requestPaint();
+                        if (typeof globalAnimEnabled !== 'undefined' && globalAnimEnabled) {
+                            if (typeof startAutoProgress === 'function') startAutoProgress();
+                            if (typeof startSkeletonShimmer === 'function') startSkeletonShimmer();
+                        }
+                    }
+                    if (oldThemeImage && typeof oldThemeImage.dispose === 'function') {
+                        try { oldThemeImage.dispose(); } catch (e) {}
+                    }
+                }
+            }
+
+            // 默认用光明色调 (light theme)
+            applyTheme(false);
+
+            // 供 C++ 捕获 WM_SETTINGCHANGE (ImmersiveColorSet) 后调用的原生通知
+            window.onSystemThemeChanged = function(dark) {
+                var isCurrentlyDark = document.body.classList.contains("theme-dark");
+                if (dark !== isCurrentlyDark) {
+                    var btnTheme = document.getElementById('btnThemeToggle');
+                    switchThemeWithReveal(dark, btnTheme);
+                }
+            };
+
+            // 监听 C++ 宿主消息 (窗口状态 & 主题变化)
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.addEventListener('message', function (e) {
+                    try {
+                        const data = JSON.parse(e.data);
+                        if (data.type === 'windowStateChanged') {
+                            isMaximized = !!data.isMaximized;
+                            // 最大化可用性由宿主 g_allowMaximize 决定
+                            if (typeof data.maximizeEnabled !== 'undefined') {
+                                maximizeEnabled = !!data.maximizeEnabled;
+                                applyMaximizeEnabled();
+                            }
+                            updateMaximizeIcon();
+                        } else if (data.type === 'themeChanged') {
+                            applyTheme(!!data.dark);
+                        } else if (data.type === 'hideMenus') {
+                            // C++ 端弹出原生菜单 (托盘菜单) 前通知关闭 HTML 菜单 (互斥)
+                            hideAllMenus();
+                        } else if (data.type === 'zoomChanged') {
+                            // 页面缩放变化时关闭所有菜单 (菜单位置会因缩放错位)
+                            hideAllMenus();
+                            // 重新上报菜单栏矩形 (缩放可能引起布局变化)
+                            notifyMenuBarRect();
+                        } else if (data.type === 'showSystemMenu') {
+                            // 标题栏右键: 在指定 CSS 坐标处弹出模拟系统菜单
+                            hideAllMenus();
+                            showSysMenu(data.x, data.y);
+                        }
+                        // ====== C++ 交互演示: 处理 C++ 回复消息 ======
+                        else if (data.type === 'systemInfo') {
+                            var info = '系统: ' + data.os + '\n'
+                                + '计算机名: ' + data.computer + '\n'
+                                + 'CPU 核心: ' + data.cpuCores + '\n'
+                                + '总内存: ' + data.totalMemMB + ' MB\n'
+                                + '可用内存: ' + data.availMemMB + ' MB\n'
+                                + '宿主时间: ' + data.time;
+                            document.getElementById('ipcResult').textContent = info;
+                            ipcLog('in', 'systemInfo -> ' + data.os);
+                        } else if (data.type === 'messageBoxResult') {
+                            document.getElementById('ipcResult').textContent = '消息框返回: ' + data.result;
+                            ipcLog('in', 'messageBoxResult -> ' + data.result);
+                        } else if (data.type === 'fileSelected') {
+                            document.getElementById('ipcResult').textContent = '已选择: ' + data.path;
+                            ipcLog('in', 'fileSelected -> ' + data.path);
+                        } else if (data.type === 'fileCancelled') {
+                            document.getElementById('ipcResult').textContent = '文件选择已取消';
+                            ipcLog('in', 'fileCancelled');
+                        } else if (data.type === 'topmostChanged') {
+                            document.getElementById('ipcResult').textContent = data.topmost ? '窗口已置顶' : '窗口已取消置顶';
+                            ipcLog('in', 'topmostChanged -> ' + (data.topmost ? 'true' : 'false'));
+                        } else if (data.type === 'hostClock') {
+                            var clk = document.getElementById('ipcClock');
+                            if (clk) clk.textContent = data.time;
+                        } else if (data.type === 'windowResized') {
+                            var sz = document.getElementById('ipcSize');
+                            if (sz) sz.textContent = data.width + ' × ' + data.height;
+                        } else if (data.type === 'progressUpdate') {
+                            var bar = document.getElementById('ipcProgressBar');
+                            var val = document.getElementById('ipcProgressVal');
+                            if (bar) bar.style.width = data.value + '%';
+                            if (val) val.textContent = data.value + '%';
+                        } else if (data.type === 'hostNotify') {
+                            showToast(data.ntype, data.title, data.message, data.duration);
+                        }
+                    } catch (ex) { /* ignore */ }
+                });
+            }
+
+            // ==================== 窗口控制器 ====================
+            const btnMinimize = document.getElementById('btnMinimize');
+            const btnMaximize = document.getElementById('btnMaximize');
+            const btnClose = document.getElementById('btnClose');
+            const btnThemeToggle = document.getElementById('btnThemeToggle');
+            const btnMenu = btnThemeToggle;
+            const btnShaped = document.getElementById('btnShaped');
+            let isMaximized = false;
+            // 最大化是否被宿主禁用 (由 C++ g_allowMaximize 决定)。
+            // 禁用时按钮置灰不可点击，但仍保留显示。
+            let maximizeEnabled = true;
+
+            function sendWindowCommand(cmd) {
+                if (window.chrome && window.chrome.webview) {
+                    window.chrome.webview.postMessage(JSON.stringify({
+                        type: 'windowControl', command: cmd
+                    }));
+                }
+            }
+
+            // ==================== C++ 交互演示 ====================
+            // ipcLog: 记录双向通信日志 (绿色 ← 接收 C++ 消息, 橙色 -> 发送给 C++)
+            function ipcLog(direction, text) {
+                var log = document.getElementById('ipcLog');
+                if (!log) return;
+                var now = new Date();
+                var ts = ('0' + now.getHours()).slice(-2) + ':' +
+                    ('0' + now.getMinutes()).slice(-2) + ':' +
+                    ('0' + now.getSeconds()).slice(-2);
+                var line = document.createElement('div');
+                line.className = direction === 'in' ? 'ipc-log-in' : 'ipc-log-out';
+                line.textContent = (direction === 'in' ? '← ' : '-> ') + '[' + ts + '] ' + text;
+                log.appendChild(line);
+                log.scrollTop = log.scrollHeight;
+                while (log.childNodes.length > 60) log.removeChild(log.firstChild);
+            }
+            // 向 C++ 发送交互命令并记录日志
+            function sendHostCommand(cmd) {
+                if (window.chrome && window.chrome.webview) {
+                    window.chrome.webview.postMessage(JSON.stringify({
+                        type: 'windowControl', command: cmd
+                    }));
+                    ipcLog('out', cmd);
+                }
+            }
+            // 通过 C++ 宿主弹出原生提示框 (替代浏览器 alert)
+            function showHostAlert(text, title) {
+                if (window.chrome && window.chrome.webview) {
+                    window.chrome.webview.postMessage(JSON.stringify({
+                        type: 'windowControl', command: 'showAlert',
+                        text: text, title: title || '提示'
+                    }));
+                } else if (typeof showToast === 'function') {
+                    showToast('info', title || '提示', text, 2600);
+                }
+            }
+            // ==================== 通知组件 (Toast) ====================
+            var toastContainer = document.getElementById('toastContainer');
+            var toastIcons = {
+                info: '\uE946', success: '\uE73E', warning: '\uE7BA', error: '\uEA39'
+            };
+            // 显示一条通知 (type: info/success/warning/error, 自动消失)
+            function showToast(type, title, message, duration) {
+                if (!toastContainer) return;
+                // 限制最多同时显示 5 条，超出移除最旧的
+                while (toastContainer.children.length >= 5) {
+                    toastContainer.firstChild.remove();
+                }
+                var toast = document.createElement('div');
+                toast.className = 'toast type-' + (type || 'info');
+
+                var icon = document.createElement('span');
+                icon.className = 'toast-icon';
+                icon.textContent = toastIcons[type] || toastIcons.info;
+
+                var body = document.createElement('div');
+                body.className = 'toast-body';
+                var titleEl = document.createElement('div');
+                titleEl.className = 'toast-title';
+                titleEl.textContent = title || '通知';
+                var msgEl = document.createElement('div');
+                msgEl.className = 'toast-message';
+                msgEl.textContent = message || '';
+                body.appendChild(titleEl);
+                body.appendChild(msgEl);
+
+                var close = document.createElement('button');
+                close.className = 'toast-close';
+                close.textContent = '\u2715';
+                close.title = '关闭';
+
+                toast.appendChild(icon);
+                toast.appendChild(body);
+                toast.appendChild(close);
+
+                function removeToast() {
+                    if (toast.classList.contains('toast-out')) return;
+                    toast.classList.add('toast-out');
+                    setTimeout(function () { if (toast.parentNode) toast.remove(); }, 300);
+                }
+                close.addEventListener('click', removeToast);
+
+                // 自动消失; 鼠标悬停时暂停 (移开后 1.5s 消失)
+                var timer = setTimeout(removeToast, duration || 4000);
+                toast.addEventListener('mouseenter', function () { clearTimeout(timer); });
+                toast.addEventListener('mouseleave', function () { timer = setTimeout(removeToast, 1500); });
+
+                toastContainer.appendChild(toast);
+            }
+            // 绑定"界面 -> 宿主"按钮
+            (function () {
+                var btnGetSysInfo = document.getElementById('btnGetSysInfo');
+                var btnNativeMsgBox = document.getElementById('btnNativeMsgBox');
+                var btnOpenFile = document.getElementById('btnOpenFile');
+                var btnToggleTopmost = document.getElementById('btnToggleTopmost');
+            var btnCaptureScreen = document.getElementById('btnCaptureScreen');
+            var btnCaptureScreen = document.getElementById('btnCaptureScreen');
+                if (btnGetSysInfo) btnGetSysInfo.addEventListener('click', function () {
+                    sendHostCommand('getSystemInfo');
+                    document.getElementById('ipcResult').textContent = '请求系统信息中…';
+                });
+                if (btnNativeMsgBox) btnNativeMsgBox.addEventListener('click', function () {
+                    sendHostCommand('showMessageBox');
+                });
+                if (btnOpenFile) btnOpenFile.addEventListener('click', function () {
+                    sendHostCommand('openFileDialog');
+                    document.getElementById('ipcResult').textContent = '请在弹出的对话框中选择文件…';
+                });
+                if (btnToggleTopmost) btnToggleTopmost.addEventListener('click', function () {
+                    sendHostCommand('toggleTopmost');
+                });
+            })();
+            // 通知 C++ 宿主 HTML 菜单的矩形: 菜单覆盖的标题栏区域 hit-test 返回 HTCLIENT，
+            // 让 WebView2 接收菜单点击；其余标题栏区域仍可拖动窗口。
+            function notifyMenuRect(rect) {
+                if (window.chrome && window.chrome.webview) {
+                    if (rect) {
+                        window.chrome.webview.postMessage(JSON.stringify({
+                            type: 'menuRect',
+                            left: rect.left, top: rect.top, right: rect.right, bottom: rect.bottom
+                        }));
+                    } else {
+                        window.chrome.webview.postMessage(JSON.stringify({
+                            type: 'menuRect', open: false
+                        }));
+                    }
+                }
+            }
+            function updateMaximizeIcon() {
+                const glyph = btnMaximize.querySelector('.glyph');
+                if (isMaximized) {
+                    glyph.textContent = '\uE923';
+                    btnMaximize.setAttribute('aria-label', '还原');
+                    btnMaximize.setAttribute('title', '还原');
+                } else {
+                    glyph.textContent = '\uE922';
+                    btnMaximize.setAttribute('aria-label', '最大化');
+                    btnMaximize.setAttribute('title', '最大化');
+                }
+            }
+            function applyMaximizeEnabled() {
+                btnMaximize.disabled = !maximizeEnabled;
+            }
+
+            if (btnThemeToggle) {
+                btnThemeToggle.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    var isDark = document.body.classList.contains('theme-dark');
+                    switchThemeWithReveal(!isDark, btnThemeToggle);
+                });
+            }
+            btnShaped.addEventListener('click', function (e) { e.stopPropagation(); sendWindowCommand('openShapedWindow'); });
+
+            // 窗口图标 (logo): 单击弹出系统菜单、双击关闭窗口 (Windows 窗口图标标准行为)
+            var appLogo = document.querySelector('.titlebar-logo');
+            if (appLogo) {
+                appLogo.style.pointerEvents = 'auto';
+                appLogo.style.cursor = 'default';
+                appLogo.addEventListener('mousedown', function (e) {
+                    if (e.button === 0) appLogo.classList.add('pressed');
+                });
+                appLogo.addEventListener('mouseleave', function () { appLogo.classList.remove('pressed'); });
+                appLogo.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    hideAllMenus();
+                    var r = appLogo.getBoundingClientRect();
+                    showSysMenu(r.left, r.bottom);  // 单击: 在 logo 下方弹系统菜单
+                });
+                appLogo.addEventListener('dblclick', function (e) {
+                    e.stopPropagation();
+                    hideAllMenus();
+                    sendWindowCommand('close');  // 双击: 关闭窗口
+                });
+            }
+
+            // 禁用所有窗口控制按钮的右键菜单:
+            //   preventDefault  阻止 WebView2 默认浏览器上下文菜单
+            //   stopPropagation 阻止冒泡到 document，避免弹出窗口的自定义右键菜单 (ctxMenu)
+            // 并在点击其他按钮时关闭已弹出的菜单 (菜单按钮自身用 toggle 逻辑，不在此处理；
+            // 用 capture 阶段监听，确保在按钮自身 stopPropagation 之前关闭菜单)
+            // 按下高亮由 JS 管理 (.pressed 类，仅左键)，避免右键 mousedown 触发原生 :active
+            document.querySelectorAll('.titlebar-btn').forEach(function (btn) {
+                btn.addEventListener('contextmenu', function (e) { e.preventDefault(); e.stopPropagation(); hideAllMenus(); });
+                if (btn !== btnMenu) {
+                    btn.addEventListener('click', function () { hideAllMenus(); }, true);
+                }
+            });
+
+            // ==================== 自定义菜单 (右键菜单 + 菜单按钮下拉菜单) ====================
+            var ctxMenu = document.getElementById('ctxMenu');
+            var appMenu = document.getElementById('appMenu');
+            var sysMenu = document.getElementById('sysMenu');
+
+            // 通用菜单定位: 自动避免溢出视口右下边缘
+            function showMenu(menu, x, y) {
+                // 清理可能残留的 hover/active 状态
+                var items = menu.querySelectorAll('.ctx-item');
+                for (var i = 0; i < items.length; ++i) {
+                    items[i].state.hover = false;
+                    items[i].state.active = false;
+                    items[i].state.focus = false;
+                }
+
+                menu.style.display = 'block';
+                menu.state.focus = true; // 使用 state.focus=true 更安全
+                
+                var r = menu.getBoundingClientRect();
+                var vx = (x + r.width > window.innerWidth) ? (x - r.width) : x;
+                var vy = (y + r.height > window.innerHeight) ? (y - r.height) : y;
+                menu.style.left = vx + 'px';
+                menu.style.top = vy + 'px';
+                notifyMenuRect(menu.getBoundingClientRect());
+            }
+            // 右键菜单: 根据目标元素类型显示完整编辑菜单或精简文本菜单
+            //   editable=true:  完整菜单 (撤销/剪切/复制/粘贴/删除/全选)，作用于聚焦的可编辑元素
+            //   editable=false: 精简菜单 (仅复制/全选)，作用于普通文本选区 (由 .ctx-edit-only 隐藏其余项)
+            var ctxTarget = null;  // 记录右键目标，供非编辑模式下的"全选"使用
+            // 取右键目标所在的块级文本容器，作为"全选"的作用范围
+            function getCtxSelectScope(node) {
+                var blockTags = 'P,H1,H2,H3,H4,H5,H6,LI,TD,TH,BLOCKQUOTE,PRE,DIV,SECTION,ARTICLE,MAIN,BODY';
+                var el = (node && node.nodeType === 3) ? node.parentNode : node;
+                return (el && el.closest(blockTags)) || el || document.body;
+            }
+            function showCtxMenu(x, y, editable) {
+                ctxMenu.classList.toggle('ctx-editable', !!editable);
+                var hasSelection = false, hasValue = false;
+                if (editable) {
+                    var el = document.activeElement;
+                    if (el && el.isContentEditable) {
+                        var sel = window.getSelection();
+                        hasSelection = sel && sel.toString().length > 0;
+                        hasValue = el.textContent.length > 0;
+                    } else if (el) {
+                        hasSelection = el.selectionStart !== el.selectionEnd;
+                        hasValue = el.value && el.value.length > 0;
+                    }
+                } else {
+                    var sel2 = window.getSelection();
+                    hasSelection = sel2 && sel2.toString().length > 0;
+                    hasValue = true;  // 普通文本总允许全选
+                }
+                function setDisabled(cmd, disabled) {
+                    var item = ctxMenu.querySelector('[data-cmd="' + cmd + '"]');
+                    if (item) item.classList.toggle('ctx-disabled', disabled);
+                }
+                setDisabled('undo', !(editable && document.queryCommandEnabled('undo')));
+                setDisabled('cut', !(editable && hasSelection));
+                setDisabled('copy', !hasSelection);
+                setDisabled('paste', !editable);  // 剪贴板内容无法同步可靠查询，可编辑时即启用
+                setDisabled('delete', !(editable && hasSelection));
+                setDisabled('selectAll', !hasValue);
+                showMenu(ctxMenu, x, y);
+            }
+            function showAppMenu(x, y) { showMenu(appMenu, x, y); btnMenu.classList.add('menu-open'); }
+            // 系统菜单: 根据窗口状态设置菜单项可用性后再显示
+            function showSysMenu(x, y) {
+                var zoomed = isMaximized;
+                sysMenu.querySelector('[data-cmd="sysRestore"]').classList.toggle('ctx-disabled', !zoomed);
+                sysMenu.querySelector('[data-cmd="sysMove"]').classList.toggle('ctx-disabled', zoomed);
+                sysMenu.querySelector('[data-cmd="sysSize"]').classList.toggle('ctx-disabled', zoomed || !maximizeEnabled);
+                sysMenu.querySelector('[data-cmd="sysMaximize"]').classList.toggle('ctx-disabled', zoomed || !maximizeEnabled);
+                showMenu(sysMenu, x, y);
+            }
+            function hideCtxMenu() { ctxMenu.style.display = 'none'; }
+            function hideAppMenu() { appMenu.style.display = 'none'; btnMenu.classList.remove('menu-open'); }
+            function hideSysMenu() { sysMenu.style.display = 'none'; }
+            function hideAllMenus() {
+                pendingMenuBarOpen = null;
+                hideCtxMenu();
+                hideAppMenu();
+                hideSysMenu();
+                hideMenuBarDropdown();
+                notifyMenuRect(null);
+            }
+
+            // 拦截整个文档的右键事件: 始终阻止 WebView2 默认浏览器菜单。
+            // 可编辑元素 (input/textarea/contenteditable) 右键: 弹出完整编辑菜单
+            // 普通文本区域右键: 仅当命中实际文本内容时弹出精简菜单 (复制/全选)，作用于当前文本选区
+            // 按钮、下拉框等交互元素及空白区域不弹出任何菜单
+            document.addEventListener('contextmenu', function (e) {
+                e.preventDefault();
+                // 右键在已打开的菜单上: 保持菜单打开 (不关闭、不弹其他菜单)
+                if (e.target.closest('.ctx-menu')) return;
+                hideAllMenus();  // 互斥: 先关闭其他已弹出的菜单
+                var editableEl = e.target.closest('input, textarea, [contenteditable]');
+                if (editableEl) {
+                    editableEl.focus();  // 确保编辑命令作用于该元素
+                    ctxTarget = editableEl;
+                    showCtxMenu(e.clientX, e.clientY, true);
+                } else {
+                    // 普通文本: 仅当右键命中实际文本内容时才弹出精简菜单
+                    // 1) 排除按钮、下拉框等交互元素 (右键它们不弹菜单)
+                    // 2) 仅当目标元素直接包含非空白文本节点时才视为"文本区域"
+                    //    (排除文本在子元素中的容器，即空白/padding 区域)
+                    var el = (e.target.nodeType === 3) ? e.target.parentNode : e.target;
+                    if (el.closest('button, select, option, .gui-select, .gui-select-popup, .titlebar-btn, .menubar-item')) return;
+                    var hasText = false;
+                    for (var i = 0; i < el.childNodes.length; i++) {
+                        var n = el.childNodes[i];
+                        if (n.nodeType === 3 && n.textContent.trim().length > 0) { hasText = true; break; }
+                    }
+                    if (hasText) {
+                        ctxTarget = e.target;
+                        showCtxMenu(e.clientX, e.clientY, false);
+                    }
+                    // 否则不弹出菜单 (仅已 preventDefault 抑制 WebView2 默认菜单)
+                }
+            });
+
+            document.addEventListener('click', hideAllMenus);
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') hideAllMenus();
+            });
+            window.addEventListener('blur', hideAllMenus);
+
+            // 阻止菜单项抢夺焦点，保持 input 焦点，使编辑命令作用于 input
+            ctxMenu.addEventListener('mousedown', function (e) { e.preventDefault(); });
+
+            ctxMenu.addEventListener('click', function (e) {
+                e.stopPropagation();  // 阻止冒泡到 document，避免点击菜单内部时被关闭
+                var t = e.target.closest('.ctx-item');
+                if (!t || t.classList.contains('ctx-disabled')) return;  // 非项或禁用项，保持菜单打开
+                var cmd = t.dataset.cmd;
+                if (cmd) {
+                    var el = document.activeElement;
+                    var isEditable = el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable);
+                    if (cmd === 'selectAll') {
+                        if (isEditable) {
+                            el.select();
+                        } else {
+                            // 普通文本: 选中右键目标所在块级容器的全部文本
+                            var scope = getCtxSelectScope(ctxTarget);
+                            var range = document.createRange();
+                            range.selectNodeContents(scope);
+                            var sel = window.getSelection();
+                            sel.removeAllRanges();
+                            sel.addRange(range);
+                        }
+                    } else if (cmd === 'paste') {
+                        // paste 需异步读取剪贴板 (execCommand('paste') 在 Chromium 已失效)
+                        navigator.clipboard.readText().then(function (text) {
+                            document.execCommand('insertText', false, text);
+                        }).catch(function () { });
+                    } else {
+                        // undo / cut / copy / delete
+                        // 可编辑元素作用于聚焦元素; 普通文本 copy 作用于当前选区
+                        document.execCommand(cmd);
+                    }
+                }
+                hideCtxMenu();
+            });
+
+            appMenu.addEventListener('click', function (e) {
+                e.stopPropagation();
+                var t = e.target.closest('.ctx-item');
+                if (!t) return;
+                var cmd = t.dataset.cmd;
+                if (cmd) sendWindowCommand(cmd);
+                hideAppMenu();
+            });
+
+            sysMenu.addEventListener('click', function (e) {
+                e.stopPropagation();
+                var t = e.target.closest('.ctx-item');
+                if (!t || t.classList.contains('ctx-disabled')) return;  // 非项或禁用项，保持菜单打开
+                var cmd = t.dataset.cmd;
+                if (cmd) sendWindowCommand(cmd);
+                hideSysMenu();
+            });
+
+            // 右键菜单项: 与左键单击等效 (触发相同命令)；右键空白/禁用项保持菜单打开
+
+            // 拦截整个文档的右键事件: 始终阻止 WebView2 默认浏览器菜单。
+            // 可编辑元素 (input/textarea/contenteditable) 右键: 弹出完整编辑菜单
+            // 普通文本区域右键: 仅当命中实际文本内容时弹出精简菜单 (复制/全选)，作用于当前文本选区
+            // 按钮、下拉框等交互元素及空白区域不弹出任何菜单
+            document.addEventListener('contextmenu', function (e) {
+                e.preventDefault();
+                // 右键在已打开的菜单上: 保持菜单打开 (不关闭、不弹其他菜单)
+                if (e.target.closest('.ctx-menu')) return;
+                hideAllMenus();  // 互斥: 先关闭其他已弹出的菜单
+                var editableEl = e.target.closest('input, textarea, [contenteditable]');
+                if (editableEl) {
+                    editableEl.focus();  // 确保编辑命令作用于该元素
+                    ctxTarget = editableEl;
+                    showCtxMenu(e.clientX, e.clientY, true);
+                } else {
+                    // 普通文本: 仅当右键命中实际文本内容时才弹出精简菜单
+                    // 1) 排除按钮、下拉框等交互元素 (右键它们不弹菜单)
+                    // 2) 仅当目标元素直接包含非空白文本节点时才视为"文本区域"
+                    //    (排除文本在子元素中的容器，即空白/padding 区域)
+                    var el = (e.target.nodeType === 3) ? e.target.parentNode : e.target;
+                    if (el.closest('button, select, option, .gui-select, .gui-select-popup, .titlebar-btn, .menubar-item')) return;
+                    var hasText = false;
+                    for (var i = 0; i < el.childNodes.length; i++) {
+                        var n = el.childNodes[i];
+                        if (n.nodeType === 3 && n.textContent.trim().length > 0) { hasText = true; break; }
+                    }
+                    if (hasText) {
+                        ctxTarget = e.target;
+                        showCtxMenu(e.clientX, e.clientY, false);
+                    }
+                    // 否则不弹出菜单 (仅已 preventDefault 抑制 WebView2 默认菜单)
+                }
+            });
+
+            document.addEventListener('click', hideAllMenus);
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') hideAllMenus();
+            });
+            window.addEventListener('blur', hideAllMenus);
+
+            // 阻止菜单项抢夺焦点，保持 input 焦点，使编辑命令作用于 input
+            ctxMenu.addEventListener('mousedown', function (e) { e.preventDefault(); });
+
+            ctxMenu.addEventListener('mouseup', function (e) {
+                e.stopPropagation();  // 阻止冒泡到 document，避免点击菜单内部时被关闭
+                var t = e.target.closest('.ctx-item');
+                if (!t || t.classList.contains('ctx-disabled')) return;  // 非项或禁用项，保持菜单打开
+                var cmd = t.dataset.cmd;
+                if (cmd) {
+                    var el = document.activeElement;
+                    var isEditable = el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable);
+                    if (cmd === 'selectAll') {
+                        if (isEditable) {
+                            el.select();
+                        } else {
+                            // 普通文本: 选中右键目标所在块级容器的全部文本
+                            var scope = getCtxSelectScope(ctxTarget);
+                            var range = document.createRange();
+                            range.selectNodeContents(scope);
+                            var sel = window.getSelection();
+                            sel.removeAllRanges();
+                            sel.addRange(range);
+                        }
+                    } else if (cmd === 'paste') {
+                        // paste 需异步读取剪贴板 (execCommand('paste') 在 Chromium 已失效)
+                        navigator.clipboard.readText().then(function (text) {
+                            document.execCommand('insertText', false, text);
+                        }).catch(function () { });
+                    } else {
+                        // undo / cut / copy / delete
+                        // 可编辑元素作用于聚焦元素; 普通文本 copy 作用于当前选区
+                        document.execCommand(cmd);
+                    }
+                }
+                hideCtxMenu();
+            });
+
+            appMenu.addEventListener('mouseup', function (e) {
+                e.stopPropagation();
+                var t = e.target.closest('.ctx-item');
+                if (!t) return;
+                var cmd = t.dataset.cmd;
+                if (cmd) sendWindowCommand(cmd);
+                hideAppMenu();
+            });
+
+            sysMenu.addEventListener('mouseup', function (e) {
+                e.stopPropagation();
+                var t = e.target.closest('.ctx-item');
+                if (!t || t.classList.contains('ctx-disabled')) return;  // 非项或禁用项，保持菜单打开
+                var cmd = t.dataset.cmd;
+                if (cmd) sendWindowCommand(cmd);
+                hideSysMenu();
+            });
+
+            // 右键菜单项: 与左键单击等效 (触发相同命令)；右键空白/禁用项保持菜单打开
+            document.querySelectorAll('.ctx-menu').forEach(function (menu) {
+                menu.addEventListener('contextmenu', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();  // 不冒泡到 document，保持菜单打开
+                    var t = e.target.closest('.ctx-item');
+                    if (!t || t.classList.contains('ctx-disabled')) return;  // 非项或禁用: 保持打开
+                    t.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));  // 复用各菜单的 mouseup 处理器
+                });
+            });
+
+            // ==================== 菜单栏 (Menu Bar) ====================
+            // 菜单栏支持两种模式:
+            //   - 一体 (menubar-integrated): 菜单项嵌入标题栏, 窗口标题居中
+            //   - 分离 (menubar-separate):   菜单栏为标题栏下方的独立条带
+            // 模式由 body 的 class 控制; 切换时 JS 移动 .menubar 节点位置并通知 C++ 宿主
+            // (C++ 据此调整 WM_NCHITTEST: 一体模式下菜单项区域返回 HTCLIENT,
+            //  分离模式下标题栏下方条带返回 HTCLIENT, 使菜单点击能送达 WebView2)。
+            var menubar = document.getElementById('menubar');
+            var menuBarItems = menubar ? menubar.querySelectorAll('.menubar-item') : [];
+            var menuBarDropdowns = {
+                file: document.getElementById('fileMenu'),
+                edit: document.getElementById('editMenu'),
+                view: document.getElementById('viewMenu'),
+                help: document.getElementById('helpMenu')
+            };
+            var openMenuBarMenu = null;      // 当前展开的菜单栏下拉 key
+            var closingMenuBarMenu = null;   // 正在等待 popupdismissed 的菜单
+            var pendingMenuBarOpen = null;   // 旧 popup 关闭后需要展开的目标
+            var menuBarIntegrated = true;    // 与 C++ g_menuBarIntegrated 初值一致
+
+            // 上报菜单栏菜单项 CSS 矩形给 C++ (一体模式下该区域命中测试返回 HTCLIENT)
+            function notifyMenuBarRect() {
+                var mb = document.getElementById('menubar');
+                if (!mb || !window.chrome || !window.chrome.webview) return;
+                var r = mb.getBoundingClientRect();
+                window.chrome.webview.postMessage(JSON.stringify({
+                    type: 'menuBarRect',
+                    left: r.left, top: r.top, right: r.right, bottom: r.bottom
+                }));
+            }
+
+            // 切换菜单栏模式 (一体/分离)
+            function setMenuBarMode(integrated) {
+                menuBarIntegrated = integrated;
+                document.body.classList.toggle('menubar-integrated', integrated);
+                document.body.classList.toggle('menubar-separate', !integrated);
+                var titlebar = document.getElementById('titlebar');
+                if (titlebar && menubar) {
+                    if (integrated) {
+                        // 嵌入标题栏: 置于左侧图标之后、标题文字和拖动区之前
+                        var dragReg = titlebar.querySelector('.titlebar-drag-region') || titlebar.querySelector('.titlebar-controls');
+                        if (dragReg) titlebar.insertBefore(menubar, dragReg); else titlebar.appendChild(menubar);
+                    } else {
+                        // 分离: 移到标题栏之后作为独立条带
+                        titlebar.parentNode.insertBefore(menubar, titlebar.nextSibling);
+                    }
+                }
+                // 更新"查看"菜单中一体模式勾选标记
+                var chk = document.getElementById('viewToggleIntegrated');
+                if (chk) chk.textContent = integrated ? '\u2713' : '';
+                // 通知 C++ 模式变更 (更新命中测试)
+                if (window.chrome && window.chrome.webview) {
+                    window.chrome.webview.postMessage(JSON.stringify({
+                        type: 'menuBarMode', integrated: integrated
+                    }));
+                }
+                // 重新上报菜单栏矩形 (位置随模式变化)
+                notifyMenuBarRect();
+            }
+
+            // 执行菜单栏下拉命令 (编辑命令作用于当前聚焦的可编辑元素)
+            function executeMenuCommand(cmd) {
+                var el = document.activeElement;
+                var editable = el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable);
+                var hasSel = editable && (el.isContentEditable
+                    ? (window.getSelection() && window.getSelection().toString().length > 0)
+                    : (el.selectionStart !== el.selectionEnd));
+                
+                function showAlert(text, title) {
+                    Window.this.modal(<info>
+                        <caption>{title || '提示'}</caption>
+                        <content>{text}</content>
+                    </info>);
+                }
+
+                switch (cmd) {
+                    case 'undo': case 'redo':
+                        if (!editable) {
+                            showAlert('该命令需要在输入框或文本域等可编辑元素中执行。', '编辑');
+                        } else if (!document.queryCommandEnabled(cmd)) {
+                            showAlert(cmd === 'undo' ? '没有可撤销的操作。' : '没有可重做的操作。', '编辑');
+                        } else {
+                            document.execCommand(cmd);
+                        }
+                        break;
+                    case 'cut': case 'copy': case 'delete':
+                        if (!editable) {
+                            showAlert('该命令需要在输入框或文本域等可编辑元素中执行。', '编辑');
+                        } else if (!hasSel) {
+                            showAlert('请先选择要' + (cmd === 'copy' ? '复制' : cmd === 'cut' ? '剪切' : '删除') + '的文本。', '编辑');
+                        } else {
+                            document.execCommand(cmd);
+                        }
+                        break;
+                    case 'paste':
+                        if (!editable) {
+                            showAlert('粘贴需要在可编辑元素中执行。', '编辑');
+                        } else {
+                            navigator.clipboard.readText().then(function (text) {
+                                document.execCommand('insertText', false, text);
+                            }).catch(function () { });
+                        }
+                        break;
+                    case 'selectAll':
+                        if (!editable) {
+                            showAlert('全选需要在可编辑元素中执行。', '编辑');
+                        } else {
+                            if (el.select) el.select(); else document.execCommand('selectAll');
+                        }
+                        break;
+                    case 'toggleMenuBar':
+                        setMenuBarMode(!menuBarIntegrated);
+                        break;
+                    case 'about':
+                        Window.this.modal(<info>
+                            <caption>关于</caption>
+                            <content>SciterUI 离屏渲染演示<br/>菜单栏: 一体 / 分离两种模式</content>
+                        </info>);
+                        break;
+                    case 'newFile':
+                        showAlert('新建文件 (演示)', '新建');
+                        break;
+                    case 'openFile':
+                        showAlert('打开文件 (演示)', '打开');
+                        break;
+                    case 'zoomIn':
+                        window.currentZoom = (window.currentZoom || 1.0) + 0.2;
+                        document.body.style.zoom = window.currentZoom;
+                        break;
+                    case 'zoomOut':
+                        window.currentZoom = Math.max(0.4, (window.currentZoom || 1.0) - 0.2);
+                        document.body.style.zoom = window.currentZoom;
+                        break;
+                    case 'zoomReset':
+                        window.currentZoom = 1.0;
+                        document.body.style.zoom = 1.0;
+                        break;
+                    case 'close':
+                        Window.this.close();
+                        break;
+                    default:
+                        sendWindowCommand(cmd);
+                }
+            }
+
+            function hideMenuBarDropdown() {
+                if (openMenuBarMenu) {
+                    var closingKey = openMenuBarMenu;
+                    var m = menuBarDropdowns[closingKey];
+                    var item = menubar.querySelector('.menubar-item.menu-open');
+                    if (item) item.classList.remove('menu-open');
+                    openMenuBarMenu = null;
+                    closingMenuBarMenu = closingKey;
+                    if (m) m.state.popup = false;
+                }
+            }
+
+            function showMenuBarDropdown(key, anchorItem) {
+                var menu = menuBarDropdowns[key];
+                if (!menu || !anchorItem) return;
+
+                // 清理可能残留的 hover/active 状态
+                var items = menu.querySelectorAll('.ctx-item');
+                for (var i = 0; i < items.length; ++i) {
+                    items[i].state.hover = false;
+                    items[i].state.active = false;
+                    items[i].state.focus = false;
+                }
+
+                // Sciter 的旧 popup 必须完成 popupdismissed 后才能可靠地锚定新 popup。
+                // 快速划过菜单栏时仅保留最后一个待展开目标，避免新菜单回退到窗口左侧。
+                if (closingMenuBarMenu) {
+                    pendingMenuBarOpen = { key: key, anchor: anchorItem };
+                    return;
+                }
+                if (openMenuBarMenu && openMenuBarMenu !== key) {
+                    pendingMenuBarOpen = { key: key, anchor: anchorItem };
+                    hideMenuBarDropdown();
+                    return;
+                }
+                if (openMenuBarMenu === key) return;
+
+                hideCtxMenu();
+                hideAppMenu();
+                hideSysMenu();
+                notifyMenuRect(null);
+
+                // 查看菜单: 同步一体模式勾选状态
+                if (key === 'view') {
+                    var chk = document.getElementById('viewToggleIntegrated');
+                    if (chk) chk.textContent = menuBarIntegrated ? '\u2713' : '';
+                }
+                
+                anchorItem.getBoundingClientRect(); // 强制刷新布局矩阵
+                anchorItem.popup(menu, "bottom-left");
+                menu.state.focus = true;  // 使用 state.focus=true 更安全，避免打断 popup 坐标计算
+                
+                anchorItem.classList.add('menu-open');
+                openMenuBarMenu = key;
+            }
+
+            if (menubar) {
+                menubar.addEventListener('click', function (e) {
+                    var item = e.target.closest('.menubar-item');
+                    if (!item) return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    var key = item.getAttribute('data-menu');
+                    if (openMenuBarMenu === key) {
+                        hideMenuBarDropdown();
+                        notifyMenuRect(null);
+                    } else {
+                        showMenuBarDropdown(key, item);
+                    }
+                });
+                menubar.addEventListener('mouseover', function (e) {
+                    var item = e.target.closest('.menubar-item');
+                    if (!item) return;
+                    var key = item.getAttribute('data-menu');
+                    if (openMenuBarMenu && openMenuBarMenu !== key) {
+                        showMenuBarDropdown(key, item);
+                    }
+                });
+            }
+
+            // 菜单栏下拉菜单: 点击项执行命令并关闭; 阻止 mousedown 抢焦点 (保持 input 焦点)
+            function onMenuBarPopupDismissed(key) {
+                if (openMenuBarMenu === key) {
+                    var item = menubar.querySelector('.menubar-item.menu-open');
+                    if (item) item.classList.remove('menu-open');
+                    openMenuBarMenu = null;
+                }
+                if (closingMenuBarMenu === key) closingMenuBarMenu = null;
+
+                if (pendingMenuBarOpen && !closingMenuBarMenu) {
+                    var next = pendingMenuBarOpen;
+                    pendingMenuBarOpen = null;
+                    // 使用 requestAnimationFrame 确保引擎在下一个渲染帧完全清理旧的 popup 窗口，
+                    // 避免引擎复用旧的 popup 上下文导致坐标计算为 (0,0) (即飞到左上角)
+                    requestAnimationFrame(function () {
+                        // 强制更新一下 anchor 的布局信息
+                        next.anchor.getBoundingClientRect();
+                        showMenuBarDropdown(next.key, next.anchor);
+                    });
+                }
+            }
+
+            // ==================== 标签页切换 ====================
+            document.querySelectorAll('.gui-tab').forEach(function (btn) {
+                btn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    var key = btn.getAttribute('data-tab');
+                    var card = btn.closest('.gui-tabs');
+                    if (!card) return;
+                    card.querySelectorAll('.gui-tab').forEach(function (b) { b.classList.remove('active'); });
+                    btn.classList.add('active');
+                    card.querySelectorAll('.gui-tab-panel').forEach(function (p) {
+                        p.classList.toggle('active', p.getAttribute('data-panel') === key);
+                    });
+                });
+            });
+
+            Object.keys(menuBarDropdowns).forEach(function (key) {
+                var menu = menuBarDropdowns[key];
+                if (!menu) return;
+                var anchor = menubar.querySelector('.menubar-item[data-menu="' + key + '"]');
+
+                // 与组合框 (cityPopup) 完全一致的写法：直接用 click
+                menu.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    var t = e.target.closest('.ctx-item');
+                    if (!t || t.classList.contains('ctx-disabled')) return;
+                    var cmd = t.getAttribute('data-cmd');
+                    if (cmd) executeMenuCommand(cmd);
+                    hideMenuBarDropdown();
+                    notifyMenuRect(null);
+                });
+
+                menu.addEventListener('popupdismissed', function () {
+                    onMenuBarPopupDismissed(key);
+                });
+                if (anchor) {
+                    anchor.addEventListener('popupdismissed', function () {
+                        onMenuBarPopupDismissed(key);
+                    });
+                }
+            });
+
+            // 初始化菜单栏模式 (与 C++ 初值一致: 一体模式) 并上报矩形
+            setMenuBarMode(true);
+            // 窗口尺寸变化时重新上报菜单栏矩形
+            window.addEventListener('resize', notifyMenuBarRect);
+
+            // ==================== 背景透明度滑块 ====================
+            // 滑块控制 body 背景透明度: 透明时透出 DWM 毛玻璃 (Mica) 背板
+            var bgOpacityRange = document.getElementById('bgOpacityRange');
+            var bgOpacityValue = document.getElementById('bgOpacityValue');
+            var bgOpacityTimeout = null;
+            var pendingBgOpacity = 100;
+
+            function applyBgOpacity(pct, immediate) {
+                pct = Math.max(0, Math.min(100, pct));
+                pendingBgOpacity = pct;
+                if (bgOpacityValue) bgOpacityValue.textContent = Math.round(pct) + '%';
+
+                if (bgOpacityRange) {
+                    var p = Math.round(pct);
+                    var fill = bgOpacityRange.querySelector('.custom-slider-fill');
+                    var thumb = bgOpacityRange.querySelector('.custom-slider-thumb');
+                    if (fill) fill.style.width = p + '%';
+                    if (thumb) thumb.style.left = p + '%';
+                }
+
+                function updateOpacity() {
+                    bgOpacityTimeout = null;
+                    var alpha = pendingBgOpacity / 100;
+                    root.style.setProperty('--bg-alpha', alpha);
+
+                    var bodyEl = document.body;
+                    if (bodyEl) {
+                        var isLight = bodyEl.classList.contains('theme-light');
+                        if (isLight) {
+                            bodyEl.style.backgroundColor = 'rgba(243, 242, 239, ' + alpha + ')';
+                        } else {
+                            bodyEl.style.backgroundColor = 'rgba(10, 14, 26, ' + alpha + ')';
+                        }
+                        // 确保清除标题栏可能的任何内联背景色，保持标题栏完全不透明（由 CSS 样式控制）
+                        var titlebarEl = document.getElementById('titlebar');
+                        if (titlebarEl) titlebarEl.style.backgroundColor = '';
+                    }
+                }
+
+                if (immediate) {
+                    if (bgOpacityTimeout) {
+                        clearTimeout(bgOpacityTimeout);
+                        bgOpacityTimeout = null;
+                    }
+                    updateOpacity();
+                } else if (!bgOpacityTimeout) {
+                    bgOpacityTimeout = setTimeout(updateOpacity, 16);
+                }
+            }
+            if (bgOpacityRange) {
+                var sliderDragging = false;
+
+                function updateSliderFromMouse(e, commitOpacity) {
+                    var rect = bgOpacityRange.getBoundingClientRect();
+                    var value = Math.round((e.clientX - rect.left) * 100 / rect.width);
+                    value = Math.max(0, Math.min(100, value));
+                    bgOpacityRange.setAttribute('data-value', value);
+                    applyBgOpacity(value, !!commitOpacity);
+                }
+
+                bgOpacityRange.addEventListener('mousedown', function (e) {
+                    sliderDragging = true;
+                    updateSliderFromMouse(e, false);
+                    if (bgOpacityRange.state && typeof bgOpacityRange.state.capture === 'function') {
+                        bgOpacityRange.state.capture(true);
+                    }
+                    e.preventDefault();
+                });
+                bgOpacityRange.addEventListener('mousemove', function (e) {
+                    if (sliderDragging) updateSliderFromMouse(e, false);
+                });
+                bgOpacityRange.addEventListener('mouseup', function (e) {
+                    if (!sliderDragging) return;
+                    sliderDragging = false;
+                    if (bgOpacityRange.state && typeof bgOpacityRange.state.capture === 'function') {
+                        bgOpacityRange.state.capture(false);
+                    }
+                    updateSliderFromMouse(e, true);
+                });
+                applyBgOpacity(parseFloat(bgOpacityRange.getAttribute('data-value') || '100'), true); // 首次加载立即应用
+            }
+
+            // ==================== 标签页切换 ====================
+            document.querySelectorAll('.gui-tab').forEach(function (btn) {
+                btn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    var key = btn.getAttribute('data-tab');
+                    var card = btn.closest('.gui-tabs');
+                    if (!card) return;
+                    card.querySelectorAll('.gui-tab').forEach(function (b) { b.classList.remove('active'); });
+                    btn.classList.add('active');
+                    card.querySelectorAll('.gui-tab-panel').forEach(function (p) {
+                        if (p.getAttribute('data-panel') === key) {
+                            p.classList.add('active');
+                        } else {
+                            p.classList.remove('active');
+                        }
+                    });
+                });
+            });
+
+            // ==================== 分页切换 (演示) ====================
+            document.querySelectorAll('.gui-pagination').forEach(function (pg) {
+                pg.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    var btn = e.target.closest('.gui-page-btn');
+                    if (!btn) return;
+                    var txt = btn.textContent.trim();
+                    if (txt === '‹' || txt === '›') return;  // 翻页箭头不切换高亮
+                    pg.querySelectorAll('.gui-page-btn').forEach(function (b) {
+                        var t = b.textContent.trim();
+                        if (t !== '‹' && t !== '›') b.classList.remove('active');
+                    });
+                    btn.classList.add('active');
+                });
+            });
+
+            // (已移除冗余开关 JS 事件监听器，直接依赖 CSS 兄弟选择器原生响应)
+
+
+
+            // ==================== 自定义下拉框初始化 ====================
+            function setupCustomSelect(selectEl, popupEl, onChange) {
+                if (!selectEl || !popupEl) return;
+
+                var captionEl = selectEl.querySelector('.caption');
+                var dismissedTime = 0;
+
+                selectEl.addEventListener('mousedown', function(e) {
+                    e.preventDefault();
+                    if (Date.now() - dismissedTime < 150) {
+                        return;
+                    }
+                    var w = selectEl.offsetWidth;
+                    popupEl.style.set({
+                        width: w + 'px'
+                    });
+                    selectEl.popup(popupEl, "bottom-left");
+                });
+
+                selectEl.addEventListener('popupdismissed', function() { dismissedTime = Date.now(); });
+                popupEl.addEventListener('popupdismissed', function() { dismissedTime = Date.now(); });
+
+                popupEl.addEventListener('click', function(e) {
+                    var item = e.target;
+                    if (item) {
+                        var val = item.getAttribute('data-value');
+                        if (val) {
+                            if (captionEl) captionEl.innerText = val;
+                            popupEl.state.popup = false;
+                            if (onChange) onChange(val);
+                        }
+                    }
+                });
+            }
+
+            setupCustomSelect(
+                document.getElementById('citySelect'),
+                document.getElementById('cityPopup')
+            );
+
+            // ==================== 实时动画控制与进度条自循环 ====================
+            var autoProgressStartTime = Date.now();
+            var autoProgressPauseTime = null;
+            var autoProgressRafId = null;
+            var globalAnimEnabled = true;
+
+            function updateAutoProgressFrame() {
+                if (!globalAnimEnabled) return;
+
+                var duration = 3600; // 3.6秒完成一次 0% -> 100% 自然连续流动
+                var elapsed = (Date.now() - autoProgressStartTime) % duration;
+                var progressRatio = elapsed / duration; // 0.0 ~ 1.0
+
+                // 使用 Smooth Ease-in-out 正弦缓动赋予原版物理连续流动感
+                var easedProgress = (1 - Math.cos(progressRatio * Math.PI)) / 2;
+                var valPct = Math.min(100, easedProgress * 100).toFixed(1);
+                var valInt = Math.min(100, Math.round(easedProgress * 100));
+
+                var pb = document.getElementById("ipcProgressBar");
+                var pv = document.getElementById("ipcProgressVal");
+                if (pb) pb.style.width = valPct + "%";
+                if (pv) pv.innerText = valInt + "%";
+
+                autoProgressRafId = requestAnimationFrame(updateAutoProgressFrame);
+            }
+
+            function startAutoProgress() {
+                if (autoProgressRafId) return; // 已在运行则直接返回
+                if (autoProgressPauseTime !== null) {
+                    // 恢复运行：补全暂停期间的时间差，使进度从原暂停百分比无缝继续
+                    autoProgressStartTime += (Date.now() - autoProgressPauseTime);
+                    autoProgressPauseTime = null;
+                }
+                autoProgressRafId = requestAnimationFrame(updateAutoProgressFrame);
+            }
+
+            function stopAutoProgress() {
+                if (autoProgressRafId) {
+                    cancelAnimationFrame(autoProgressRafId);
+                    autoProgressRafId = null;
+                    autoProgressPauseTime = Date.now(); // 记录暂停时刻
+                }
+            }
+
+            var animSwitch = document.getElementById("btnToggleGlobalAnim");
+            var animStatusText = document.getElementById("globalAnimStatusText");
+            if (animSwitch) {
+                animSwitch.onchange = function () {
+                    globalAnimEnabled = this.checked;
+                    if (globalAnimEnabled) {
+                        document.body.classList.remove("animations-disabled");
+                        if (animStatusText) animStatusText.innerText = "实时动画: 开启";
+                        startAutoProgress();
+                        startSkeletonShimmer();
+                    } else {
+                        document.body.classList.add("animations-disabled");
+                        if (animStatusText) animStatusText.innerText = "实时动画: 关闭";
+                        stopAutoProgress();
+                        stopSkeletonShimmer();
+                    }
+                };
+            }
+
+            // 默认启动自滚动进度条
+            startAutoProgress();
+
+            // ==================== 骨架屏扫光动画 (JS驱动) ====================
+            var skeletonRafId = null;
+
+            function updateSkeletonShimmer() {
+                if (!globalAnimEnabled) return;
+
+                var t = (Date.now() % 800) / 800; // 0~1，周期 0.8 秒
+                // 高亮中心从 -20% 扫到 120%
+                var center = t * 140 - 20;
+                var half = 40;
+                var s1 = Math.max(0, Math.min(100, center - half));
+                var s2 = Math.max(0, Math.min(100, center));
+                var s3 = Math.max(0, Math.min(100, center + half));
+
+                var isLight = document.body.classList.contains("theme-light");
+                var base = isLight ? "rgba(0,0,0,0.06)" : "rgba(255,255,255,0.15)";
+                var hi   = isLight ? "rgba(0,0,0,0.18)" : "rgba(255,255,255,0.30)";
+
+                var grad = "linear-gradient(to right, " +
+                    base + " " + s1 + "%, " +
+                    hi   + " " + s2 + "%, " +
+                    base + " " + s3 + "%)";
+
+                var els = document.getElementsByClassName("gui-skeleton");
+                for (var i = 0; i < els.length; i++) {
+                    els[i].style.background = grad;
+                }
+
+                skeletonRafId = requestAnimationFrame(updateSkeletonShimmer);
+            }
+
+            function startSkeletonShimmer() {
+                stopSkeletonShimmer();
+                skeletonRafId = requestAnimationFrame(updateSkeletonShimmer);
+            }
+
+            function stopSkeletonShimmer() {
+                if (skeletonRafId) {
+                    cancelAnimationFrame(skeletonRafId);
+                    skeletonRafId = null;
+                }
+                var els = document.getElementsByClassName("gui-skeleton");
+                for (var i = 0; i < els.length; i++) {
+                    els[i].style.background = ""; // 暂停/换肤期间清除内联渐变，回归 CSS 原生定义的静态灰色占位条，绝不消失
+                }
+            }
+
+            // 默认启动骨架屏扫光
+            startSkeletonShimmer();
+
+            // ==================== C++ 原生双向交互绑定 ====================
+            var btnGetSysInfo = document.getElementById('btnGetSysInfo');
+            var btnNativeMsgBox = document.getElementById('btnNativeMsgBox');
+            var btnOpenFile = document.getElementById('btnOpenFile');
+            var btnToggleTopmost = document.getElementById('btnToggleTopmost');
+            var btnCaptureScreen = document.getElementById('btnCaptureScreen');
+            var ipcResult = document.getElementById('ipcResult');
+            var ipcLog = document.getElementById('ipcLog');
+
+            function appendLog(msg) {
+                if (!ipcLog) return;
+                var now = new Date();
+                var timeStr = String(now.getHours()).padStart(2, '0') + ':' +
+                              String(now.getMinutes()).padStart(2, '0') + ':' +
+                              String(now.getSeconds()).padStart(2, '0');
+                var logItem = document.createElement('div');
+                logItem.innerText = '[' + timeStr + '] ' + msg;
+                ipcLog.appendChild(logItem);
+                ipcLog.scrollTop = ipcLog.scrollHeight;
+            }
+
+            if (btnGetSysInfo) {
+                btnGetSysInfo.onclick = function () {
+                    if (typeof globalThis.getSysInfo === 'function') {
+                        var res = globalThis.getSysInfo();
+                        if (ipcResult) ipcResult.innerText = res;
+                        appendLog('系统信息: ' + res);
+                    }
+                };
+            }
+
+            if (btnNativeMsgBox) {
+                btnNativeMsgBox.onclick = function () {
+                    if (typeof globalThis.nativeMsgBox === 'function') {
+                        var res = globalThis.nativeMsgBox();
+                        if (ipcResult) ipcResult.innerText = res;
+                        appendLog('消息框: ' + res);
+                    }
+                };
+            }
+
+            if (btnOpenFile) {
+                btnOpenFile.onclick = function () {
+                    if (typeof globalThis.openFileDialog === 'function') {
+                        var res = globalThis.openFileDialog();
+                        if (ipcResult) ipcResult.innerText = res;
+                        appendLog('选择文件: ' + res);
+                    }
+                };
+            }
+
+            if (btnToggleTopmost) {
+                btnToggleTopmost.onclick = function () {
+                    if (typeof globalThis.toggleTopmost === 'function') {
+                        var res = globalThis.toggleTopmost();
+                        if (ipcResult) ipcResult.innerText = res;
+                        appendLog('窗口置顶: ' + res);
+                    }
+                };
+            }
+
+            if (btnCaptureScreen) {
+                btnCaptureScreen.onclick = function () {
+                    if (typeof globalThis.captureScreen === 'function') {
+                        var res = globalThis.captureScreen();
+                        if (ipcResult) ipcResult.innerText = res;
+                        appendLog('截屏: ' + res);
+                    }
+                };
+            }
+
+            // 支持页面内按 Ctrl+Shift+P 快捷键截屏
+            document.addEventListener('keydown', function (e) {
+                if (e.ctrlKey && e.shiftKey && (e.key === 'P' || e.key === 'p' || e.keyCode === 80)) {
+                    if (typeof globalThis.captureScreen === 'function') {
+                        var res = globalThis.captureScreen();
+                        if (ipcResult) ipcResult.innerText = res;
+                        appendLog('快捷键截屏: ' + res);
+                    }
+                }
+            });
+
+            // 供 C++ 每秒推送时钟
+            globalThis.updateClock = function (timeStr) {
+                var clockEl = document.getElementById('ipcClock');
+                if (clockEl) clockEl.innerText = timeStr;
+            };
+
+            // 供 C++ 窗口变化时推送尺寸
+            globalThis.updateWindowSize = function (sizeStr) {
+                var sizeEl = document.getElementById('ipcSize');
+                if (sizeEl) sizeEl.innerText = sizeStr;
+            };
+
+            // ==================== pageLoaded 通知 ====================
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage(JSON.stringify({
+                    type: 'pageLoaded', timestamp: Date.now()
+                }));
+            }
+        })();
+    </script>
+</body>
+
+</html>

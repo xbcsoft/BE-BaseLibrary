@@ -48,6 +48,6 @@ bool 写到文件(c_StrX 文件路径, const Bytes& dat);
  * @param path 相对路径
  * @return
  */
-StrW 取绝对路径(c_StrW path);
+StrX 取绝对路径(c_StrX path);
 
-bool 判断是否为相对路径(c_StrW path);
+bool 是否为相对路径(c_StrX path);

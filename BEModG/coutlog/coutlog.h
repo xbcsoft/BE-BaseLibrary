@@ -11,7 +11,7 @@
 
 #include "stdafx.h"
 
-#ifndef _BE_RELEASE
+#ifdef DBG
 
 // 设置调试目标 (IP:端口)
 void coutlog_option(c_StrX host, bool isStop = false);

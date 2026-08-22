@@ -1,6 +1,6 @@
 ﻿#pragma once
 /**@ModuleTitle:
-*  @version:     0.6.0
+*  @version:     0.7
 *  @platform:    win32(x86|x64)
 *  @compiler:    msvc141
 *  @author:
@@ -16,3 +16,5 @@
 #include "注册表操作.h"
 #include "其他系统操作.h"
 #include "同步套接字.h"
+#include "文件日志.h"
+#include "文件对话框.h"

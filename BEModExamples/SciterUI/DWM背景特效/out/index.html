@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html window-frame="extended">
+<head>
+    <meta charset="UTF-8">
+    <title>SciterUI 自绘标题栏与DWM特效</title>
+    <style>
+        html {
+            background: transparent;
+        }
+
+        body {
+            margin: 7px;
+            padding: 0;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 1;
+            font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+        }
+
+        button {
+            padding: 0;
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            font-family: inherit;
+        }
+
+        /* 标题栏 */
+        #titlebar {
+            height: 30px;
+            flow: horizontal;
+            content-vertical-align: middle;
+            background: rgba(240, 240, 240, 0.4);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        #titlewin {
+            margin-right: *;
+            padding-left: 10px;
+            font-size: 12px;
+            color: #333;
+        }
+
+        .title-btn {
+            behavior: clickable;
+            width: 38px;
+            height: 100%;
+            flow: horizontal;
+            content-horizontal-align: center;
+            content-vertical-align: middle;
+            font-size: 11px;
+            color: #555555;
+            transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease;
+        }
+
+        .title-btn:hover {
+            background: rgba(0, 0, 0, 0.08);
+            color: #000000;
+        }
+
+        .title-btn:active {
+            background: rgba(0, 0, 0, 0.16);
+            color: #000000;
+        }
+
+        .title-btn.btn-close:hover {
+            background: #e81123;
+            color: #ffffff;
+        }
+
+        .title-btn.btn-close:active {
+            background: #c70a18;
+            color: #ffffff;
+        }
+
+        /* 内容区 */
+        #contentwin {
+            padding: 16px 20px;
+        }
+
+        .control-panel {
+            background: rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 6px;
+            padding: 12px 14px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            flow: vertical;
+        }
+
+        .slider-header {
+            height: 24px;
+            flow: horizontal;
+            content-vertical-align: middle;
+            margin-bottom: 8px;
+        }
+
+        .slider-label {
+            font-size: 13px;
+            font-weight: bold;
+            color: #222222;
+            margin-right: *;
+        }
+
+        .slider-value-badge {
+            font-size: 12px;
+            font-weight: bold;
+            color: #0066cc;
+            background: rgba(0, 102, 204, 0.1);
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        /* Sciter 滑块样式 */
+        .gui-slider {
+            width: *;
+            height: 6px;
+            background: rgba(0, 0, 0, 0.12);
+            border-radius: 3px;
+            border: none;
+            cursor: pointer;
+            margin: 6px 8px 12px 8px;
+        }
+
+        .gui-slider > button {
+            width: 16px;
+            height: 16px;
+            border-radius: 8px;
+            background: #0078d4;
+            border: 2px solid #ffffff;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: transform 0.1s ease, background-color 0.1s ease;
+        }
+
+        .gui-slider > button:hover {
+            background: #106ebe;
+            transform: scale(1.15);
+        }
+
+        .gui-slider > button:active {
+            background: #005a9e;
+            transform: scale(0.95);
+        }
+
+        /* 快捷预设按钮组 */
+        .preset-row {
+            flow: horizontal;
+            border-spacing: 6px;
+            margin-top: 2px;
+        }
+
+        .preset-btn {
+            behavior: clickable;
+            width: 1*;
+            flow: horizontal;
+            content-horizontal-align: center;
+            content-vertical-align: middle;
+            white-space: nowrap;
+            height: 24px;
+            padding: 0 2px;
+            font-size: 11px;
+            color: #444444;
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.15s ease, border-color 0.15s ease;
+        }
+
+        .preset-btn:hover {
+            background: rgba(255, 255, 255, 0.85);
+            border-color: rgba(0, 102, 204, 0.4);
+            color: #0066cc;
+        }
+
+        .preset-btn:active {
+            background: rgba(0, 102, 204, 0.15);
+        }
+
+        .tip-text {
+            margin-top: 10px;
+            font-size: 11px;
+            color: #666666;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+<div id="titlebar" role="window-caption">
+    <span id="titlewin">SciterUI 窗口</span>
+    <button class="title-btn" role="window-minimize">—</button>
+    <button class="title-btn" role="window-maximize">☐</button>
+    <button class="title-btn btn-close" role="window-close">✕</button>
+</div>
+
+<div id="contentwin">
+    <div class="control-panel">
+        <div class="slider-header">
+            <span class="slider-label">页面背景不透明度</span>
+            <span class="slider-value-badge" id="valBadge">15%</span>
+        </div>
+
+        <input type="hslider" id="opacitySlider" class="gui-slider" min="0" max="100" value="15" />
+
+        <div class="preset-row">
+            <span class="preset-btn" id="btn0">0% 全透明</span>
+            <span class="preset-btn" id="btn15">15% 默认</span>
+            <span class="preset-btn" id="btn50">50% 半透明</span>
+            <span class="preset-btn" id="btn100">100% 纯白</span>
+        </div>
+    </div>
+
+    <div class="tip-text" id="statusTip">
+        拖动滑块可实时调节窗口 DWM 毛玻璃透明度
+    </div>
+</div>
+
+<script>
+    const slider = document.getElementById("opacitySlider");
+    const valBadge = document.getElementById("valBadge");
+    const titlebar = document.getElementById("titlebar");
+
+    function setOpacity(percent) {
+        percent = Math.max(0, Math.min(100, parseInt(percent, 10) || 0));
+        if (slider) {
+            slider.value = percent;
+        }
+        if (valBadge) {
+            valBadge.innerText = percent + "%";
+        }
+
+        const alpha = (percent / 100).toFixed(2);
+        document.body.style.background = "rgba(255, 255, 255, " + alpha + ")";
+
+        if (titlebar) {
+            const titleAlpha = Math.min(1, Math.max(0.15, (percent / 100) * 0.6 + 0.25)).toFixed(2);
+            titlebar.style.background = "rgba(240, 240, 240, " + titleAlpha + ")";
+        }
+    }
+
+    if (slider) {
+        slider.addEventListener("input", function () {
+            setOpacity(slider.value);
+        });
+        slider.addEventListener("change", function () {
+            setOpacity(slider.value);
+        });
+    }
+
+    document.getElementById("btn0")?.addEventListener("click", function () { setOpacity(0); });
+    document.getElementById("btn15")?.addEventListener("click", function () { setOpacity(15); });
+    document.getElementById("btn50")?.addEventListener("click", function () { setOpacity(50); });
+    document.getElementById("btn100")?.addEventListener("click", function () { setOpacity(100); });
+</script>
+
+</body>
+</html>

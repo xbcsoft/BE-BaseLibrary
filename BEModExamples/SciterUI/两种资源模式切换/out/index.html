@@ -1,0 +1,74 @@
+<html>
+<head>
+  <meta charset='utf-8'>
+  <style>
+    html, body {
+      margin: 0; 
+      padding: 0; 
+      background: #0d0e15;
+    }
+    
+    body { 
+      color: #e2e2ec; 
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; 
+      overflow-y: auto; 
+    }
+    
+    .scroll-container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 10px 20px;
+    }
+  
+    p.subtitle {
+      font-size: 14px;
+      color: #a6adc8;
+      margin: 0;
+    }
+ 
+    .section-card {
+      background: rgba(24, 24, 37, 0.6);
+      border: 1px solid rgba(203, 166, 247, 0.15);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+ 
+    .section-card:hover {
+      border-color: rgba(203, 166, 247, 0.4);
+      box-shadow: 0 2px 8px rgba(203, 166, 247, 0.1);
+    }
+ 
+    .section-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #cba6f7;
+      margin-top: 0;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+ 
+    .section-desc {
+      font-size: 12px;
+      color: #bac2de;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="scroll-container">
+    <div class="section-card">
+      <h3 class="section-title">资源拦截演示 (Resource Intercept)</h3>
+      <p class="section-desc">此卡片内容由 C++ 回调函数拦截并动态注入的 `my_script.js` 脚本渲染生成：</p>
+      <div id="intercept-status" style="color: #f38ba8; font-weight: bold;">等待脚本载入...</div>
+    </div>
+  </div>
+ 
+  <script src="my_script.js"></script>
+</body>
+</html>

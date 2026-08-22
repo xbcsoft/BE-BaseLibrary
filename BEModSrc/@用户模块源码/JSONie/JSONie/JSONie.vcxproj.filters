@@ -21,19 +21,19 @@
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="JSONie.h">
-      <Filter>源文件</Filter>
+    <ClCompile Include="JSONie.cpp">
+      <Filter>头文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="JSONie.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="BEMod\BEMod.h">
       <Filter>BEBuild</Filter>
+    </ClInclude>
+    <ClInclude Include="JSONie.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -230,8 +230,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>MakeBEC.exe -excludesrc=main.cpp -excludezip=*.cpp *.c *.ixx *.cppm Source x64/Source VSDll 窗口 -outbec="$(SolutionDir)/$(SolutionName).bec"</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -318,7 +317,7 @@
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
     <PostBuildEvent>
-      <Command>MakeBEC.exe -excludesrc=main.cpp -excludezip=*.cpp *.c *.ixx *.cppm Source x64/Source VSDll 窗口 -outbec="$(SolutionDir)/$(SolutionName).bec" -installG</Command>
+      <Command>MakeBEC.exe -excludesrc=main.cpp -excludezip=*.cpp *.c *.ixx *.cppm Source x64/Source VSDll 窗口 -outbec="$(SolutionDir)/$(SolutionName).bec"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='VSUIDll|Win32'">
@@ -365,6 +364,7 @@
       <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -373,7 +373,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>MakeBEC.exe -excludesrc=main.cpp -excludezip=main.cpp lib.cpp Source -outbec="$(SolutionDir)/$(SolutionName).bec"</Command>
+      <Command>MakeBEC.exe -excludesrc=main.cpp -excludezip=*.cpp *.c *.ixx *.cppm Source x64/Source VSDll 窗口 -outbec="$(SolutionDir)/$(SolutionName).bec" -installG</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>

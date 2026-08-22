@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>SciterUI - JS 异步协程并发演示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* 滚动条定义 (遵循 Sciter @set 规范) */
+        @set app-scrollbar {
+            .base {
+                width: 6dip;
+                background: transparent;
+            }
+            .slider {
+                margin: 1dip;
+                border-radius: 3dip;
+                background: rgba(255, 255, 255, 0.18);
+            }
+            .slider:hover {
+                background: rgba(255, 255, 255, 0.35);
+            }
+        }
+
+        html {
+            width: *;
+            height: *;
+            background: transparent;
+        }
+
+        body {
+            width: *;
+            height: *;
+            margin: 0;
+            padding: 14px;
+            background: #0a0e17;
+            color: #e8ecf1;
+            font-family: 'Microsoft YaHei', -apple-system, sans-serif;
+            font-size: 12px;
+            overflow-x: hidden;
+            overflow-y: scroll;
+            vertical-scrollbar: app-scrollbar;
+            flow: vertical;
+            border-spacing: 12px;
+        }
+
+        /* ================= 顶部 Header ================= */
+        .header {
+            width: *;
+            flow: horizontal;
+            content-vertical-align: middle;
+            background: #111726;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 12px 18px;
+        }
+
+        .header-title {
+            width: 1*;
+            min-width: 0;
+            flow: vertical;
+            border-spacing: 3px;
+        }
+
+        .header-title h1 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #58a6ff;
+        }
+
+        .header-title p {
+            font-size: 12px;
+            color: #8b949e;
+        }
+
+        .server-badge {
+            width: max-content;
+            flow: horizontal;
+            border-spacing: 6px;
+            content-vertical-align: middle;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(88, 166, 255, 0.25);
+            padding: 5px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            color: #8b949e;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 4px;
+            background: #3fb950;
+            box-shadow: 0 0 6px #3fb950;
+        }
+
+        /* ================= 操作区与指标看板 ================= */
+        .dashboard-row {
+            width: *;
+            flow: horizontal;
+            border-spacing: 12px;
+        }
+
+        .control-panel, .metrics-panel {
+            width: 1*;
+            min-width: 0;
+            background: #111726;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 12px 14px;
+            flow: vertical;
+            border-spacing: 10px;
+        }
+
+        .panel-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #8b949e;
+            text-transform: uppercase;
+        }
+
+        .btn-group {
+            width: *;
+            flow: horizontal;
+            border-spacing: 8px;
+        }
+
+        .btn {
+            behavior: button;
+            width: 1*;
+            min-width: 0;
+            height: 32px;
+            flow: horizontal;
+            content-horizontal-align: center;
+            content-vertical-align: middle;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 0 8px;
+        }
+
+        .btn-primary {
+            background: #1f6feb;
+            color: #ffffff;
+            border-color: #388bfd;
+        }
+
+        .btn-primary:hover { background: #388bfd; }
+        .btn-primary:active { background: #1158c7; }
+
+        .btn-stress {
+            background: #d946ef;
+            color: #ffffff;
+            border-color: #f0abfc;
+        }
+
+        .btn-stress:hover { background: #e879f9; }
+        .btn-stress:active { background: #c026d3; }
+
+        .btn-fetch {
+            background: #0284c7;
+            color: #ffffff;
+            border-color: #38bdf8;
+        }
+
+        .btn-fetch:hover { background: #0ea5e9; }
+        .btn-fetch:active { background: #0369a1; }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.06);
+            color: #e8ecf1;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:active {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .btn-sm {
+            width: max-content;
+            height: 24px;
+            padding: 0 10px;
+            font-size: 11px;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+
+        .btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        /* 指标看板 */
+        .metrics-panel {
+            width: 1*;
+            min-width: 0;
+            flow: vertical;
+            border-spacing: 12px;
+            background: #11151c;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .panel-header {
+            width: *;
+            flow: horizontal;
+            content-vertical-align: middle;
+        }
+
+        .panel-title {
+            width: 1*;
+            font-size: 12px;
+            font-weight: 600;
+            color: #8b949e;
+            text-transform: uppercase;
+        }
+
+        .metrics-grid {
+            width: *;
+            flow: horizontal;
+            border-spacing: 12px;
+        }
+
+        .metric-item {
+            width: 1*;
+            min-width: 0;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            padding: 8px 12px;
+            flow: vertical;
+            border-spacing: 2px;
+        }
+
+        .metric-val {
+            font-size: 18px;
+            font-weight: 700;
+            color: #58a6ff;
+            font-family: Consolas, monospace;
+        }
+
+        .metric-val.green { color: #3fb950; }
+        .metric-val.purple { color: #bc8cff; }
+
+        .metric-label {
+            font-size: 11px;
+            color: #8b949e;
+        }
+
+        /* 10 个请求卡片网格容器 */
+        .requests-container {
+            width: *;
+            background: #111726;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 12px 14px;
+            flow: vertical;
+            border-spacing: 8px;
+        }
+
+        .cards-row {
+            width: *;
+            flow: horizontal;
+            border-spacing: 8px;
+        }
+
+        /* 请求卡片样式 */
+        .req-card {
+            width: 1*;
+            min-width: 0;
+            background: #0d1117;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 10px 12px;
+            flow: vertical;
+            border-spacing: 6px;
+        }
+
+        .req-header {
+            width: *;
+            flow: horizontal;
+            content-vertical-align: middle;
+        }
+
+        .req-id {
+            width: 1*;
+            font-weight: 700;
+            font-size: 12px;
+            color: #f0f6fc;
+        }
+
+        .req-tag {
+            width: max-content;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.08);
+            color: #8b949e;
+        }
+
+        .req-detail {
+            font-size: 11px;
+            color: #8b949e;
+            flow: vertical;
+            border-spacing: 2px;
+            font-family: Consolas, monospace;
+        }
+
+        .req-cost {
+            font-weight: 600;
+            color: #39c5bb;
+            font-size: 11px;
+        }
+
+        /* 状态变色 */
+        .req-card.running {
+            border-color: #58a6ff;
+            background: rgba(88, 166, 255, 0.06);
+        }
+        .req-card.running .req-tag {
+            background: rgba(88, 166, 255, 0.2);
+            color: #58a6ff;
+        }
+
+        .req-card.done {
+            border-color: #3fb950;
+            background: rgba(63, 185, 80, 0.06);
+        }
+        .req-card.done .req-tag {
+            background: rgba(63, 185, 80, 0.2);
+            color: #3fb950;
+        }
+
+        .req-card.error {
+            border-color: #f85149;
+            background: rgba(248, 81, 73, 0.06);
+        }
+        .req-card.error .req-tag {
+            background: rgba(248, 81, 73, 0.2);
+            color: #f85149;
+        }
+
+        /* 日志流容器 */
+        .log-section {
+            width: *;
+            height: 1*;
+            min-height: 120px;
+            background: #11151c;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 12px 16px;
+            flow: vertical;
+            border-spacing: 8px;
+        }
+
+        .log-header {
+            width: *;
+            flow: horizontal;
+        }
+
+        .log-header-title {
+            width: 1*;
+            font-size: 12px;
+            font-weight: 600;
+            color: #8b949e;
+        }
+
+        .log-box {
+            width: *;
+            height: 1*;
+            min-height: 80px;
+            background: #090c10;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            padding: 10px;
+            overflow-y: scroll;
+            vertical-scrollbar: app-scrollbar;
+            flow: vertical;
+            border-spacing: 4px;
+            font-family: Consolas, monospace;
+            font-size: 11px;
+            user-select: text;
+        }
+
+        .log-entry {
+            white-space: pre-wrap;
+            word-break: break-all;
+            user-select: text;
+        }
+
+        .log-entry.info { color: #8b949e; }
+        .log-entry.success { color: #3fb950; }
+        .log-entry.warn { color: #d29922; }
+        .log-entry.highlight { color: #58a6ff; font-weight: 700; }
+    </style>
+</head>
+
+<body>
+    <!-- 头部区域 -->
+    <div class="header">
+        <div class="title-area">
+            <h1>⚡ SciterUI 协程异步并发请求演示</h1>
+            <p>利用 JavaScript 原生 <code>async / await</code> 与 <code>Promise.all</code> 实现 10 协程并发 HTTP 请求</p>
+        </div>
+        <div class="server-badge">
+            <div class="status-dot"></div>
+            <span>Python 异步服务器 :8000</span>
+        </div>
+    </div>
+
+    <!-- 操作区与指标 -->
+    <div class="dashboard-row">
+        <div class="control-panel">
+            <div class="panel-title">🎮 控制操作</div>
+            <div class="btn-group">
+                <button class="btn btn-secondary" id="btnSerial">
+                    🐢 串行对比请求 (10个)
+                </button>
+                <button class="btn btn-primary" id="btnConcurrent">
+                    🚀 协程并发请求 (10个)
+                </button>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-stress" id="btnStress">
+                    🔥 协程并发压测 (100个)
+                </button>
+                <button class="btn btn-fetch" id="btnFetch100">
+                    ⚡ 纯Fetch异步并发 (100个)
+                </button>
+            </div>
+        </div>
+
+        <div class="metrics-panel">
+            <div class="panel-header">
+                <div class="panel-title">📊 实时性能统计</div>
+                <button class="btn btn-secondary btn-sm" id="btnClear">
+                    🧹 清除状态
+                </button>
+            </div>
+            <div class="metrics-grid">
+                <div class="metric-item">
+                    <div class="metric-val" id="metricCompleted">0 / 10</div>
+                    <div class="metric-label">完成请求数</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-val green" id="metricAvgTime">0 ms</div>
+                    <div class="metric-label">平均单请求耗时</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-val purple" id="metricMaxTime">0 ms</div>
+                    <div class="metric-label">最长耗时</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 10个请求卡片网格 (两行各5个，精准对齐) -->
+    <div class="requests-container">
+        <div class="panel-title">📦 10 个请求协程状态监控网格</div>
+        <div class="cards-row" id="row1">
+            <!-- 1 到 5 卡片 -->
+        </div>
+        <div class="cards-row" id="row2">
+            <!-- 6 到 10 卡片 -->
+        </div>
+    </div>
+
+    <!-- 日志流区域 (带 selectable 属性允许划选复制) -->
+    <div class="log-section">
+        <div class="log-header">
+            <div class="log-header-title">📜 实时协程执行日志流</div>
+            <span style="font-size:11px;color:#8b949e">可鼠标划选复制</span>
+        </div>
+        <div class="log-box" id="logBox" selectable>
+            <div class="log-entry info">[系统初始化] 准备就绪，点击「协程并发请求」开始测试。</div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        const SERVER_URL = "http://127.0.0.1:8000/api/test";
+        const TOTAL_REQUESTS = 10;
+        let isRunning = false;
+
+        // 初始化生成 10 个卡片 (两行各5个，避免 CSS Grid 兼容问题)
+        function initCards() {
+            const row1 = document.getElementById('row1');
+            const row2 = document.getElementById('row2');
+            row1.innerHTML = '';
+            row2.innerHTML = '';
+
+            for (let i = 1; i <= TOTAL_REQUESTS; i++) {
+                const card = document.createElement('div');
+                card.className = 'req-card pending';
+                card.id = `card-${i}`;
+                card.innerHTML = `
+                    <div class="req-header">
+                        <span class="req-id"># 请求 ${i}</span>
+                        <span class="req-tag" id="tag-${i}">等待中</span>
+                    </div>
+                    <div class="req-detail">
+                        <span>发起: <span id="time-send-${i}">--:--:--</span></span>
+                        <span>完成: <span id="time-recv-${i}">--:--:--</span></span>
+                        <span class="req-cost" id="cost-${i}">耗时: - ms</span>
+                    </div>
+                `;
+                if (i <= 5) {
+                    row1.appendChild(card);
+                } else {
+                    row2.appendChild(card);
+                }
+            }
+        }
+
+        // 格式化时间为 HH:mm:ss.mmm
+        function formatTime(d = new Date()) {
+            const pad = (n, z = 2) => ('00' + n).slice(-z);
+            return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}.${pad(d.getMilliseconds(), 3)}`;
+        }
+
+        // 打印日志
+        function log(msg, type = '') {
+            const logBox = document.getElementById('logBox');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${formatTime()}] ${msg}`;
+            logBox.appendChild(entry);
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        // 更新卡片状态
+        function updateCardStatus(id, status, details = {}) {
+            const card = document.getElementById(`card-${id}`);
+            const tag = document.getElementById(`tag-${id}`);
+            if (!card || !tag) return;
+
+            card.className = `req-card ${status}`;
+            if (status === 'running') {
+                tag.textContent = '请求中...';
+                document.getElementById(`time-send-${id}`).textContent = details.sendTime || formatTime();
+            } else if (status === 'done') {
+                tag.textContent = '完成 200';
+                document.getElementById(`time-recv-${id}`).textContent = details.recvTime || formatTime();
+                document.getElementById(`cost-${id}`).textContent = `耗时: ${details.cost} ms`;
+            } else if (status === 'error') {
+                tag.textContent = '异常失败';
+                document.getElementById(`cost-${id}`).textContent = `错误: ${details.error || '失败'}`;
+            } else {
+                tag.textContent = '等待中';
+                document.getElementById(`time-send-${id}`).textContent = '--:--:--';
+                document.getElementById(`time-recv-${id}`).textContent = '--:--:--';
+                document.getElementById(`cost-${id}`).textContent = '耗时: - ms';
+            }
+        }
+
+        // 重置界面
+        function resetUI() {
+            if (isRunning) return;
+            initCards();
+            document.getElementById('metricCompleted').textContent = '0 / 10';
+            document.getElementById('metricAvgTime').textContent = '0 ms';
+            document.getElementById('metricMaxTime').textContent = '0 ms';
+            document.getElementById('logBox').innerHTML = '<div class="log-entry info">[系统就绪] 界面已重置。</div>';
+        }
+
+        function setButtonsDisabled(disabled) {
+            isRunning = disabled;
+            document.getElementById('btnSerial').disabled = disabled;
+            document.getElementById('btnConcurrent').disabled = disabled;
+            document.getElementById('btnStress').disabled = disabled;
+            document.getElementById('btnFetch100').disabled = disabled;
+            document.getElementById('btnClear').disabled = disabled;
+        }
+
+        /**
+         * 10个请求使用的单请求函数 (带卡片与日志渲染)
+         */
+        async function fetchSingleRequest(id) {
+            const sendDate = new Date();
+            const sendTimeStr = formatTime(sendDate);
+            const startTime = Date.now();
+
+            updateCardStatus(id, 'running', { sendTime: sendTimeStr });
+            const requestUrl = `${SERVER_URL}?id=${id}`;
+            log(`[协程 #${id}] 发起请求 -> ${requestUrl}`, 'info');
+
+            try {
+                const response = await fetch(requestUrl);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                const data = await response.json();
+                const cost = Date.now() - startTime;
+                const recvDate = new Date();
+                const recvTimeStr = formatTime(recvDate);
+
+                updateCardStatus(id, 'done', { recvTime: recvTimeStr, cost: cost });
+                log(`[协程 #${id}] 收到响应! 耗时: ${cost}ms`, 'success');
+
+                return { id, success: true, cost, data };
+            } catch (err) {
+                const cost = Date.now() - startTime;
+                updateCardStatus(id, 'error', { error: err.message });
+                log(`[协程 #${id}] 请求出错: ${err.message}`, 'warn');
+                return { id, success: false, cost, error: err.message };
+            }
+        }
+
+        /**
+         * 100个压测请求使用的轻量请求函数 (不更新10卡片网格，不刷单条日志)
+         */
+        async function fetchStressRequest(id) {
+            const startTime = Date.now();
+            const requestUrl = `${SERVER_URL}?id=${id}`;
+            try {
+                const response = await fetch(requestUrl);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                await response.json();
+                const cost = Date.now() - startTime;
+                return { id, success: true, cost };
+            } catch (err) {
+                const cost = Date.now() - startTime;
+                return { id, success: false, cost, error: err.message };
+            }
+        }
+
+        /**
+         * 🐢 串行对比测试 (10个)
+         */
+        async function startSerialTest() {
+            if (isRunning) return;
+            setButtonsDisabled(true);
+            initCards();
+
+            log('====================================================', 'highlight');
+            log('🐢 【串行对比测试启动】逐个等待请求完成 (非并发)...', 'highlight');
+
+            let completedCount = 0;
+            let totalCostSum = 0;
+            let maxCost = 0;
+
+            try {
+                for (let i = 1; i <= TOTAL_REQUESTS; i++) {
+                    const res = await fetchSingleRequest(i);
+                    completedCount++;
+                    if (res.success) {
+                        totalCostSum += res.cost;
+                        if (res.cost > maxCost) {
+                            maxCost = res.cost;
+                            document.getElementById('metricMaxTime').textContent = `${maxCost} ms`;
+                        }
+                    }
+                    document.getElementById('metricCompleted').textContent = `${completedCount} / 10`;
+                    document.getElementById('metricAvgTime').textContent = `${Math.round(totalCostSum / completedCount)} ms`;
+                }
+
+                log('----------------------------------------------------', 'highlight');
+                log('🐢 【串行测试完成】10 个请求依次执行完毕！', 'warn');
+                log('💡 对比结论：并发协程相比串行大幅节省等待时间！', 'highlight');
+            } catch (e) {
+                log(`⚠️ 串行测试异常: ${e.message}`, 'warn');
+            } finally {
+                setButtonsDisabled(false);
+            }
+        }
+
+        /**
+         * 🚀 10个请求协程异步并发 (Promise.all)
+         */
+        async function startConcurrentTest() {
+            if (isRunning) return;
+            setButtonsDisabled(true);
+            initCards();
+
+            log('====================================================', 'highlight');
+            log('🚀 【并发测试启动】同时启动 10 个 JS 异步协程请求...', 'highlight');
+
+            let completedCount = 0;
+            let totalCostSum = 0;
+            let maxCost = 0;
+
+            const coroutineTasks = [];
+            for (let i = 1; i <= TOTAL_REQUESTS; i++) {
+                const task = fetchSingleRequest(i).then(res => {
+                    completedCount++;
+                    if (res.success) {
+                        totalCostSum += res.cost;
+                        if (res.cost > maxCost) {
+                            maxCost = res.cost;
+                            document.getElementById('metricMaxTime').textContent = `${maxCost} ms`;
+                        }
+                    }
+                    document.getElementById('metricCompleted').textContent = `${completedCount} / 10`;
+                    document.getElementById('metricAvgTime').textContent = `${Math.round(totalCostSum / (completedCount || 1))} ms`;
+                    return res;
+                });
+                coroutineTasks.push(task);
+            }
+
+            try {
+                const results = await Promise.all(coroutineTasks);
+
+                log('----------------------------------------------------', 'highlight');
+                log('🎉 【并发测试完成】10 个请求全部返回！', 'highlight');
+                log(`✨ 成功率: ${results.filter(r => r.success).length} / 10 | 全部请求完成！`, 'success');
+            } catch (e) {
+                log(`⚠️ 测试发生异常: ${e.message}`, 'warn');
+            } finally {
+                setButtonsDisabled(false);
+            }
+        }
+
+        /**
+         * 🔥 100个协程并发压测 (async/await + Promise.all)
+         */
+        async function startStressTest() {
+            if (isRunning) return;
+            setButtonsDisabled(true);
+
+            document.getElementById('metricCompleted').textContent = '0 / 100';
+            document.getElementById('metricAvgTime').textContent = '0 ms';
+            document.getElementById('metricMaxTime').textContent = '0 ms';
+
+            log('====================================================', 'highlight');
+            log('🔥 【100 协程并发压测启动】基于 async/await 协程全速发起 100 个请求...', 'highlight');
+            log('💡 模式：使用 async/await 协程封装 + Promise.all 统一调度。', 'info');
+
+            const TOTAL_STRESS = 100;
+            let completedCount = 0;
+            let totalCostSum = 0;
+            let maxCost = 0;
+
+            const coroutineTasks = [];
+            for (let i = 1; i <= TOTAL_STRESS; i++) {
+                const task = fetchStressRequest(i).then(res => {
+                    completedCount++;
+                    if (res.success) {
+                        totalCostSum += res.cost;
+                        if (res.cost > maxCost) {
+                            maxCost = res.cost;
+                            document.getElementById('metricMaxTime').textContent = `${maxCost} ms`;
+                        }
+                    }
+                    document.getElementById('metricCompleted').textContent = `${completedCount} / 100`;
+                    document.getElementById('metricAvgTime').textContent = `${Math.round(totalCostSum / (completedCount || 1))} ms`;
+                    return res;
+                });
+                coroutineTasks.push(task);
+            }
+
+            try {
+                const results = await Promise.all(coroutineTasks);
+                const successCount = results.filter(r => r.success).length;
+                const avgCost = Math.round(totalCostSum / (successCount || 1));
+
+                log('----------------------------------------------------', 'highlight');
+                log('🎉 【100 协程压测完成】100 个请求全部处理完毕！', 'highlight');
+                log(`✨ 成功率: ${successCount} / 100 | 平均单请求: ${avgCost}ms | 最长耗时: ${maxCost}ms`, 'success');
+            } catch (e) {
+                log(`⚠️ 压测发生异常: ${e.message}`, 'warn');
+            } finally {
+                setButtonsDisabled(false);
+            }
+        }
+
+        /**
+         * ⚡ 纯 Fetch 异步并发测试 (100个)
+         * 严格不使用 async / await 协程语法，完全基于原生 Promise / then / catch 异步回调链
+         */
+        function startFetchPureTest() {
+            if (isRunning) return;
+            setButtonsDisabled(true);
+
+            document.getElementById('metricCompleted').textContent = '0 / 100';
+            document.getElementById('metricAvgTime').textContent = '0 ms';
+            document.getElementById('metricMaxTime').textContent = '0 ms';
+
+            log('====================================================', 'highlight');
+            log('⚡ 【纯 Fetch 异步并发 100 启动】无 async/await，纯原生 Promise 链并发...', 'highlight');
+            log('💡 探究目的：对比「纯 Promise 异步」与「async/await 协程」是否存在调度性能差异。', 'info');
+
+            const TOTAL_STRESS = 100;
+            let completedCount = 0;
+            let totalCostSum = 0;
+            let maxCost = 0;
+            let successCount = 0;
+
+            function checkAllDone() {
+                if (completedCount === TOTAL_STRESS) {
+                    const avgCost = Math.round(totalCostSum / (successCount || 1));
+                    log('----------------------------------------------------', 'highlight');
+                    log('🎉 【纯 Fetch 异步并发完成】100 个请求全部处理完毕！', 'highlight');
+                    log(`✨ 成功率: ${successCount} / 100 | 平均单请求: ${avgCost}ms | 最长耗时: ${maxCost}ms`, 'success');
+                    setButtonsDisabled(false);
+                }
+            }
+
+            for (let i = 1; i <= TOTAL_STRESS; i++) {
+                const startTime = Date.now();
+                fetch(`${SERVER_URL}?id=${i}`)
+                    .then(response => {
+                        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                        return response.json();
+                    })
+                    .then(data => {
+                        const cost = Date.now() - startTime;
+                        successCount++;
+                        completedCount++;
+                        totalCostSum += cost;
+                        if (cost > maxCost) {
+                            maxCost = cost;
+                            document.getElementById('metricMaxTime').textContent = `${maxCost} ms`;
+                        }
+                        document.getElementById('metricCompleted').textContent = `${completedCount} / 100`;
+                        document.getElementById('metricAvgTime').textContent = `${Math.round(totalCostSum / completedCount)} ms`;
+                        checkAllDone();
+                    })
+                    .catch(err => {
+                        completedCount++;
+                        document.getElementById('metricCompleted').textContent = `${completedCount} / 100`;
+                        checkAllDone();
+                    });
+            }
+        }
+
+        // 绑定事件监听
+        document.getElementById('btnSerial').addEventListener('click', startSerialTest);
+        document.getElementById('btnConcurrent').addEventListener('click', startConcurrentTest);
+        document.getElementById('btnStress').addEventListener('click', startStressTest);
+        document.getElementById('btnFetch100').addEventListener('click', startFetchPureTest);
+        document.getElementById('btnClear').addEventListener('click', resetUI);
+
+        // 初始化卡片
+        initCards();
+    </script>
+</body>
+
+</html>

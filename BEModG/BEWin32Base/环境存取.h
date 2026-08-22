@@ -2,6 +2,38 @@
 #include "stdafx.h"
 #include <shlobj.h>
 
+#pragma region 动态库部分
+class 动态库
+{
+public:
+	HMODULE hModule = NULL;
+	~动态库();
+
+	/**加载动态库
+	 * @param 动态库路径 欲加载的动态库文件路径
+	 * @return 成功返回真，失败返回假
+	 */
+	bool 加载(c_StrX 动态库路径);
+
+	/**加载动态库并获取指定函数
+	 * @param 动态库路径 欲加载的动态库文件路径
+	 * @param 函数名 欲获取的函数名
+	 * @return 成功返回函数地址，失败返回 nullptr
+	 */
+	FARPROC 加载(c_StrX 动态库路径, c_StrA 函数名);
+
+	/**卸载动态库
+	 */
+	void 卸载();
+
+	/**取函数地址
+	 * @param 函数名 欲获取地址的函数名称
+	 * @return 成功返回函数地址，失败返回 nullptr
+	 */
+	FARPROC 取函数(c_StrA 函数名) const;
+};
+#pragma endregion
+
 StrW _取命令行(Arraybe<StrW>& 命令行数组);
 template<class StrT = W>
 StrW 取命令行(Arraybe<StrW>& 命令行数组) { return _取命令行(命令行数组); }
@@ -52,3 +84,12 @@ bool 写环境变量(c_StrX 环境变量名称, c_StrX 欲写入内容, int 环�
  * @return 尾部一定没有"\"，与易语言不同要注意！
  */
 StrX 取特定目录(int 欲获取目录类型 = 目录::系统桌面);
+
+
+typedef NTSTATUS(WINAPI* RtlGetVersion_PTR)(void*);
+/**取系统版本
+ * @param 系统版本 <参考 可空> 返回系统名称文本，如 "Windows 10"
+ * @param 内核NT版本 <参考 可空> 返回内核版本，如 "10.0"
+ * @return 返回操作系统内部版本号 (BuildVersion)
+ */
+int 取系统版本(NilOpt<StrA&> 系统版本 = nil, NilOpt<StrA&> 内核NT版本 = nil);

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 
 class EXP 文件读写
 {
@@ -217,7 +217,7 @@ bool 写到文件(c_StrX 文件路径, const Bytes& dat) {
  * @param path 相对路径
  * @return
  */
-StrW 取绝对路径(c_StrW path) {
+StrX 取绝对路径(c_StrX path) {
 	charW fullPath[MAX_PATH] = { 0 };
 
 	// GetFullPathName 会将相对路径转换为绝对路径
@@ -236,14 +236,15 @@ StrW 取绝对路径(c_StrW path) {
 	return fullPath;
 }
 
-bool 判断是否为相对路径(c_StrW path) {
+bool 是否为相对路径(c_StrX path) {
 	// 在 Windows 下：
 	// - 以 "\" 或者 "C:\" 开头的是绝对路径
 	// - 其他大多数都是相对路径
-	if (!path) return true;
+	c_StrA s = path.str;
+	if (s.len() == 0) return true;
 
-	if ((path.len() >= 2 && path[1] == ':') ||
-		(path.len() >= 2 && path[0] == '\\' && path[1] == '\\')) {
+	if ((s.len() >= 2 && s[1] == ':') ||
+		(s.len() >= 2 && s[0] == '\\' && s[1] == '\\')) {
 		return false; // 绝对路径
 	}
 	return true; // 相对路径

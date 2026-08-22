@@ -1,5 +1,56 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include <shlobj.h>
+
+#pragma region 动态库部分
+class EXP 动态库
+{
+public:
+	HMODULE hModule = NULL;
+	~动态库() {
+		卸载();
+	}
+
+	/**加载动态库
+	 * @param 动态库路径 欲加载的动态库文件路径
+	 * @return 成功返回真，失败返回假
+	 */
+	bool 加载(c_StrX 动态库路径) {
+		卸载();
+		hModule = LoadLibraryW(动态库路径);
+		return hModule != NULL;
+	}
+
+	/**加载动态库并获取指定函数
+	 * @param 动态库路径 欲加载的动态库文件路径
+	 * @param 函数名 欲获取的函数名
+	 * @return 成功返回函数地址，失败返回 nullptr
+	 */
+	FARPROC 加载(c_StrX 动态库路径, c_StrA 函数名) {
+		if (加载(动态库路径)) {
+			return 取函数(函数名);
+		}
+		return nullptr;
+	}
+
+	/**卸载动态库
+	 */
+	void 卸载() {
+		if (hModule) {
+			FreeLibrary(hModule);
+			hModule = NULL;
+		}
+	}
+
+	/**取函数地址
+	 * @param 函数名 欲获取地址的函数名称
+	 * @return 成功返回函数地址，失败返回 nullptr
+	 */
+	FARPROC 取函数(c_StrA 函数名) const {
+		if (!hModule || !函数名) return nullptr;
+		return GetProcAddress(hModule, 函数名);
+	}
+};
+#pragma endregion
 
 StrW _取命令行(Arraybe<StrW>& 命令行数组) {
 	命令行数组.clear();
@@ -216,4 +267,64 @@ StrX 取特定目录(int 欲获取目录类型 = 目录::系统桌面) {
 		return ret;
 	}
 	return "";
+}
+
+
+typedef NTSTATUS(WINAPI* RtlGetVersion_PTR)(void*);
+/**取系统版本
+ * @param 系统版本 <参考 可空> 返回系统名称文本，如 "Windows 10"
+ * @param 内核NT版本 <参考 可空> 返回内核版本，如 "10.0"
+ * @return 返回操作系统内部版本号 (BuildVersion)
+ */
+int 取系统版本(NilOpt<StrA&> 系统版本 = nil, NilOpt<StrA&> 内核NT版本 = nil)
+{
+	OSVERSIONINFOEXA osvi = { sizeof(osvi) };
+	HMODULE hNtdll = LoadLibraryA("ntdll.dll");
+	RtlGetVersion_PTR pRtlGetVersion = hNtdll ?
+		(RtlGetVersion_PTR)GetProcAddress(hNtdll, "RtlGetVersion") : nullptr;
+
+	bool isRtlGetVersionSuccess = false;
+	if (pRtlGetVersion) {
+		isRtlGetVersionSuccess = (pRtlGetVersion(&osvi) == 0);
+	}
+
+	StrA sysName = "未知系统";
+	StrA ntVerStr;
+
+	if (!isRtlGetVersionSuccess) {
+		// RtlGetVersion 失败，走降级逻辑 (p == 0)
+#pragma warning(push)
+#pragma warning(disable: 4996)
+		GetVersionExA((OSVERSIONINFOA*)&osvi);
+#pragma warning(pop)
+
+		ntVerStr = sprintF("%d.%d", osvi.dwMajorVersion, osvi.dwMinorVersion);
+		if (ntVerStr == "5.0") sysName = "Windows 2000";
+		else if (ntVerStr == "5.1") sysName = "Windows XP";
+		else if (ntVerStr == "5.2") sysName = "Windows Server 2003";
+		else if (ntVerStr == "6.0") sysName = "Windows Vista";
+		else if (ntVerStr == "6.1") sysName = "Windows 7";
+		else if (ntVerStr == "6.2") sysName = "Windows 8";
+
+		if (内核NT版本 != nil) 内核NT版本 = ntVerStr;
+		if (系统版本 != nil) 系统版本 = sysName;
+		return (int)osvi.dwBuildNumber;
+	}
+
+	// RtlGetVersion 成功逻辑
+	ntVerStr = sprintF("%d.%d", osvi.dwMajorVersion, osvi.dwMinorVersion);
+	if (ntVerStr == "5.1") sysName = "Windows XP";
+	else if (ntVerStr == "5.2") sysName = "Windows Server 2003";
+	else if (ntVerStr == "6.0") sysName = "Windows Vista";
+	else if (ntVerStr == "6.1") sysName = "Windows 7";
+	else if (ntVerStr == "6.2") sysName = "Windows 8";
+	else if (osvi.dwMajorVersion == 10) {
+		if (osvi.dwBuildNumber >= 22000) sysName = "Windows 11";
+		else if (osvi.dwBuildNumber >= 10240) sysName = "Windows 10";
+	}
+
+	if (内核NT版本 != nil) 内核NT版本 = ntVerStr;
+	if (系统版本 != nil) 系统版本 = sysName;
+
+	return (int)osvi.dwBuildNumber;
 }

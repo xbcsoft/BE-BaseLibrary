@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>QQ 编辑框自绘与右键菜单</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+        }
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            background: #ffffff;
+        }
+        .editor-panel {
+            width: *;
+            height: *;
+            padding: 12px 16px;
+            flow: vertical;
+            content-vertical-align: middle;
+        }
+        .field {
+            position: relative;
+            width: *;
+            margin-bottom: 10px;
+        }
+        .field:last-child { margin-bottom: 0; }
+        .qq-input {
+            display: block;
+            width: *;
+            height: 36px;
+            padding: 0 34px 0 12px;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            outline: none;
+            background: #fafafa;
+            color: #333333;
+            font-size: 14px;
+            text-selection-background-color: #087dd1;
+            text-selection-color: #ffffff;
+        }
+        .qq-input:focus,
+        .qq-input[text-menu-open] {
+            border-color: #0099ff;
+            box-shadow: 0 0 0 1px rgba(0, 153, 255, 0.18);
+        }
+        .account-arrow {
+            position: absolute;
+            right: 11px;
+            top: 10px;
+            color: #999999;
+            font-size: 10px;
+            pointer-events: none;
+        }
+
+        #text-context-menu {
+            width: 150px;
+            padding: 3px;
+            flow: vertical;
+            background: #ffffff;
+            color: #222222;
+            border: 1px solid #999999;
+            font-size: 13px;
+        }
+        #text-context-menu > div {
+            padding: 5px 8px;
+            flow: horizontal;
+        }
+        #text-context-menu > div:hover {
+            color: #ffffff;
+            background: #087dd1;
+        }
+        #text-context-menu > div[disabled] {
+            color: #aaaaaa;
+            background: #ffffff;
+        }
+        #text-context-menu span { width: 1*; }
+        #text-context-menu kbd { color: #888888; font-size: 10px; }
+        #text-context-menu > div:hover kbd { color: #ffffff; }
+        #text-context-menu > div[disabled] kbd { color: #bbbbbb; }
+        #text-context-menu hr {
+            width: *;
+            height: 1px;
+            margin: 2px;
+            border: 0;
+            background: #dddddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="editor-panel">
+        <div class="field">
+            <input type="text" class="qq-input" value="" placeholder="QQ号码/手机/邮箱">
+            <span class="account-arrow">▼</span>
+        </div>
+        <div class="field">
+            <input type="password" class="qq-input" value="12345678" placeholder="密码">
+        </div>
+    </div>
+
+    <popup id="text-context-menu">
+        <div class="context-command-item" data-command="undo"><span>撤销</span><kbd>Ctrl+Z</kbd></div>
+        <hr>
+        <div class="context-command-item" data-command="cut"><span>剪切</span><kbd>Ctrl+X</kbd></div>
+        <div class="context-command-item" data-command="copy"><span>复制</span><kbd>Ctrl+C</kbd></div>
+        <div class="context-command-item" data-command="paste"><span>粘贴</span><kbd>Ctrl+V</kbd></div>
+        <div class="context-command-item" data-command="delete"><span>删除</span><kbd>Del</kbd></div>
+        <hr>
+        <div class="context-command-item" data-command="select-all"><span>全选</span><kbd>Ctrl+A</kbd></div>
+    </popup>
+
+    <script>
+        var activeTextContextTarget = null;
+        var activeTextSelectionSnapshot = null;
+        var executingTextMenuCommand = false;
+        var textSelectionSnapshots = new WeakMap();
+        var textPlaceholderSnapshots = new WeakMap();
+        var textEditCommands = {
+            "undo": "edit:undo",
+            "cut": "edit:cut",
+            "copy": "edit:copy",
+            "paste": "edit:paste",
+            "delete": "edit:delete-next",
+            "select-all": "edit:selectall"
+        };
+
+        function getEditor(target) {
+            return target.edit || target.textarea;
+        }
+
+        function captureTextSelection(target) {
+            var api = getEditor(target);
+            var snapshot = {
+                text: api.selectionText || "",
+                start: api.selectionStart,
+                end: api.selectionEnd
+            };
+            textSelectionSnapshots.set(target, snapshot);
+            return snapshot;
+        }
+
+        function restoreTextSelection(target, snapshot) {
+            target.focus();
+            getEditor(target).selectRange(snapshot.start, snapshot.end);
+        }
+
+        function clearTextSelection(target) {
+            var snapshot = captureTextSelection(target);
+            getEditor(target).selectRange(snapshot.end, snapshot.end);
+        }
+
+        function preserveSelectionColors(target) {
+            target.setAttribute("text-menu-open", "");
+            // Sciter popup 会接管真实焦点。空编辑框一旦失焦便会绘制
+            // placeholder，所以菜单显示期间先移除它，关闭时再原样恢复。
+            if (target.hasAttribute("placeholder") && !textPlaceholderSnapshots.has(target)) {
+                textPlaceholderSnapshots.set(target, target.getAttribute("placeholder"));
+                target.removeAttribute("placeholder");
+            }
+        }
+
+        function restoreSelectionColors(target) {
+            target.removeAttribute("text-menu-open");
+            if (textPlaceholderSnapshots.has(target)) {
+                target.setAttribute("placeholder", textPlaceholderSnapshots.get(target));
+                textPlaceholderSnapshots.delete(target);
+            }
+        }
+
+        function cursorPosition(evt) {
+            var cursor = null;
+            try {
+                if (Window.this && typeof Window.this.cursorPos === "function") {
+                    cursor = Window.this.cursorPos();
+                }
+            } catch (error) {
+                cursor = null;
+            }
+            var x = cursor && cursor.length > 1 ? cursor[0] : evt.windowX;
+            var y = cursor && cursor.length > 1 ? cursor[1] : evt.windowY;
+            if (typeof x !== "number") x = evt.clientX || 0;
+            if (typeof y !== "number") y = evt.clientY || 0;
+            return { x: x, y: y };
+        }
+
+        function canRunTextCommand(target, command) {
+            var nativeCommand = textEditCommands[command];
+            var hasSelection = activeTextSelectionSnapshot.text.length > 0;
+
+            if (command === "copy") return hasSelection;
+            if (command === "select-all") return target.value.length > 0;
+            if (command === "cut" || command === "delete") return hasSelection;
+            if (command === "undo") return target.hasAttribute("data-can-undo");
+
+            try {
+                if (typeof target.checkCommand === "function") {
+                    return (target.checkCommand(nativeCommand) & 0x02) === 0;
+                }
+            } catch (error) {
+            }
+            return true;
+        }
+
+        function showTextContextMenu(evt, target) {
+            var menu = document.getElementById("text-context-menu");
+            target.focus();
+            target.state.focus = true;
+            activeTextContextTarget = target;
+            preserveSelectionColors(target);
+            var currentSelection = getEditor(target).selectionText || "";
+            activeTextSelectionSnapshot = currentSelection.length > 0
+                ? captureTextSelection(target)
+                : (textSelectionSnapshots.get(target) || captureTextSelection(target));
+
+            menu.querySelectorAll(".context-command-item").forEach(function(item) {
+                if (canRunTextCommand(target, item.getAttribute("data-command"))) {
+                    item.removeAttribute("disabled");
+                } else {
+                    item.setAttribute("disabled", "");
+                }
+            });
+
+            var cursor = cursorPosition(evt);
+            document.body.popup(menu, {
+                anchorAt: 7,
+                popupAt: 7,
+                x: cursor.x,
+                y: cursor.y
+            });
+        }
+
+        function runTextMenuCommand(item) {
+            if (item.hasAttribute("disabled")) return;
+            executingTextMenuCommand = true;
+            var command = item.getAttribute("data-command");
+            var nativeCommand = textEditCommands[command];
+            var editorApi = getEditor(activeTextContextTarget);
+            var exec = typeof activeTextContextTarget.execCommand === "function"
+                ? activeTextContextTarget.execCommand.bind(activeTextContextTarget)
+                : (typeof activeTextContextTarget.executeCommand === "function"
+                    ? activeTextContextTarget.executeCommand.bind(activeTextContextTarget)
+                    : null);
+
+            if (command !== "copy") {
+                restoreTextSelection(activeTextContextTarget, activeTextSelectionSnapshot);
+            }
+            if (command === "cut" && exec) {
+                exec("edit:cut");
+            } else if (command === "delete" && activeTextContextTarget.textarea) {
+                activeTextContextTarget.textarea.removeText();
+            } else if (command === "copy" && exec) {
+                exec("edit:copy");
+            } else if (command === "select-all") {
+                editorApi.selectAll();
+            } else if (exec) {
+                exec(nativeCommand);
+            }
+
+            document.getElementById("text-context-menu").state.popup = false;
+            if (command === "copy") activeTextContextTarget.state.focus = true;
+            restoreSelectionColors(activeTextContextTarget);
+            executingTextMenuCommand = false;
+        }
+
+        var textContextMenu = document.getElementById("text-context-menu");
+        textContextMenu.addEventListener("popupdismissed", function() {
+            if (!activeTextContextTarget) return;
+            restoreSelectionColors(activeTextContextTarget);
+            if (!executingTextMenuCommand && !activeTextContextTarget.state.focus) {
+                clearTextSelection(activeTextContextTarget);
+            }
+        });
+        textContextMenu.addEventListener("mouseup", function(evt) {
+            var item = evt.target.closest(".context-command-item");
+            if (!item) return;
+            evt.preventDefault();
+            evt.stopPropagation();
+            runTextMenuCommand(item);
+        });
+
+        document.querySelectorAll("input, textarea").forEach(function(target) {
+            target.addEventListener("focus", function() {
+                if (activeTextContextTarget && activeTextContextTarget !== target &&
+                    activeTextContextTarget.hasAttribute("text-menu-open")) {
+                    restoreSelectionColors(activeTextContextTarget);
+                    clearTextSelection(activeTextContextTarget);
+                }
+            });
+            target.addEventListener("blur", function() {
+                if (!target.hasAttribute("text-menu-open")) clearTextSelection(target);
+            });
+            target.addEventListener("keyup", function() {
+                captureTextSelection(target);
+            });
+            target.addEventListener("input", function() {
+                if (!target.hasAttribute("readonly")) target.setAttribute("data-can-undo", "true");
+                captureTextSelection(target);
+            });
+            target.addEventListener("mouseup", function(evt) {
+                if (evt.button !== 2) captureTextSelection(target);
+            });
+            target.addEventListener("mousedown", function(evt) {
+                if (evt.button !== 2) return;
+                evt.preventDefault();
+                evt.stopPropagation();
+                showTextContextMenu(evt, target);
+            });
+            target.addEventListener("contextmenu", function(evt) {
+                evt.preventDefault();
+                evt.stopPropagation();
+            });
+        });
+    </script>
+</body>
+</html>
