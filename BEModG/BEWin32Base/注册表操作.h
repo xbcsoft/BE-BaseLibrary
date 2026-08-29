@@ -47,7 +47,7 @@ public:
 		const charW* realName = _GetRealName(项名称);
 		if constexpr (be::same<T, const charW*> || be::same<T, charW*> || be::same<T, StrW>) {
 			if (!值) return false;
-			size_t len = strlenW(值);
+			size_t len = strlen<W>(值);
 			return RegSetValueExW(hKey, realName, 0, REG_SZ, (const BYTE*)(const charW*)值, (DWORD)(len + 1) * 2) == ERROR_SUCCESS;
 		} else if constexpr (be::same<T, uint> || be::same<T, int>) {
 			DWORD val = (DWORD)值;
