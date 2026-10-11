@@ -60,6 +60,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="窗口自绘标题栏与阴影.rc" />
+    <ResourceCompile Include="增强四周拉伸手柄.rc" />
   </ItemGroup>
 </Project>

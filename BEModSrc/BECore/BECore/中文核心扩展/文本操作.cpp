@@ -580,7 +580,7 @@ StrA 指针到文本(const void* 内存文本指针) {
 template<class T = W, int STACK_CAP>
 Arraybe<StrW, STACK_CAP>& 分割文本(const StrW& 原内容, const StrW& 分割内容,
 	Arraybe<StrW, STACK_CAP>& 结果数组, bool 保持容量 = false) {
-	return _SplitStr<StrW, charW, STACK_CAP>(原内容, 分割内容, 结果数组, 保持容量);
+	return SplitStr<StrW, charW, STACK_CAP>(原内容, 分割内容, 结果数组, 保持容量);
 }
 /**分割文本
  * @param 原内容
@@ -592,7 +592,7 @@ Arraybe<StrW, STACK_CAP>& 分割文本(const StrW& 原内容, const StrW& 分割
 template<int STACK_CAP>
 Arraybe<StrA, STACK_CAP>& 分割文本(const StrA& 原内容, const StrA& 分割内容,
 	Arraybe<StrA, STACK_CAP>& 结果数组, bool 保持容量 = false) {
-	return _SplitStr<StrA, char, STACK_CAP>(原内容, 分割内容, 结果数组, 保持容量);
+	return SplitStr<StrA, char, STACK_CAP>(原内容, 分割内容, 结果数组, 保持容量);
 }
 
 

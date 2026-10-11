@@ -5,10 +5,24 @@ struct __启动窗口 : 窗口
 {
 	void 事件_创建完毕()
 	{
-		
+		SciterUI::参数 cs{ 10, 10, 200, 80 };
+		cs.内存_html = "<h1>hello world</h1>";
+		zst.创建(cs, this);
+
+		SciterUI::参数 cs2{ 10, 100, 200, 80 };
+		cs2.内存_html = "<h2>hello world</h2>";
+		zst2.创建(cs2, this);
 	}
 
 #pragma region 组件成员
+	SciterUI zst, zst2;
+
+	struct _按钮1 : 按钮 {
+		void 事件_被单击() {
+			调试输出("原生白易按钮被单击");
+		}
+	} 按钮1;
+
 	struct _st : SciterUI {
 
 		//回调事件里边的URL是以W版为主，而pld->outData取决于原始的网页数据（本质上是字节集）
@@ -31,24 +45,6 @@ struct __启动窗口 : 窗口
 		}
 	} st;
 
-	struct _按钮1 : 按钮 {
-		void 事件_被单击() {
-			调试输出("原生白易按钮被单击");
-			_启动窗口.编辑框1.内容_(L"原生按钮已被点击！");
-		}
-	} 按钮1;
-
-	struct _编辑框1 : 编辑框 {
-		void 事件_内容被改变() {
-			调试输出("原生编辑框内容改变：", 内容);
-		}
-	} 编辑框1;
-
-	struct _选择框1 : 选择框 {
-		void 事件_被单击() {
-			调试输出("原生选择框状态为：", 选中);
-		}
-	} 选择框1;
 #pragma endregion
 	void 载入(窗口* 父窗 = 0, bool 模态 = 0);
 	void 完毕(bool 模态 = 0);

@@ -5,7 +5,6 @@ class 按钮 :public 控件类
 {
 public:
 	struct 参数 : 控件类::参数 {
-		定义_子组件通用构造方法;
 		StrW 标题 = L"按钮";
 		字体 字体;
 	}static _df;

@@ -11,10 +11,10 @@ struct __启动窗口 : 窗口
 	bool 通用事件_背景绘制(HDC hdc)
 	{
 		绘制上下文 dc(hdc);
-		if (!hbp){
+		if (!hbp) {
 			hbp = 位图::从内存创建(R::背景图);
 		}
-		dc.绘制位图(hbp, 0, 0);
+		dc.绘制位图(hbp, 0, 0, 宽度, 高度);
 		return false; //这里要阻止向上传导
 	}
 

@@ -61,6 +61,11 @@ function clearTextSelection(target) {
 function setTextMenuOpen(target, open) {
     if (open) {
         target.setAttribute("text-menu-open", "");
+        // 同步镜像到外层 .metro-input-shell，不能依赖 MutationObserver：
+        // 原生 popup 弹出会立即同步重绘，异步回调会错过这一帧导致边框空窗。
+        if (typeof setTextInputShellState === "function") {
+            setTextInputShellState(target, "text-menu-open", true);
+        }
         // Sciter popup 接管焦点后，空编辑框会立即绘制 placeholder。
         // 菜单生命周期内暂时移除，关闭时原样恢复。
         if (target.hasAttribute("placeholder") && !textPlaceholderSnapshots.has(target)) {
@@ -69,6 +74,9 @@ function setTextMenuOpen(target, open) {
         }
     } else {
         target.removeAttribute("text-menu-open");
+        if (typeof setTextInputShellState === "function") {
+            setTextInputShellState(target, "text-menu-open", false);
+        }
         if (textPlaceholderSnapshots.has(target)) {
             target.setAttribute("placeholder", textPlaceholderSnapshots.get(target));
             textPlaceholderSnapshots.delete(target);
@@ -139,7 +147,12 @@ function runTextMenuCommand(item) {
     else exec(nativeCommand);
     var menu = document.getElementById("textContextMenu");
     menu.state.popup = false;
-    if (command === "copy") activeTextContextTarget.state.focus = true;
+    if (command === "copy") {
+        // state.focus 直接赋值不会触发 focus 事件，shell 的高亮属性靠事件回调
+        // 维护，这里手动补一次同步，避免复制后 shell 边框跟着丢失高亮。
+        activeTextContextTarget.state.focus = true;
+        setTextInputShellState(activeTextContextTarget, "input-focused", true);
+    }
     setTextMenuOpen(activeTextContextTarget, false);
     executingTextMenuCommand = false;
 }
@@ -367,6 +380,59 @@ function initTextContextMenus() {
 }
 
 /* --------------------------------------------------------------------------
+   Text Input Shell Highlight
+   .metro-input-shell 外层高亮点亮联动：focus / 右键菜单状态同步到 shell 上。
+   -------------------------------------------------------------------------- */
+function getTextInputShell(target) {
+    var parent = target && target.parentNode;
+    return parent && parent.hasAttribute("data-text-input-shell") ? parent : null;
+}
+
+function setTextInputShellState(target, attribute, active) {
+    var shell = getTextInputShell(target);
+    if (!shell) return;
+    if (active) shell.setAttribute(attribute, "");
+    else shell.removeAttribute(attribute);
+}
+
+function initTextInputShells() {
+    var targets = document.querySelectorAll('[data-text-input-shell] > input[type="text"], [data-text-input-shell] > input[type="password"], [data-text-input-shell] > .metro-input');
+    targets.forEach(function (target) {
+        if (target.hasAttribute("data-shell-highlight-bound")) return;
+        target.setAttribute("data-shell-highlight-bound", "true");
+
+        var shell = getTextInputShell(target);
+        if (!shell) return;
+
+        if (target.state && target.state.focus) shell.setAttribute("input-focused", "");
+
+        // 点击 shell 空白区域时聚焦到内部输入框；右键直接复用上面的
+        // showTextContextMenu，与真正点在 input 上的右键行为保持一致。
+        shell.addEventListener("mousedown", function (evt) {
+            if (evt.target !== shell) return;
+            evt.preventDefault();
+            evt.stopPropagation();
+            if (evt.button === 2) showTextContextMenu(evt, target);
+            else target.focus();
+        });
+        shell.addEventListener("contextmenu", function (evt) {
+            if (evt.target !== shell) return;
+            evt.preventDefault();
+            evt.stopPropagation();
+        });
+
+        target.addEventListener("focus", function () {
+            setTextInputShellState(target, "input-focused", true);
+        });
+        target.addEventListener("blur", function () {
+            setTextInputShellState(target, "input-focused", false);
+        });
+        // text-menu-open 的镜像已改为 setTextMenuOpen 内部同步维护，
+        // 不再需要 MutationObserver（异步回调会错过 popup 弹出那一帧）。
+    });
+}
+
+/* --------------------------------------------------------------------------
    Skeleton Animation
    -------------------------------------------------------------------------- */
 var skeletonAnimGen = 0;
@@ -424,3 +490,4 @@ initMetroTabs();
 initSliders();
 initDemoButtons();
 initTextContextMenus();
+initTextInputShells();

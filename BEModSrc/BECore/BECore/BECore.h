@@ -1,6 +1,6 @@
 ﻿#pragma once
 /**@ModuleTitle: 白易核心基础库
-*  @version:     0.7
+*  @version:     0.8.5
 *  @platform:    anysys(x86|x64)
 *  @compiler:    msvc141
 *  @author:      xbcsoft

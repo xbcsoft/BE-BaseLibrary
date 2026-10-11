@@ -11,7 +11,6 @@ class 组合框 : public 控件类
 {
 public:
 	struct 参数 : 控件类::参数 {
-		定义_子组件通用构造方法;
 		组合框类型 类型 = 组合框类型::不可编辑下拉式;
 		StrW 内容 = L"";
 		int 最大文本长度 = 0;
@@ -25,7 +24,7 @@ public:
 
 	bool 创建(const 参数& cs, 容器类* 父窗口 = NULL, HWND 父句柄 = NULL);
 
-	void 行间距_();
+	void 行间距_(int v);
 
 	void 内容_(const StrW& txt);
 

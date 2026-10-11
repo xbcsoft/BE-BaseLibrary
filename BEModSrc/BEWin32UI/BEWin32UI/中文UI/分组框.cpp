@@ -1,10 +1,9 @@
-#include "容器类.h"
+﻿#include "容器类.h"
 
 class EXP 分组框 : public 容器类
 {
 public:
 	struct 参数 : 容器类::参数 {
-		定义_子组件通用构造方法;
 		StrW 标题;
 		字体 字体;
 		颜色 文本颜色 = 颜色::黑色;
@@ -53,6 +52,8 @@ public:
 		RECT rc; GetClientRect(窗口句柄, &rc);
 		if (背景颜色 != 颜色::透明) {
 			FillRect(hdc, &rc, _背景画刷);
+		} else {
+			UI_请求父窗绘制背景(窗口句柄, hdc, rc);
 		}
 		return false;
 	}

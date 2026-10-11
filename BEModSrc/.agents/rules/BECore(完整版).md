@@ -4,11 +4,11 @@ trigger: model_decision
 
 # BECore 核心库 — Skills 完整版
 
-> **版本**: 0.6
+> **版本**: 0.8
 >
 > **英文底层核心**：`bebase.hpp`、`BytesStr.hpp`、`Arraybe.hpp`、`HashTbe.hpp`、`behelper.hpp`、`beout.hpp` — 定义二级基本数据类型、通用类型输出、字符串语义与其转编码、基础类别辅助工具...
 >
-> **中文底层核心：**中文核心.cpp #其表层接口名翻译自英文底层核心，二者地位等价
+> **中文底层核心：**`中文核心.hpp` #其表层接口名翻译自英文底层核心，二者地位等价
 >
 
 ---
@@ -158,7 +158,7 @@ public:
 | 构造方式 | 语义 | 示例 |
 |---------|------|:----:|
 | `Bytes()` | 空构造，buf=nullptr, size=capacity_=0 | `Bytes b;` |
-| `Bytes({1,2,3})` | **引用**字面量 initializer_list（栈上分配，零堆拷贝） | `Bytes b = {1,2,3};` |
+| `Bytes({1,2,3})` | **拷贝**字面量 initializer_list（堆上安全分配并深拷贝） | `Bytes b = {1,2,3};` |
 | `Bytes(byte(&arr)[N])` | **拷贝**非 const 字节数组 | `byte a[4]; Bytes b(a);` |
 | `Bytes(const byte(&arr)[N])` | **引用**const 字节数组（零堆拷贝） | `const byte a[4] = {1,2,3,4}; Bytes b(a);` |
 | `Bytes(const Ref& v)` | **引用**BR的数据（不拷贝） | `Bytes b(BR("hello"));` |
@@ -205,8 +205,8 @@ operator byte*() const;                   // 隐式转到 byte*
 byte& at(ssize_t i) const;                // 支持负数索引，-1为最后一个
 byte& operator[](size_t i) const;         // 低级不检查访问
 
-explicit operator AutoStrW() const;       // 十进制可视化文本
-
+explicit operator bool() const;           // 快速判空 (size != 0)
+operator byte*() const;                   // 隐式转到 byte* (buf)
 ```
 
 ### 2.4 内部方法（public 但以下划线开头）
@@ -231,8 +231,8 @@ Bytes _SL(int subsize) {
 ### 2.5 append 扩容策略
 
 ```
-if capacity_ < 32MB:   增长 max(addSize, capacity_ >> 1)  // 即 ×1.5 倍
-if capacity_ >= 32MB:  增长 max(addSize, capacity_ >> 2)  // 即 ×1.25 倍
+if capacity_ < 128MB:   增长 max(addSize, capacity_ >> 1)  // 即 ×1.5 倍
+if capacity_ >= 128MB:  增长 max(addSize, capacity_ >> 2)  // 即 ×1.25 倍
 ```
 
 如果当前是引用模式（`capacity_==0`），会先备份旧 `buf` 指针，分配新内存，再 `memcpy` 旧数据过来。
@@ -269,23 +269,23 @@ struct Ref {
 
 ####  字面量字节集创建
 
-`Bytes` 和 `BR` 都支持直接从 `{...}` 字面量创建；若基于已有的 `byte bs[]` 静态数组，`Bytes` 会拷贝数据，而 `BR` 仍保持引用：
+`Bytes` 和 `BR` 都支持直接从 `{...}` 字面量创建；但注意：`Bytes` 会在堆上分配独立内存（拥有模式，安全防止栈逃逸），而 `BR` 则保持为零堆拷贝的只读引用（引用模式）：
 
 ```cpp
-// Bytes 字面量（引用模式，不拷贝）
-Bytes a = {1, 2, 3};           // initializer_list<byte>
+// Bytes 字面量（拥有模式，堆上安全深拷贝）
+Bytes a = {1, 2, 3};           // 堆内存拥有模式
 Bytes b({1, 2, 3});            // 同上
 Bytes c = {0xFF, 0x00, 0xAB};  // 支持十六进制
 
-// BR 字面量（同样是引用）
-BR r1 = {1, 2, 3};             // initializer_list<byte>
-BR r2({5, 6});                 // 直接构造
+// BR 字面量（只读引用，零堆分配）
+BR r1 = {1, 2, 3};             // initializer_list<byte> 栈引用
+BR r2({5, 6});                 // 直接构造引用
 byte bs[] = {7, 8, 9};         // 已有数组
 
 Bytes d = bs;                  // 拷贝构造，独立数据
 BR r3 = bs;                    // 引用构造，不拷贝
 
-// 可直接用于函数参数
+// 可直接用于函数参数（推荐使用 BR 零拷贝传递）
 Split(src, BR({6}), arr);       // 用字面量 {6} 作为分割符
 c.append({4, 5, 6});            // 尾部追加字面量字节
 
@@ -892,7 +892,9 @@ bool del(int index, int n = 1);    // 删除指定位置
 bool insert(int index, const T_ELE& elem);
 void reset(int n = 0, bool retainContent = false, bool shrinkCapacity = false);
 void clear();                      // 等价 reset(0)
-int  find(const T_ELE& elem);      // 线性查找，返回 -1 or 索引
+T_ELE& at(int i);                  // 带下标的访问（debug模式带越界断言）
+// 注：成员查找遵循白易“最小职责”原则，不在类内提供 find() 成员方法，
+// 统一由全局函数 `数组_查找成员(arr, val)` 提供查找服务。
 ```
 
 ### 8.4 容量控制
@@ -1143,12 +1145,12 @@ public:
     
     // 针对窄/宽/UTF-8 字符指针的特例构造（如果是 nullptr 则置为空状态）
     NilOpt(const char* s) : has(false) {
-        if constexpr (be::sameT<T, StrA> || be::sameT<T, StrU8> || be::sameT<T, BR>) {
+        if constexpr (be::same<T, StrA> || be::same<T, StrU8> || be::same<T, BR>) {
             has = (s != nullptr); if (has) val = (T)s;
         }
     }
     NilOpt(const charW* s) : has(false) {
-        if constexpr (be::sameT<T, StrW>) {
+        if constexpr (be::same<T, StrW>) {
             has = (s != nullptr); if (has) val = s;
         }
     }
@@ -1382,12 +1384,12 @@ using 空型 = Nil;
 
 ## 12. be::print / be::cout — 输出系统
 
-定义在 `beout.hpp`，基于 `AutoStrW` 实现万能输出。
+定义在 `beout.hpp`，基于 `AutoStr` 实现万能输出。
 
 ### 中文化别名
 
 ```cpp
-// 在中文核心.h 中
+// 在中文核心.hpp 中
 #define 打印输出 be::print
 #define 调试输出 be::debug
 ```
@@ -1430,10 +1432,9 @@ be::dout << "Debug:" << myPoint << be::endl;
 #### 2. ADL 与 `__AutoStr__魔术方法`
 在AutoStr这个构造函数内部有个万能类型构造，除了开头的模板约束声明外，只有极简的一行`__AutoStr__(v)`调用代码：
 
-	template <typename T, typename = be::enable_ifT<!be::is_AutoStr_builtinT<T>>>
-	AutoStr(const T& v) {
-		(StrU8&)str = __AutoStr__(v).str;
-	}
+	template <typename T, typename = be::enable_if<!be::is_AutoStr_builtin<T>>>
+	AutoStr(const T& v) : str(__AutoStr__(v).str) {}
+
 由于没有指定命名空间（原先这个是写进be::的），C++ 强大的 **ADL（参数依赖查找，Argument-Dependent Lookup）** 机制会生效。编译器会像雷达一样，全自动扫描全局命名空间以及类型 `T` 所在的命名空间（也能完美利用上类内部写成friend方法注入），寻找匹配的 `__AutoStr__` 重载，并将格式化后的数据无缝写入到当前的 `AutoStr` 实例中。
 
 > **💡 命名空间与编译优化**：
@@ -1442,7 +1443,7 @@ be::dout << "Debug:" << myPoint << be::endl;
 #### 3. 极简的“必要 SFINAE”保障安全
 
 在白易 0.6+ 新架构中，虽然我们彻底废弃了类内 `operator AutoStr`，杜绝了绝大多数的二义性冲突，但为了防止 C++ 模板过分贪婪地匹配基础类型，底层依然保留了一个**极简且绝对必要的 SFINAE 约束**：
-`!be::is_AutoStr_builtinT<T>`
+`!be::is_AutoStr_builtin<T>`
 
 这道约束作为白名单，限制万能模板构造函数**仅放行用户自定义的复合类型**，而安全排除所有常规基础类型（整型、浮点、指针、以及系统内置字符串类等）。
 
@@ -1635,7 +1636,7 @@ void 数组扩容接管演示() {
   由于 `Bytes`、`StrA` 和 `StrW` 在设计上彻底摒弃了 SSO 内置小数据缓存，仅持有一个指向外部堆内存的指针，不存在任何自引用结构，这让它们可以非常安全地声明在 `be::is_trivially_relocatable` 物理平移白名单中。从而确保了它们在被 `Arraybe` 频繁搬运时，永远能绕过复杂的构造/析构层，直达最快、性能最高的 `realloc`/纯字节平移动作。
 - **与 Arraybe 本身的定位截然不同**：`Arraybe` 作为数组容器，本就是被设计为在这套封闭生态内部流转和管理动态元素的。对于很多场景下元素起步少但动态增删高频产生的情形，允许你在早期利用它的泛型参数预留一块专属的（`stack_buf`）栈内存承载（即 `STACK_CAP`），从而规避掉海量碎片的堆内存分配开销。而**为了能激活针对该数组装载类型的栈缓存特性支持，那就必须要把它做成模板级容器，好让编译器在编译期给出元素类型并自动推导预留其在栈上具体的长度**。总之，数组容器本就是生态内部处理流转用的重型机，无需像字符串这类信息传媒一样，频繁且严峻地需要跨语言、跨框架的系统边界去维持原样格式。
 - **自身内置的高效贪婪扩容机制**：虽然没有栈级别的起步缓存容纳小数据，但这完全**不意味着**会造成性能瓶颈。在白易体系中，底层针对不同容器的生命周期特征设计了截然不同但皆极高效的动态感知预分配算法：
-  - **`Bytes / StrA/W` 的阶梯式倍数激进暴涨**：因为字符串往往是极其高频的“短线重击拼接”，它们在常态下每次装不下时，会直接触发 **`原容量 × 1.5`** （即`capacity_ += max(addSize, capacity_ >> 1)`）倍的激进增涨；而当容器尺寸越过极重负载阈值（**`capacity_ >= 32MB`**）时，则克制地切回 **`原容量 × 1.25`**（即 `+= max(addSize, capacity_ >> 2)`） 倍平滑渐进增长，以便缓解大块连续堆内存请求失败的极端压力。这种机制足以抹平丧失局部小栈缓存所带来的痛感。
+  - **`Bytes / StrA/W` 的阶梯式倍数激进暴涨**：因为字符串往往是极其高频的“短线重击拼接”，它们在常态下每次装不下时，会直接触发 **`原容量 × 1.5`** （即`capacity_ += max(addSize, capacity_ >> 1)`）倍的激进增涨；而当容器尺寸越过极重负载阈值（**`capacity_ >= 128MB`**）时，则克制地切回 **`原容量 × 1.25`**（即 `+= max(addSize, capacity_ >> 2)`） 倍平滑渐进增长，以便缓解大块连续堆内存请求失败的极端压力。这种机制足以抹平丧失局部小栈缓存所带来的痛感。
 
 
 
@@ -1863,18 +1864,25 @@ C++ 传统的 RAII 思想提倡*“构造失败即抛异常自动释放资源，
 
 ## 14. 已知设计要点与陷阱
 
-### 14.1 initializer_list 字面量魔法
+### 14.1 initializer_list 字面量与安全设计演进
 
-使用字面量字节集构造 如：`Bytes b = {1,2,3} `会在栈中分配内存、这里b只是其栈内存的引用
+在白易早期设计中，`Bytes` 曾直接对 `initializer_list` 采取栈引用模式。但在实际业务中，将字面量作为 `Bytes` 实体返回或跨作用域传递时容易引发悬垂逃逸风险。因此框架进行了职责分离的演进：
 
+1. **`Bytes` 实体容器**：采用靠谱的堆内存拥有模式，在分配堆内存后执行深拷贝：
 ```cpp
-Bytes(std::initializer_list<byte> bytes){
-    static volatile byte _trap = *bytes.begin();  // 制造静态逃逸假象
-    _ref(bytes.begin(), bytes.size());
+// 介于其危险程度转为靠谱的堆内存模式
+Bytes(std::initializer_list<byte> bytes) {
+    _reset(bytes.size()); memcpy(buf, bytes.begin(), bytes.size());
 }
 ```
 
-`static volatile` 的 `_trap` 是为了防止 Release 优化掉 `initializer_list` 底层数组的内存——否则编译器可能认为数据无副作用而不分配，导致 `_ref` 引用到完全没在编译期安排产生的栈内存（读者可试着把该行魔法去掉在Release版本下看运行结果数据是否正常）
+2. **`BR` (Bytes::Ref) 引用容器**：若需要真正的栈上零堆分配字面量引用，直接使用 `BR({1,2,3})`。它保留了底层的 `_trap` 静态逃逸防优化魔法：
+```cpp
+Ref(std::initializer_list<byte> bytes) : p(bytes.begin()), size(bytes.size()) {
+    static volatile byte _trap; _trap = *bytes.begin(); // 制造静态逃逸假象防Release优化
+}
+```
+`static volatile` 的 `_trap` 是为了防止 Release 模式下编译器优化掉 `initializer_list` 底层栈数组的内存，确保 `BR` 能够稳定安全地作为只读临时参数传递。
 
 ### 14.2 字符串成员 `bytes.buf` 永不为 NULL
 

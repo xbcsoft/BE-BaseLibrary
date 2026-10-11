@@ -46,7 +46,7 @@ StrX 取当前目录();
 
 bool 置当前目录(c_StrX 新当前目录);
 
-StrW 取模块路径(void* 模块句柄 = NULL);
+StrX 取模块路径(void* 模块句柄 = NULL);
 
 StrX 取执行文件名();
 

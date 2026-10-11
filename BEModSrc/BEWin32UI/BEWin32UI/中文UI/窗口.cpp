@@ -55,7 +55,7 @@ public:
 		return *this;
 	}
 
-	bool 创建(const 参数& cs = 窗口::参数(), 窗口* 父窗口 = 0, bool 模态载入 = 0) {
+	bool 创建(const 参数& cs = 窗口::参数(), 窗口* 父容器 = 0, bool 模态载入 = 0) {
 		类名 = cs.类名;
 		左边 = cs.左边;
 		顶边 = cs.顶边;
@@ -86,6 +86,7 @@ public:
 
 		WNDCLASSEX wndcls = { 0 };
 		wndcls.cbSize = sizeof(WNDCLASSEX);
+		wndcls.style = CS_DBLCLKS;
 		wndcls.hbrBackground = _背景画刷;//(HBRUSH)GetStockObject(WHITE_BRUSH);
 		wndcls.hInstance = g_hInst;
 		wndcls.hIcon = _图标大句柄;
@@ -96,11 +97,11 @@ public:
 		RegisterClassExW(&wndcls);
 		_原窗口过程 = (WNDPROC)DefWindowProcW;
 
-		//父窗口==-1针对_g_interWnd（目的仅是用来搞任务栏图标隐藏但它不计入实际窗口）
-		if (父窗口 && (size_t)父窗口 != -1) {
-			this->父窗口 = (窗口*)父窗口;
-			父窗口句柄 = this->父窗口->窗口句柄;
-			if (模态载入)this->父窗口->禁止_();
+		//父容器==-1针对_g_interWnd（目的仅是用来搞任务栏图标隐藏但它不计入实际窗口）
+		if (父容器 && (size_t)父容器 != -1) {
+			this->父容器 = (窗口*)父容器;
+			父窗口句柄 = this->父容器->窗口句柄;
+			if (模态载入)this->父容器->禁止_();
 		}
 		int 窗口风格 = 0, 窗口扩展风格 = 0;
 		边框_((窗口边框)边框, 窗口风格, 窗口扩展风格);
@@ -124,7 +125,7 @@ public:
 		}
 
 		//为_g_interWnd直接使用系统内置静态组件类不走自定义注册窗口类
-		if ((size_t)父窗口 == -1)类名 = L"Static";
+		if ((size_t)父容器 == -1)类名 = L"Static";
 		窗口句柄 = CreateWindowExW(窗口扩展风格, 类名, cs.标题,
 			窗口风格,
 			dpi(左边), dpi(顶边), dpi(宽度), dpi(高度),
@@ -132,7 +133,7 @@ public:
 		);
 		if (!窗口句柄) return false;
 
-		if ((size_t)父窗口 != -1) {
+		if ((size_t)父容器 != -1) {
 			_初始化Esc快捷键();
 		}
 		return true;
@@ -158,7 +159,7 @@ public:
 			while (GetMessageW(&msg, NULL, 0, 0) && 窗口句柄) {
 				_消息循环处理过程
 			}
-			if (父窗口) 父窗口->禁止_(false);
+			if (父容器) 父容器->禁止_(false);
 		}
 		if (_g_wndCount == 0)PostQuitMessage(0);
 	}
@@ -179,11 +180,12 @@ public:
 		}
 	}
 
-	void 置图标(int 资源ID号) {
-		置图标(LoadIconW(g_hInst, MAKEINTRESOURCEW(资源ID号)));
-	}
-
 	void 置图标(const Bytes& zjjIcon) {
+		if (!zjjIcon) {
+			HICON hAppIcon = LoadIconW(NULL, IDI_APPLICATION);
+			置图标(hAppIcon, false); 置图标(hAppIcon, true);
+			return;
+		}
 		置图标(图标::从内存创建(zjjIcon, 32), true);
 		置图标(图标::从内存创建(zjjIcon), false);
 	}
@@ -230,6 +232,7 @@ public:
 
 	void 边框_(窗口边框 边框, 可空<int&> 窗口风格 = nil, 可空<int&> 窗口扩展风格 = nil) {
 		bool 用户调用 = 窗口风格 == 空;
+		this->边框 = 边框;
 		switch (边框)
 		{
 		case 窗口边框::无边框:
@@ -303,13 +306,19 @@ public:
 		}
 	}
 
-	bool 销毁() {
-		if (窗口句柄 && _窗口风格) {
-			_窗口风格 = 0;
+	bool 销毁(bool 同步 = false) {
+		if (!同步) {
+			if (窗口句柄) {
+				PostMessageW(窗口句柄, WM_APP, 0, 0);
+				return true;
+			}
+			return false;
+		}
+		if (窗口句柄) {
 			置托盘图标(NULL);
 			_wa.destroy();
 			_g_wndCount--;
-			容器类::销毁();
+			容器类::销毁(true);
 			事件_被销毁();
 			if (_g_wndCount == 0) {
 				PostQuitMessage(0);
@@ -519,10 +528,17 @@ LRESULT 窗口::挂接消息(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	switch (msg) {
 	case WM_SIZE:
 		事件_尺寸被改变();
-		InvalidateRect(hwnd, NULL, TRUE);
+		InvalidateRect(hwnd, NULL, TRUE); //已修复是容器类那边的BUG
+		//RedrawWindow(hwnd, NULL, NULL, RDW_INVALIDATE | RDW_ERASE | RDW_ALLCHILDREN);
+		// 子控件自身不会收到父窗口的 WM_SIZE。透明编辑框需要借此刷新
+		for (窗口基类* child : 窗口_枚举子窗口对象(hwnd)) {
+			child->发送消息(BE_PARENT_SIZE_CHANGED, wParam, lParam);
+		}
 		break;
 	case WM_CREATE:
 		事件_创建本体();
+		//虽然CreateWindowExW是同步调用的WM_CREATE，但这里事件_创建本体不能在CreateWindowExW下一行去实现
+		//CreateWindowExW 内部在 WM_CREATE 之后（返回之前），系统还会发送 WM_SIZE、WM_MOVE 等消息
 		break;
 	case WM_ACTIVATE:
 		if (LOWORD(wParam) != WA_INACTIVE) {
@@ -536,9 +552,7 @@ LRESULT 窗口::挂接消息(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		if (事件_被关闭() == false) {
 			return 0;
 		}
-		if (父窗口) SetActiveWindow(父窗口->窗口句柄);
-	case WM_DESTROY:
-		销毁();
+		if (父容器) SetActiveWindow(父容器->窗口句柄);
 		break;
 	case WM_LBUTTONDOWN:
 		if (随意移动_) {

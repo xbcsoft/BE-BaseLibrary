@@ -1,21 +1,21 @@
 ﻿#pragma once
 #include <BECore/中文核心.hpp>
+#include "组件基类.h"
 #include "helper/窗口辅助核心.h"
 #include "helper/句柄管理.h"
 #include "helper/字体.h"
 #include "helper/位图.h"
 #include "helper/绘制上下文.h"
 
-class 窗口基类
+class 窗口基类 : public 组件基类
 {
 public:
 	HWND 窗口句柄 = NULL;
 	HWND 父窗口句柄 = NULL;
-	class 容器类* 父窗口 = NULL;
 
-	~窗口基类();
+	virtual ~窗口基类();
 
-	virtual bool 销毁();
+	virtual bool 销毁(bool 同步 = false);
 
 	/**取整个窗口相对于屏幕的矩形区域（虚拟单位）
 	 * @return RECTF
@@ -55,7 +55,7 @@ public:
 
 	SIZE _取用户区大小();
 
-	/**取所在父窗口内的矩形（虚拟单位）
+	/**取所在父容器内的矩形（虚拟单位）
 	 * @return RECTF
 	 */
 	RECTF 取父窗用户区内矩形();
@@ -90,7 +90,7 @@ public:
 	void 窗口置父(HWND 父句柄);
 
 	//在容器类那边实现
-	void 窗口置父(容器类* 父容器, bool 加入父容器列表 = false);
+	void 窗口置父(容器类* 新父容器, bool 加入父容器列表 = false);
 
 	void 可视_(bool is = true);
 
@@ -189,7 +189,6 @@ protected:
 	virtual bool 通用事件_背景绘制(HDC hdc);
 
 public:
-	float 左边, 顶边, 宽度, 高度;
 	bool 可视, 禁止; StrW 标记_;
 	bool _是否为窗口类对象 = false;
 };

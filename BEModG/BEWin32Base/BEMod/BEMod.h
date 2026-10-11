@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #pragma region BECore
-//#version 0.7
+//#version 0.8
 #include <BECore/BECore.h>
 #ifndef _LIB
 #ifdef _DEBUG

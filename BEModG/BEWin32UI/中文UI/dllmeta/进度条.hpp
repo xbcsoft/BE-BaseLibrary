@@ -8,7 +8,7 @@
 进度条* UI_进度条_创建(byte* fb, 容器类* 父窗口)
 {
 	if (fb==nullptr){
-		delete 父窗口; //当参数1给出空指针时此方法变为销毁此投入的参数2实例对象
+		UI_销毁控件(父窗口); //当参数1给出空指针时此方法变为销毁此投入的参数2实例对象
 		return 0;
 	}
 	进度条::参数 cs;
@@ -41,8 +41,8 @@ static UI属性元信息 META_进度条[] = {
 	_MK属性(5, L"禁止", UI属性类型::布尔, 进度条::_df.禁止, NULL, L"", false, false),
 	_MK属性(6, L"可停留焦点", UI属性类型::布尔, 进度条::_df.可停留焦点, NULL, L"", false, false),
 	_MK属性(7, L"停留顺序", UI属性类型::整数, 进度条::_df.停留顺序, NULL, L"", false, false),
-	_MK属性(8, L"方向", UI属性类型::枚举, (int)进度条::_df.方向, L"0.横向|PBS_VERTICAL.纵向", L"", false, false),
-	_MK属性(9, L"显示方式", UI属性类型::枚举, (int)进度条::_df.显示方式, L"0.分块|PBS_SMOOTH.平滑", L"", false, false),
+	_MK属性(8, L"方向", UI属性类型::枚举, (int)进度条::_df.方向, L"0.横向|4.纵向", L"", false, false),
+	_MK属性(9, L"显示方式", UI属性类型::枚举, (int)进度条::_df.显示方式, L"0.分块|1.平滑", L"", false, false),
 	_MK属性(10, L"最小位置", UI属性类型::整数, 进度条::_df.最小位置, NULL, L"", false, false),
 	_MK属性(11, L"最大位置", UI属性类型::整数, 进度条::_df.最大位置, NULL, L"", false, false),
 	_MK属性(12, L"位置", UI属性类型::整数, 进度条::_df.位置, NULL, L"", false, false),

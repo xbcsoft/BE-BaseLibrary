@@ -1,30 +1,33 @@
 ﻿#include <BECore/中文核心.hpp>
+#include "组件基类.h"
 #include "helper/窗口辅助核心.h"
 #include "helper/句柄管理.h"
 #include "helper/字体.h"
 #include "helper/位图.h"
 #include "helper/绘制上下文.h"
 
-class EXP 窗口基类
+class EXP 窗口基类 : public 组件基类
 {
 public:
 	HWND 窗口句柄 = NULL;
 	HWND 父窗口句柄 = NULL;
-	class 容器类* 父窗口 = NULL;
 
-	~窗口基类() {
-		销毁();
+	virtual ~窗口基类() {
+		销毁(true);
 	}
 
-	virtual bool 销毁() {
-		if (窗口句柄) {
-			if (_窗口风格 != 0)
-				DestroyWindow(窗口句柄); //小心内部还会再触发WM_DESTROY，
-			//所以如果已是WM_DESTROY则 _窗口风格 那边已经置为0
-			窗口句柄 = NULL;
+	virtual bool 销毁(bool 同步 = false) {
+		if (!窗口句柄) return false;
+		if (!同步) {
+			PostMessageW(窗口句柄, WM_APP, 0, 0);
 			return true;
 		}
-		return false;
+		if (_窗口风格 != 0) {
+			_窗口风格 = 0;
+			DestroyWindow(窗口句柄);
+		}
+		窗口句柄 = NULL;
+		return true;
 	}
 
 	/**取整个窗口相对于屏幕的矩形区域（虚拟单位）
@@ -81,7 +84,7 @@ public:
 		return { r.right, r.bottom };
 	}
 
-	/**取所在父窗口内的矩形（虚拟单位）
+	/**取所在父容器内的矩形（虚拟单位）
 	 * @return RECTF
 	 */
 	RECTF 取父窗用户区内矩形() {
@@ -154,7 +157,7 @@ public:
 	}
 
 	//在容器类那边实现
-	void 窗口置父(容器类* 父容器, bool 加入父容器列表 = false);
+	void 窗口置父(容器类* 新父容器, bool 加入父容器列表 = false);
 
 	void 可视_(bool is = true) {
 		int show = 0;
@@ -293,7 +296,10 @@ protected:
 	// 控件子类化的窗口过程
 	static LRESULT CALLBACK _WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
 		窗口基类* pThis = (窗口基类*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-		return pThis->挂接消息(hwnd, msg, wp, lp);
+		if (pThis) {
+			return pThis->挂接消息(hwnd, msg, wp, lp);
+		}
+		return DefWindowProc(hwnd, msg, wp, lp);
 	}
 
 	void _子类化() {
@@ -369,7 +375,6 @@ protected:
 	virtual bool 通用事件_背景绘制(HDC hdc) { return true; }
 
 public:
-	float 左边, 顶边, 宽度, 高度;
 	bool 可视, 禁止; StrW 标记_;
 	bool _是否为窗口类对象 = false;
 };
@@ -389,9 +394,12 @@ LRESULT 窗口基类::挂接消息(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
 		}
 		break;
 	}
+	case WM_APP:
+		DestroyWindow(hwnd);
+		return 0;
 	case WM_DESTROY:
 		_窗口风格 = 0;
-		销毁();
+		销毁(true);
 		return 0;
 	case WM_LBUTTONDOWN:
 		if (!通用事件_鼠标左键被按下(LOWORD(lParam), HIWORD(lParam))) {

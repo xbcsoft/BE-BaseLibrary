@@ -5,7 +5,7 @@
 #pragma endregion
 
 #pragma region BEWin32UI
-//#version 0.7
+//#version 0.8
 #include <BEWin32UI/BEWin32UI.h>
 #ifndef _LIB
 #ifdef _DEBUG

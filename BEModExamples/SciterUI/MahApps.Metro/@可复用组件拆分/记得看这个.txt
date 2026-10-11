@@ -7,3 +7,6 @@
 下拉框.html
 选项卡面板.html
 选择框与单选框.html
+
+包括这个给AI看的避坑指南（当然已经内置在白易的MCP里了）：
+BEModSrc\.agents\rules\SciterUI兼容规范向导.md

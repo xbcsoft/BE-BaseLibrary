@@ -8,7 +8,7 @@
 编辑框* UI_编辑框_创建(byte* fb, 容器类* 父窗口)
 {
 	if (fb==nullptr){
-		delete 父窗口; //当参数1给出空指针时此方法变为销毁此投入的参数2实例对象
+		UI_销毁控件(父窗口); //当参数1给出空指针时此方法变为销毁此投入的参数2实例对象
 		return 0;
 	}
 	编辑框::参数 cs;
@@ -105,7 +105,7 @@ void UI_编辑框_置属性(编辑框* ui, int methodi, byte* fb)
 		ui->边框_(gFBi(fb, 0));
 		break;
 	case 10:
-		//字体
+		ui->置字体(gFBpo<字体>(fb, 0));
 		break;
 	case 11:
 		ui->文本颜色_(gFBi(fb, 0));

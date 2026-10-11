@@ -8,7 +8,7 @@
 按钮* UI_按钮_创建(byte* fb, 容器类* 父窗口)
 {
 	if (fb==nullptr){
-		delete 父窗口; //当参数1给出空指针时此方法变为销毁此投入的参数2实例对象
+		UI_销毁控件(父窗口); //当参数1给出空指针时此方法变为销毁此投入的参数2实例对象
 		return 0;
 	}
 	按钮::参数 cs;
@@ -74,7 +74,7 @@ void UI_按钮_置属性(按钮* ui, int methodi, byte* fb)
 		ui->标题_(gFBs<W>(fb, 0));
 		break;
 	case 9:
-		//字体
+		ui->置字体(gFBpo<字体>(fb, 0));
 		break;
 	}
 }

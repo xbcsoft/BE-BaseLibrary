@@ -7,7 +7,6 @@ class EXP 进度条 : public 控件类
 {
 public:
 	struct 参数 : 控件类::参数 {
-		定义_子组件通用构造方法;
 		进度条方向 方向 = 进度条方向::横向;
 		进度条显示方式 显示方式 = 进度条显示方式::分块;
 		int 最小位置 = 0;
@@ -51,15 +50,38 @@ public:
 	}
 
 	void 方向_(进度条方向 d) {
+		if (方向 == d) return;
 		方向 = d;
-		DWORD style = GetWindowLongW(窗口句柄, GWL_STYLE);
-		if (d == 进度条方向::纵向) {
-			style |= PBS_VERTICAL;
-		} else {
-			style &= ~PBS_VERTICAL;
-		}
-		SetWindowLongW(窗口句柄, GWL_STYLE, style);
-		SetWindowPos(窗口句柄, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+		_重建控件();
+	}
+
+	void _重建控件() {
+		if (!窗口句柄) return;
+
+		RECT rc;
+		GetWindowRect(窗口句柄, &rc);
+		HWND hParent = GetParent(窗口句柄);
+		if (hParent) MapWindowPoints(NULL, hParent, (LPPOINT)&rc, 2);
+		int px = rc.left, py = rc.top;
+		int pw = rc.right - rc.left, ph = rc.bottom - rc.top;
+
+		// 进度条创建时本来就没有调用 _子类化()，因此 _原窗口过程 并未初始化。
+		// 这里不能照搬编辑框去 SetWindowLongPtrW(..., _原窗口过程)，否则会把未初始化地址
+		// 当窗口过程写回去并导致 VS 设计器崩溃。直接销毁原生 ProgressBar HWND 即可。
+		HWND hOld = 窗口句柄;
+		窗口句柄 = NULL;
+		DestroyWindow(hOld);
+
+		DWORD style = _窗口风格 | (int)方向 | (int)显示方式;
+		窗口句柄 = CreateWindowExW(0, PROGRESS_CLASSW, L"", style,
+			px, py, pw, ph, hParent, (HMENU)this, g_hInst, NULL);
+		if (!窗口句柄) return;
+
+		SendMessageW(窗口句柄, PBM_SETRANGE32, 最小位置, 最大位置);
+		SendMessageW(窗口句柄, PBM_SETPOS, 位置, 0);
+		// 进度条原始创建流程没有子类化，这里也保持一致，避免下一次重建时
+		// WM_DESTROY 进入白易窗口过程。
+		重画(nil, true);
 	}
 
 	void 显示方式_(进度条显示方式 s) {

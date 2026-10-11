@@ -8,7 +8,7 @@ public:
 	菜单() {} // 默认构造函数
 
 	//控件类自带析构函数那边会自动调用这里的虚函数【销毁】
-	bool 销毁() override {
+	bool 销毁(bool _ = false) override {
 		if (菜单句柄) {
 			if (父窗口句柄 && IsWindow(父窗口句柄)) {
 				if (GetMenu(父窗口句柄) == 菜单句柄) {
@@ -32,13 +32,13 @@ public:
 	}
 
 	/**从容器类创建菜单
-	 * @param 父窗口
-	 * @return 必须给出父窗口，否则返回假
+	 * @param 父容器
+	 * @return 必须给出父容器，否则返回假
 	 */
-	bool 创建(容器类* 父窗口) {
-		父窗口句柄 = 窗口_取祖宗句柄(父窗口->窗口句柄);
+	bool 创建(容器类* 父容器) {
+		父窗口句柄 = 窗口_取祖宗句柄(父容器->窗口句柄);
 		if (!父窗口句柄)return false;
-		this->父窗口 = 父窗口;
+		this->父容器 = 父容器;
 
 		菜单句柄 = CreateMenu();
 		SetMenu(父窗口句柄, 菜单句柄);
@@ -47,10 +47,10 @@ public:
 
 	/**从 RC 资源挂接菜单（IDR_MENU*），生命周期由系统管理
 	 */
-	bool 挂接资源(int 资源ID, 容器类* 父窗口) {
-		父窗口句柄 = 窗口_取祖宗句柄(父窗口->窗口句柄);
+	bool 挂接资源(int 资源ID, 容器类* 父容器) {
+		父窗口句柄 = 窗口_取祖宗句柄(父容器->窗口句柄);
 		if (!父窗口句柄)return false;
-		this->父窗口 = 父窗口;
+		this->父容器 = 父容器;
 
 		菜单句柄 = LoadMenuW(g_hInst, MAKEINTRESOURCEW(资源ID));
 		if (!菜单句柄) return false;

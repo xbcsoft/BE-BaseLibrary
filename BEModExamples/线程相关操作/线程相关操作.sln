@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.37506.8
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "简单互斥", "简单互斥\简单互斥.vcxproj", "{548C178E-8CC0-4F3B-9473-2EDD1FCB1B86}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "事件信号", "事件信号\事件信号.vcxproj", "{6AA4E02A-8382-1262-0BFB-449F06CEC540}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "用事件实现线程同步", "用事件实现线程同步\用事件实现线程同步.vcxproj", "{0CBEF814-FC98-0606-FC25-C2F636B68459}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "条件等待信号", "条件等待信号\条件等待信号.vcxproj", "{724EB3C5-33D2-FD02-F692-7774100F5925}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{548C178E-8CC0-4F3B-9473-2EDD1FCB1B86}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6AA4E02A-8382-1262-0BFB-449F06CEC540}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0CBEF814-FC98-0606-FC25-C2F636B68459}.Debug|Win32.ActiveCfg = Debug|Win32
+		{724EB3C5-33D2-FD02-F692-7774100F5925}.Debug|Win32.ActiveCfg = Debug|Win32
+		{548C178E-8CC0-4F3B-9473-2EDD1FCB1B86}.Debug|Win32.Build.0 = Debug|Win32
+		{6AA4E02A-8382-1262-0BFB-449F06CEC540}.Debug|Win32.Build.0 = Debug|Win32
+		{0CBEF814-FC98-0606-FC25-C2F636B68459}.Debug|Win32.Build.0 = Debug|Win32
+		{724EB3C5-33D2-FD02-F692-7774100F5925}.Debug|Win32.Build.0 = Debug|Win32
+		{548C178E-8CC0-4F3B-9473-2EDD1FCB1B86}.Release|Win32.ActiveCfg = Release|Win32
+		{6AA4E02A-8382-1262-0BFB-449F06CEC540}.Release|Win32.ActiveCfg = Release|Win32
+		{0CBEF814-FC98-0606-FC25-C2F636B68459}.Release|Win32.ActiveCfg = Release|Win32
+		{724EB3C5-33D2-FD02-F692-7774100F5925}.Release|Win32.ActiveCfg = Release|Win32
+		{548C178E-8CC0-4F3B-9473-2EDD1FCB1B86}.Release|Win32.Build.0 = Release|Win32
+		{6AA4E02A-8382-1262-0BFB-449F06CEC540}.Release|Win32.Build.0 = Release|Win32
+		{0CBEF814-FC98-0606-FC25-C2F636B68459}.Release|Win32.Build.0 = Release|Win32
+		{724EB3C5-33D2-FD02-F692-7774100F5925}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CA0E2C5E-A824-4002-8E4B-C3CE426F0C57}
+	EndGlobalSection
+EndGlobal

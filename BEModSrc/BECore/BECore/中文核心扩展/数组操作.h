@@ -100,7 +100,7 @@ bool 数组_加入不重复成员(Arraybe<T, C>& 数组变量, E&& 欲加入的�
 template<typename T, int C, typename E>
 bool 数组_删除元素值成员(Arraybe<T, C>& 数组变量, E&& 欲删除的成员数据, bool 删除全部 = false) {
 	if (!删除全部) {
-		int i = 数组_查找成员(数组变量, 欲删除的成员数据);
+		int i = 数组_查找成员(数组变量, be::forward<E>(欲删除的成员数据));
 		if (i == -1) return false;
 		数组变量.del(i);
 		return true;

@@ -1,8 +1,8 @@
 ﻿#pragma once
 #include "stdafx.h"
 #include "SciterObj.h"
-class SciterUI;
 
+class SciterUI;
 class SciterDom
 {
 public:

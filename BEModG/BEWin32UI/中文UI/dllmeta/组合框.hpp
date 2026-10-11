@@ -8,7 +8,7 @@
 组合框* UI_组合框_创建(byte* fb, 容器类* 父窗口)
 {
 	if (fb==nullptr){
-		delete 父窗口; //当参数1给出空指针时此方法变为销毁此投入的参数2实例对象
+		UI_销毁控件(父窗口); //当参数1给出空指针时此方法变为销毁此投入的参数2实例对象
 		return 0;
 	}
 	组合框::参数 cs;
@@ -106,7 +106,7 @@ void UI_组合框_置属性(组合框* ui, int methodi, byte* fb)
 		ui->背景颜色_(gFBi(fb, 0));
 		break;
 	case 15:
-		//字体
+		ui->置字体(gFBpo<字体>(fb, 0));
 		break;
 	case 16:
 		ui->现行选中项_(gFBi(fb, 0));

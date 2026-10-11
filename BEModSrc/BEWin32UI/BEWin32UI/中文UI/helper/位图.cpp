@@ -26,7 +26,7 @@ struct EXP 颜色 {
 	颜色(byte r, byte g, byte b)
 		: r(r), g(g), b(b), _unused(0) {}
 
-	enum {
+	enum : COLORREF {
 		默认底色 = RGB(240, 240, 240),
 		黑色 = 0,
 		藏青 = 8388608,
@@ -60,7 +60,7 @@ struct EXP 颜色 {
 		桃红 = 8409343,
 		芙红 = 12615935,
 		深灰 = 6316128,
-		透明 = -1,
+		透明 = 4294967295, //-1
 	};
 };
 
@@ -129,7 +129,7 @@ struct EXP 位图
 	 * @param 目标宽度
 	 * @param 目标高度
 	 */
-	void 缩放(float 目标宽度, float 目标高度, 位图& 目标) {
+	void 缩放(int 目标宽度, int 目标高度, 位图& 目标) {
 		if (!h || 目标宽度 <= 0 || 目标高度 <= 0) return;
 		SIZE sz = 取尺寸();
 		if (sz.cx <= 0 || sz.cy <= 0) return;
@@ -707,8 +707,8 @@ struct EXP 图片组 {
 	 * @param 动态增长个数=2 当内部数组容量不足时增长的槽个数
 	 * @return
 	 */
-	HIMAGELIST 创建(float 宽度, float 高度, int 标志 = 32, int 初始图片数量 = 0, int 动态增长个数 = 2) {
-		return h = ImageList_Create((int)宽度, (int)高度, 标志, 初始图片数量, 动态增长个数);
+	HIMAGELIST 创建(int 宽度, int 高度, int 标志 = 32, int 初始图片数量 = 0, int 动态增长个数 = 2) {
+		return h = ImageList_Create(宽度, 高度, 标志, 初始图片数量, 动态增长个数);
 	}
 	void 销毁() {
 		if (h) { ImageList_Destroy(h); h = 0; }
@@ -931,8 +931,8 @@ struct EXP 图片组 {
 	 • ILD_IMAGE ：只绘制颜色图像
 	 * @return
 	 */
-	bool 窗口画图片(int 图片索引, HDC 窗口DC, float x, float y, int 标志) {
-		return ImageList_Draw(h, 图片索引, 窗口DC, (int)x, (int)y, 标志)!=0;
+	bool 窗口画图片(int 图片索引, HDC 窗口DC, int x, int y, int 标志) {
+		return ImageList_Draw(h, 图片索引, 窗口DC, x, y, 标志)!=0;
 	}
 
 	/*拖动功能解决方案
@@ -942,10 +942,10 @@ struct EXP 图片组 {
 	 MouseMove->ImageList_DragMove -> 随鼠标移动
 	 MouseUp->ImageList_EndDrag -> 停止拖动
 	 **/
-	static bool 拖动_start(HIMAGELIST himl, HWND 窗口句柄, int 图片索引, float x, float y) { // 辅助块以防冲突
+	static bool 拖动_start(HIMAGELIST himl, HWND 窗口句柄, int 图片索引, int x, int y) { // 辅助块以防冲突
 		return false;
 	}
-	static bool 拖动_开始(HIMAGELIST himl, HWND 窗口句柄, int 图片索引, float x, float y) {
+	static bool 拖动_开始(HIMAGELIST himl, HWND 窗口句柄, int 图片索引, int x, int y) {
 		if (!himl || 图片索引 < 0) return false;
 
 		int width = 0, height = 0;
@@ -958,7 +958,7 @@ struct EXP 图片组 {
 		SetCapture(窗口句柄);
 
 		// 在指定窗口上的初始位置进行首次显示
-		if (!ImageList_DragEnter(窗口句柄, (int)x, (int)y))
+		if (!ImageList_DragEnter(窗口句柄, x, y))
 		{
 			ImageList_EndDrag();
 			ReleaseCapture();
@@ -967,8 +967,8 @@ struct EXP 图片组 {
 
 		return true;
 	}
-	static bool 拖动_移动中(float x, float y) {
-		return ImageList_DragMove((int)x, (int)y)!=0;
+	static bool 拖动_移动中(int x, int y) {
+		return ImageList_DragMove(x, y)!=0;
 	}
 	static bool 拖动_结束(HWND 窗口句柄) {
 		BOOL r = ImageList_DragLeave(窗口句柄);

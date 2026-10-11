@@ -13,7 +13,6 @@ class EXP 图片框 : public 子容器<true>
 {
 public:
 	struct 参数 : public 子容器<true>::参数 {
-		定义_子组件通用构造方法;
 		Bytes 图片;
 		bool 是否贮存图片 = false;
 		图片框边框 边框 = 图片框边框::无边框;
@@ -118,6 +117,7 @@ public:
 
 public:
 	bool 通用事件_窗口重画(PAINTSTRUCT& ps);
+	bool 通用事件_背景绘制(HDC hdc) override;
 public:
 	图片框边框 边框;
 	定义_背景颜色成员;
@@ -132,15 +132,30 @@ private:
 	HandleCDC _hdcMask;
 	int _图片宽度 = 0;
 	int _图片高度 = 0;
+	void _绘制内容(HDC hdc, RECT rc);
 };
 
 bool 图片框::通用事件_窗口重画(PAINTSTRUCT& ps) {
 	HDC hdc = BeginPaint(窗口句柄, &ps);
 	RECT rc; GetClientRect(窗口句柄, &rc);
+	_绘制内容(hdc, rc);
+	EndPaint(窗口句柄, &ps);
+	return false;
+}
+
+bool 图片框::通用事件_背景绘制(HDC hdc) {
+	RECT rc; GetClientRect(窗口句柄, &rc);
+	_绘制内容(hdc, rc);
+	return false;
+}
+
+void 图片框::_绘制内容(HDC hdc, RECT rc) {
 
 	// 1. 绘制背景
 	if (背景颜色 != 颜色::透明) {
 		FillRect(hdc, &rc, _背景画刷);
+	} else {
+		UI_请求父窗绘制背景(窗口句柄, hdc, rc);
 	}
 
 	// 2. 绘制图片
@@ -162,6 +177,12 @@ bool 图片框::通用事件_窗口重画(PAINTSTRUCT& ps) {
 		int drawY = rcDraw.top;
 		int drawW = rcDraw.right - rcDraw.left;
 		int drawH = rcDraw.bottom - rcDraw.top;
+
+		// 图片无论原始尺寸多大，都只允许绘制在图片框的实际内容区域内。
+		// 尤其“图片居左上/居中显示”不缩放时，原图可能大于控件，必须显式裁剪；
+		// 这里不能依赖传入 HDC 自带的裁剪区，因为透明子控件借父背景绘制时会复用其 DC。
+		int savedImageDC = SaveDC(hdc);
+		IntersectClipRect(hdc, rcDraw.left, rcDraw.top, rcDraw.right, rcDraw.bottom);
 
 		if (显示方式 == 图片框显示方式::居中显示) {
 			drawX = rcDraw.left + (drawW - _图片宽度) / 2;
@@ -231,6 +252,8 @@ bool 图片框::通用事件_窗口重画(PAINTSTRUCT& ps) {
 				BitBlt(hdc, drawX, drawY, drawW, drawH, hdcMem, 0, 0, SRCCOPY);
 			}
 		}
+
+		RestoreDC(hdc, savedImageDC);
 	}
 
 	// 3. 绘制边框 (在图片上方绘制,避免图片遮挡内边框)
@@ -248,6 +271,4 @@ bool 图片框::通用事件_窗口重画(PAINTSTRUCT& ps) {
 		DrawEdge(hdc, &rc, EDGE_RAISED, BF_RECT);
 	}
 
-	EndPaint(窗口句柄, &ps);
-	return false;
 }

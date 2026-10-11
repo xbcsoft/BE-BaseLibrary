@@ -1,6 +1,7 @@
-#pragma once
+﻿#pragma once
 #include "多夹接口.h"
 #include "子容器.hpp"
+#include "窗口.h"
 
 定义_枚举型(子夹头方向, char,
 	上 = 0, 下 = TCS_BOTTOM
@@ -9,20 +10,28 @@
 class 选择夹 :public 多夹接口
 {
 public:
+	~选择夹() override;
+
 	struct 参数 : 容器类::参数 {
-		定义_子组件通用构造方法;
 		字体 字体;
-		颜色 背景颜色;
 		子夹头方向 方向 = 子夹头方向::上;
+		bool 隐藏自身 = false;
+		颜色 背景颜色 = 颜色::白色;
+		Bytes 子夹管理;
 	}static _df;
 
 	int 现行子夹 = 0;
+	bool 隐藏自身 = false;
 	颜色 背景颜色;
+	Bytes 子夹管理;
+	子夹头方向 方向 = 子夹头方向::上;
 	定义_字体成员;
 
 	bool 创建(const 参数& cs, 容器类* 父窗口 = NULL, HWND 父句柄 = NULL);
 
-	bool 销毁();
+	bool 销毁(bool 同步 = false);
+
+	void 子夹管理_(c_Bytes 数组);
 
 	RECTF 取子夹头矩形(int 索引 = 0);
 
@@ -34,7 +43,13 @@ public:
 
 	子容器<>* 取子夹容器(int 索引);
 
-	void 现行子夹_(int 索引);
+	int 现行子夹_(int 索引) override;
+
+	bool _判定客户鼠标拖动(int x, int y) override;
+
+	void 隐藏自身_(bool is);
+
+	void 方向_(子夹头方向 d);
 
 	void 置子夹标题(int 索引, StrW 标题);
 
@@ -63,6 +78,7 @@ protected:
 
 
 private:
+
 	void _调整子夹尺寸();
 
 	bool _判断索引非法(int 子夹索引);

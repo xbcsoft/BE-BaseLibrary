@@ -13,6 +13,6 @@ void _窗口00_JS基础::完毕(bool 模态)
 	SciterUI::全局初始化();
 	SciterUI::参数 cs;
 	cs.内存_html = "<html></html>";
-	st.创建(cs, this);
+	st.绑定(cs, this);
 	窗口::完毕(模态);
 }

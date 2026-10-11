@@ -1,4 +1,4 @@
-#include <BEMod.h>
+﻿#include <BEMod.h>
 
 struct __托盘菜单 : 窗口
 {
@@ -9,7 +9,7 @@ struct __托盘菜单 : 窗口
 	{
 		SciterUI::参数 cs;
 		cs.文件_html = "menu.html";
-		st.创建(cs, this);
+		st.绑定(cs, this);
 		dom = st.取文档模型();
 		_g_wndCount--; //弹出层窗口不计入全局生命周期计数
 

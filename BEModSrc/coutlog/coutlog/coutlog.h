@@ -11,7 +11,7 @@
 
 #include "stdafx.h"
 
-#ifdef DBG
+#if DBG
 
 // 设置调试目标 (IP:端口)
 void coutlog_option(c_StrX host, bool isStop = false);
@@ -37,10 +37,10 @@ void coutClear();
 
 #else
 
-void coutlog_option(AutoS host, bool isStop = false);
-void coutlog_optionT(AutoS host);
-StrU8 coutlog(AutoS str, bool zusai = false);
-StrU8 coutlogR(AutoS str, bool zusai = false, AutoS ext = "");
+void coutlog_option(c_StrX host, bool isStop = false);
+void coutlog_optionT(c_StrX host);
+StrU8 coutlog(c_StrX str, bool zusai = false);
+StrU8 coutlogR(c_Bytes str, bool zusai = false, c_StrX ext = "");
 bool coutlog_is_stop();
 void coutlogV(...);
 void coutClear();

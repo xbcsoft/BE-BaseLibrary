@@ -25,7 +25,10 @@ inline AutoStr __AutoStr__(const MyStruct& pt) {
 
 void main()
 {
-	StrA a = "asd";
+	BR a("asd");
+	ToBytes(a);
+	return;
+	//StrA a = "asd";
 
 	// 1. 测试自定义结构体隐式转换和流式输出
 	MyStruct pt = { 1, 2 };

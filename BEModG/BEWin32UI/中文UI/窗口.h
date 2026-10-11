@@ -40,15 +40,13 @@ public:
 
 	窗口& 初显(int nCmdShow);
 
-	bool 创建(const 参数& cs = 窗口::参数(), 窗口* 父窗口 = 0, bool 模态载入 = 0);
+	bool 创建(const 参数& cs = 窗口::参数(), 窗口* 父容器 = 0, bool 模态载入 = 0);
 
 	void 完毕(bool 模态);
 
 	void 总在最前_(bool is = true);
 
 	void 置图标(HICON icon, bool 小图标 = true);
-
-	void 置图标(int 资源ID号);
 
 	void 置图标(const Bytes& zjjIcon);
 
@@ -75,7 +73,7 @@ public:
 	 */
 	void 激活(char 激活类型 = 0);
 
-	bool 销毁();
+	bool 销毁(bool 同步 = false);
 
 	/**必须在初始创建参数时采用[在任务栏显示=假]后续才可动态设置此方案
 	 * @param is

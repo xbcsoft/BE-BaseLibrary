@@ -1,5 +1,6 @@
-﻿#pragma once
+#pragma once
 #include "stdafx.h"
+#include <shobjidl.h>
 #include "其他系统操作.h"
 #include "环境存取.h"
 
@@ -23,7 +24,7 @@ public:
 
 	StrX 打开(bool 支持多文件 = false, NilOpt<Arraybe<StrX>&> 多文件数组 = nil);
 
-	StrX 保存(c_StrX 默认文件名 = "");
+	StrX 保存(c_StrX 默认后缀 = "", c_StrX 默认文件名 = "");
 private:
 	StrW _wFilter;
 };
@@ -34,7 +35,11 @@ StrX 文件对话框_打开(c_StrX 标题 = "", c_StrX 过滤器 = "", int 初�
 
 StrX 文件对话框_保存(c_StrX 标题 = "", c_StrX 过滤器 = "", int 初始过滤器索引 = 0,
 	c_StrX 初始目录 = "", bool 不改变当前目录 = true, NilOpt<HWND> 父窗口 = nil,
-	c_StrX 默认文件名 = "");
+	c_StrX 默认后缀 = "", c_StrX 默认文件名 = "");
 
 Arraybe<StrW> 多文件对话框(c_StrX 标题, c_StrX 过滤器, int 初始过滤器索引 = 0,
 	c_StrX 初始目录 = "", bool 不改变当前目录 = true, NilOpt<HWND> 父窗口 = nil);
+
+StrX 浏览文件夹(c_StrX 标题, c_StrX 初始目录, bool 地址栏, bool 新样式, bool 显示文件, NilOpt<HWND> 父窗口);
+
+StrX 浏览文件夹Ex(c_StrX 标题, c_StrX 初始目录, NilOpt<HWND> 父窗口);

@@ -1,5 +1,4 @@
-#include "stdafx.h"
-#include <CommCtrl.h>
+﻿#include "stdafx.h"
 
 定义_枚举型(超级列表框边框, char,
 	无边框 = 0, 凹入式 = 1, 凸出式 = 2, 浅凹入式 = 3, 镜框式 = 4, 单线边框式 = 5
@@ -21,7 +20,6 @@ class EXP 超级列表框 : public 控件类
 {
 public:
 	struct 参数 : 控件类::参数 {
-		定义_子组件通用构造方法;
 		超级列表框边框 边框 = 超级列表框边框::凹入式;
 		颜色 文本颜色 = 颜色::黑色;
 		颜色 文本背景色 = 颜色::透明;
@@ -31,11 +29,15 @@ public:
 		超级列表框对齐方式 图标对齐方式 = 超级列表框对齐方式::顶部对齐;
 		bool 自动排列图标 = true;
 		bool 标题自动换行 = true;
+		自定数据 报表列;
 		bool 无表头 = false;
+		自定数据 表头图片组;
 		bool 表头可单击 = true;
 		bool 整行选择 = false;
 		bool 显示表格线 = false;
 		bool 表列可拖动 = false;
+		自定数据 图片组;
+		自定数据 状态图片组;
 		bool 热点跟踪 = false;
 		bool 手形指针 = false;
 		bool 标注非热点 = false;
@@ -45,10 +47,9 @@ public:
 		bool 是否有检查框 = false;
 		bool 平面滚动条 = false;
 		bool 单一选择 = false;
-		bool 始终显示选择项 = false;
 		int 现行选中项 = -1;
-		Bytes 报表列;
-		Bytes 表项;
+		bool 始终显示选择项 = false;
+		自定数据 表项;
 	} static _df;
 
 	超级列表框边框 边框;
@@ -134,8 +135,23 @@ public:
 
 		控件类::_子类化();
 
-		if (cs.报表列) 载入列项(cs.报表列);
-		if (cs.表项) 载入表项(cs.表项);
+		if (cs.图片组) {
+			图片组 临时图片组;
+			临时图片组.h = 临时图片组.导入图片组字节集(cs.图片组);
+			if (临时图片组.h) 置图片组(临时图片组);
+		}
+		if (cs.状态图片组) {
+			图片组 临时图片组;
+			临时图片组.h = 临时图片组.导入图片组字节集(cs.状态图片组);
+			if (临时图片组.h) 置状态图片组(临时图片组);
+		}
+		if (cs.表头图片组) {
+			图片组 临时图片组;
+			临时图片组.h = 临时图片组.导入图片组字节集(cs.表头图片组);
+			if (临时图片组.h) 置表头图片组(临时图片组);
+		}
+		if (cs.报表列) 报表列_(cs.报表列);
+		if (cs.表项) 表项_(cs.表项);
 
 		return true;
 	}
@@ -285,19 +301,44 @@ public:
 		}
 	}
 
+	void _复制图片组_适配DPI(图片组& 源, 图片组& 目标) {
+		目标.销毁();
+		if (!源.h) return;
+		SIZE 原尺寸 = 源.取图标尺寸();
+		int 目标宽度 = dpi((float)原尺寸.cx);
+		int 目标高度 = dpi((float)原尺寸.cy);
+		if (目标宽度 <= 0) 目标宽度 = 1;
+		if (目标高度 <= 0) 目标高度 = 1;
+		if (目标宽度 == 原尺寸.cx && 目标高度 == 原尺寸.cy) {
+			目标.从图片组复制(源);
+			return;
+		}
+		int 数量 = 源.取图片数();
+		if (!目标.创建(目标宽度, 目标高度, ILC_COLOR32 | ILC_MASK, 数量, 2)) return;
+		for (int i = 0; i < 数量; ++i) {
+			HICON 原图标 = 源.取图标句柄_拷贝(i, ILD_NORMAL);
+			if (!原图标) continue;
+			HICON 缩放图标 = (HICON)CopyImage(原图标, IMAGE_ICON,
+				目标宽度, 目标高度, 0);
+			目标.添加图标(缩放图标 ? 缩放图标 : 原图标);
+			if (缩放图标) DestroyIcon(缩放图标);
+			DestroyIcon(原图标);
+		}
+	}
+
 	void 置图片组(图片组& imageList) {
-		_图片组.从图片组复制(imageList);
+		_复制图片组_适配DPI(imageList, _图片组);
 		SendMessageW(窗口句柄, LVM_SETIMAGELIST, LVSIL_NORMAL, (LPARAM)_图片组.h);
 		SendMessageW(窗口句柄, LVM_SETIMAGELIST, LVSIL_SMALL, (LPARAM)_图片组.h);
 	}
 
 	void 置状态图片组(图片组& imageList) {
-		_状态图片组.从图片组复制(imageList);
+		_复制图片组_适配DPI(imageList, _状态图片组);
 		SendMessageW(窗口句柄, LVM_SETIMAGELIST, LVSIL_STATE, (LPARAM)_状态图片组.h);
 	}
 
 	void 置表头图片组(图片组& imageList) {
-		_表头图片组.从图片组复制(imageList);
+		_复制图片组_适配DPI(imageList, _表头图片组);
 		HWND hwndHeader = (HWND)SendMessageW(窗口句柄, LVM_GETHEADER, 0, 0);
 		if (hwndHeader) {
 			SendMessageW(hwndHeader, HDM_SETIMAGELIST, 0, (LPARAM)_表头图片组.h);
@@ -318,12 +359,12 @@ public:
 		return L"";
 	}
 
-	void 置标题(int 表项索引, int 列索引 = 0, StrW 标题 = L"") {
+	void 置标题(int 表项索引, int 列索引 = 0, c_StrW 标题 = L"") {
 		LVITEMW item = { 0 };
 		item.mask = LVIF_TEXT;
 		item.iItem = 表项索引;
 		item.iSubItem = 列索引;
-		item.pszText = (wchar_t*)(const wchar_t*)标题;
+		item.pszText = 标题;
 		SendMessageW(窗口句柄, LVM_SETITEMW, 0, (LPARAM)&item);
 	}
 
@@ -494,7 +535,7 @@ public:
 		}
 
 		item.iSubItem = 0;
-		item.pszText = (wchar_t*)(const wchar_t*)标题;
+		item.pszText = 标题;
 		item.iImage = 图片索引;
 		item.iIndent = 缩进数目;
 		item.lParam = 表项数值;
@@ -510,7 +551,7 @@ public:
 		SendMessageW(窗口句柄, LVM_DELETEALLITEMS, 0, 0);
 	}
 
-	int 查找表项(StrW 标题, int 起始查找位置 = 0, bool 是否精确匹配 = true, int 列索引 = 0) {
+	int 查找表项(c_StrW 标题, int 起始查找位置 = 0, bool 是否精确匹配 = true, int 列索引 = 0) {
 		int count = 取表项数();
 		for (int i = 起始查找位置; i < count; ++i) {
 			if (列索引 == -1) {
@@ -605,10 +646,10 @@ public:
 		return false;
 	}
 
-	void 置列标题(int 列索引, StrW 标题 = L"") {
+	void 置列标题(int 列索引, c_StrW 标题) {
 		LVCOLUMNW col = { 0 };
 		col.mask = LVCF_TEXT;
-		col.pszText = (wchar_t*)(const wchar_t*)标题;
+		col.pszText = 标题;
 		SendMessageW(窗口句柄, LVM_SETCOLUMNW, 列索引, (LPARAM)&col);
 	}
 
@@ -645,7 +686,7 @@ public:
 	int 插入列(int 插入位置 = -1, StrW 标题 = L"", int 列宽 = 50, int 对齐方式 = 0, int 图片索引 = -1, bool 图片是否居右 = false) {
 		LVCOLUMNW col = { 0 };
 		col.mask = LVCF_TEXT | LVCF_WIDTH | LVCF_FMT;
-		col.pszText = (wchar_t*)(const wchar_t*)标题;
+		col.pszText = 标题;
 		col.cx = dpi(列宽);
 
 		int fmt = 0;
@@ -676,32 +717,39 @@ public:
 		SendMessageW(窗口句柄, LVM_DELETECOLUMN, 列索引, 0);
 	}
 
-	Bytes 导出列项() {
-		int cols = 取列数();
-		Arraybe<StrW> titles;
-		Arraybe<int> widths;
-		Arraybe<int> aligns;
-		Arraybe<int> images;
-		Arraybe<bool> isRights;
-		for (int i = 0; i < cols; ++i) {
-			titles.push(取列标题(i));
-			widths.push(取列宽(i));
-			aligns.push(取列对齐方式(i));
-			images.push(取列图片(i));
-			isRights.push(图片是否居右(i));
+	Bytes 报表列_(可空<Bytes> dat = 空) {
+		if (dat == 空) {
+			int cols = 取列数();
+			Arraybe<StrW> titles;
+			Arraybe<int> widths;
+			Arraybe<int> aligns;
+			Arraybe<int> images;
+			Arraybe<bool> isRights;
+			for (int i = 0; i < cols; ++i) {
+				titles.push(取列标题(i));
+				widths.push(取列宽(i));
+				aligns.push(取列对齐方式(i));
+				images.push(取列图片(i));
+				isRights.push(图片是否居右(i));
+			}
+			return FB(titles, widths, aligns, images, isRights);
 		}
-		return FB(titles, widths, aligns, images, isRights);
-	}
 
-	void 载入列项(const Bytes& dat) {
-		if (!dat.buf) return;
+		const Bytes& data = dat.val;
+		if (data.size == 0) {
+			for (int i = 取列数() - 1; i >= 0; --i) {
+				删除列(i);
+			}
+			return data;
+		}
+		if (!data.buf) return Bytes();
 		Arraybe<StrW> titles;
 		Arraybe<int> widths;
 		Arraybe<int> aligns;
 		Arraybe<int> images;
 		Arraybe<bool> isRights;
-		deFB(dat, titles, widths, aligns, images, isRights);
-		
+		deFB(data, titles, widths, aligns, images, isRights);
+
 		int old_cols = 取列数();
 		for (int i = old_cols - 1; i >= 0; i--) {
 			删除列(i);
@@ -710,56 +758,61 @@ public:
 		for (int i = 0; i < titles.count; ++i) {
 			插入列(i, titles[i], widths[i], aligns[i], images[i], isRights[i]);
 		}
+		return data;
 	}
 
-	Bytes 导出表项() {
-		int rows = 取表项数();
-		int cols = 取列数();
-		if (cols == 0) cols = 1;
+	Bytes 表项_(可空<Bytes> dat = 空) {
+		if (dat == 空) {
+			int rows = 取表项数();
+			int cols = 取列数();
+			if (cols == 0) cols = 1;
 
-		Arraybe<Arraybe<StrW>> allTexts;
-		Arraybe<Arraybe<int>> allImages;
-		Arraybe<int> states;
-		Arraybe<int> indents;
-		Arraybe<int> values;
+			Arraybe<Arraybe<StrW>> allTexts;
+			Arraybe<Arraybe<int>> allImages;
+			Arraybe<int> states;
+			Arraybe<int> indents;
+			Arraybe<int> values;
 
-		for (int i = 0; i < rows; ++i) {
-			Arraybe<StrW> rowTexts;
-			Arraybe<int> rowImages;
-			for (int j = 0; j < cols; ++j) {
-				rowTexts.push(取标题(i, j));
-				rowImages.push(取图片(i, j));
+			for (int i = 0; i < rows; ++i) {
+				Arraybe<StrW> rowTexts;
+				Arraybe<int> rowImages;
+				for (int j = 0; j < cols; ++j) {
+					rowTexts.push(取标题(i, j));
+					rowImages.push(取图片(i, j));
+				}
+				allTexts.push(rowTexts);
+				allImages.push(rowImages);
+				states.push(取当前状态图片(i));
+				indents.push(取缩进数目(i));
+				values.push(取表项数值(i));
 			}
-			allTexts.push(rowTexts);
-			allImages.push(rowImages);
-			
-			states.push(取当前状态图片(i));
-			indents.push(取缩进数目(i));
-			values.push(取表项数值(i));
+			return FB(allTexts, allImages, states, indents, values);
 		}
-		return FB(allTexts, allImages, states, indents, values);
-	}
 
-	void 载入表项(const Bytes& dat) {
-		if (!dat.buf) return;
+		const Bytes& data = dat.val;
+		if (data.size == 0) {
+			全部删除();
+			return data;
+		}
+		if (!data.buf) return Bytes();
 		Arraybe<Arraybe<StrW>> allTexts;
 		Arraybe<Arraybe<int>> allImages;
 		Arraybe<int> states;
 		Arraybe<int> indents;
 		Arraybe<int> values;
-		deFB(dat, allTexts, allImages, states, indents, values);
-		
+		deFB(data, allTexts, allImages, states, indents, values);
+
 		全部删除();
-		
+
 		for (int i = 0; i < allTexts.count; ++i) {
 			int img = allImages[i].count > 0 ? allImages[i][0] : -1;
 			int state = states[i];
 			int indent = indents[i];
 			int val = values[i];
 			StrW title = allTexts[i].count > 0 ? allTexts[i][0] : StrW();
-			
+
 			插入表项(i, title, img, state, indent, val);
-			
+
 			for (int j = 1; j < allTexts[i].count; ++j) {
 				置标题(i, j, allTexts[i][j]);
 				if (allImages[i][j] != -1) {
@@ -767,6 +820,7 @@ public:
 				}
 			}
 		}
+		return data;
 	}
 
 	void 进入编辑(int 表项索引) {

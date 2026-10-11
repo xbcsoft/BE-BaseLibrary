@@ -7,7 +7,6 @@ class EXP 滑块条 : public 控件类
 {
 public:
 	struct 参数 : 控件类::参数 {
-		定义_子组件通用构造方法;
 		滑块条方向 方向 = 滑块条方向::横向;
 		滑块条刻度类型 刻度类型 = 滑块条刻度类型::下_右;
 		int 单位刻度值 = 1;
@@ -35,7 +34,10 @@ public:
 		最大位置 = cs.最大位置;
 		位置 = cs.位置;
 
-		DWORD style = _窗口风格 | (int)方向 | (int)刻度类型 | 0x1000 /* TBS_TRANSPARENTBKGND */ | 0x0001 /* TBS_AUTOTICKS */;
+		// 不使用 TBS_TRANSPARENTBKGND。该样式会让 TrackBar 自己走主题透明背景链，
+		// 在设计器/父窗口被遮挡后容易留下未刷新的黑底。背景统一由 WM_ERASEBKGND
+		// 显式向白易父容器取，这样设计态和运行态行为一致。
+		DWORD style = _窗口风格 | (int)方向 | (int)刻度类型 | TBS_TRANSPARENTBKGND | TBS_AUTOTICKS;
 		if (允许选择) style |= TBS_ENABLESELRANGE;
 
 		窗口句柄 = CreateWindowExW(0, TRACKBAR_CLASSW, L"", style,
@@ -129,6 +131,16 @@ public:
 
 	virtual LRESULT 挂接消息(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		switch (msg) {
+		case WM_PAINT: {
+			// 完全沿用选择框/单选框的透明背景链：
+			// 先告诉父容器当前是谁在请求背景，再直接让原生 TrackBar 窗口过程完成绘制。
+			SetPropW(GetParent(hwnd), L"BE_PAINT_CLIENT", hwnd);
+			return CallWindowProcW((WNDPROC)_原窗口过程, hwnd, msg, wParam, lParam);
+		}
+		case BE_REFLECT + WM_PRINTCLIENT:
+			// 告诉父容器不要走默认背景，而是调用父窗口自己的 WM_ERASEBKGND，
+			// 这与选择框/单选框的透明背景链路一致。
+			return -1;
 		case BE_REFLECT + WM_HSCROLL:
 		case BE_REFLECT + WM_VSCROLL: {
 			位置 = SendMessageW(窗口句柄, TBM_GETPOS, 0, 0);

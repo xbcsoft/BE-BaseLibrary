@@ -39,10 +39,10 @@
     <ClCompile Include="SciterDom.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\%40白易模块\SciterUI\SciterUI\NTCps.cpp">
+    <ClCompile Include="NTCps.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\%40白易模块\SciterUI\SciterUI\SciterZip.cpp">
+    <ClCompile Include="SciterZip.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

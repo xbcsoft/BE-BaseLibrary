@@ -183,6 +183,9 @@
     <PreBuildEvent>
       <Command>MakeBEC.exe -excludesrc=main.cpp -excludezip=窗口 main.cpp Debug Release Source -outbec="$(SolutionDir)/$(SolutionName).bec" -installG</Command>
     </PreBuildEvent>
+    <Manifest>
+      <AdditionalManifestFiles>app.manifest</AdditionalManifestFiles>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Source|x64'">
     <ClCompile>

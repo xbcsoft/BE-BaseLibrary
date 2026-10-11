@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include "stdafx.h"
-#include <CommCtrl.h>
 
 定义_枚举型(树型框边框, char,
 	无边框 = 0, 凹入式 = 1, 凸出式 = 2, 浅凹入式 = 3, 镜框式 = 4, 单线边框式 = 5
@@ -10,7 +9,6 @@ class 树型框 : public 控件类
 {
 public:
 	struct 参数 : 控件类::参数 {
-		定义_子组件通用构造方法;
 		树型框边框 边框 = 树型框边框::凹入式;
 		颜色 文本颜色 = 颜色::黑色;
 		颜色 背景颜色 = 颜色::白色;
@@ -92,7 +90,7 @@ public:
 
 	int 取项目数值(int 项目索引);
 
-	bool 置项目文本(int 项目索引, StrW 欲置入的项目文本);
+	bool 置项目文本(int 项目索引, c_StrW 欲置入的项目文本);
 
 	bool 置图片(int 项目索引, int 图片索引);
 
@@ -114,7 +112,7 @@ public:
 
 	void 进入编辑(int 项目索引);
 
-	int 加入项目(int 父项目索引 = -1, StrW 项目文本 = L"", int 图片索引 = 0, int 选中图片索引 = -1, int 项目数值 = 0, bool 是否加粗 = false, int 检查框状态 = 0);
+	int 加入项目(int 父项目索引 = -1, c_StrW 项目文本 = L"", int 图片索引 = 0, int 选中图片索引 = -1, int 项目数值 = 0, bool 是否加粗 = false, int 检查框状态 = 0);
 
 	bool 删除项目(int 项目索引);
 
@@ -134,9 +132,8 @@ public:
 
 	void 收缩项目(int 项目索引);
 
-	Bytes 导出项目();
+	Bytes 项目_(可空<Bytes> dat = 空);
 
-	void 载入项目(const Bytes& dat);
 
 	virtual void 事件_项目被选择(int 选择方式);
 	virtual void 事件_双击项目();

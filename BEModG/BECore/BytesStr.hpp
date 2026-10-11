@@ -7,19 +7,19 @@
 
 //遵循W版接口规范引出(通过<W>显式触发)
 template<class T> size_t strlen(const charW* s) {
+	if (s == nullptr)return 0;
 #ifdef _WIN32
 	return wcslen(s);
 #else
-	if (s == nullptr)return 0;
 	int i = 0; for (; s[i]; i += 1) {}
 	return i;
 #endif
 }
 template<class T> int strcmp(const charW* a, const charW* b) {
+	if (!a || !b) return a == b ? 0 : (a ? 1 : -1);
 #ifdef _WIN32
 	return wcscmp(a, b);
 #else
-	if (!a || !b) return a == b ? 0 : (a ? 1 : -1);
 	while (*a && *a == *b) { ++a; ++b; }
 	return (int)(*a) - (int)(*b);
 #endif
@@ -57,11 +57,9 @@ public:
 	/**构造函数**/
 	Bytes() { buf = nullptr; size = capacity_ = 0; }
 
-	//支持从字面量的字节集进行引用(不属于拷贝构造)
+	//介于其危险程度还是转为靠谱的堆内存模式
 	Bytes(std::initializer_list<byte> bytes) {
-		//魔法！制造静态逃逸假象（否则此段代码会被release优化）
-		static volatile byte _trap; _trap = *bytes.begin();
-		_ref(bytes.begin(), bytes.size());
+		_reset(bytes.size()); memcpy(buf, bytes.begin(), bytes.size());
 	}
 
 	template <int N>
@@ -346,14 +344,14 @@ public:
 	//除了单参的常文本指针构造是赋引用外其余构造内容的方法都是拷贝构造
 	StrA() { _mknull(); }
 	StrA(char* s) { if (s)_reset(s, strlen(s)); else _mknull(); }
-	StrA(const char* s, size_t len) { _reset(s, len); }
+	StrA(const char* s, size_t len) { if (s)_reset(s, len); else _mknull(); }
 	StrA(const StrA& s) { _reset(s.bytes.buf, s.bytes.size); }
 	StrA(StrA&& s) noexcept : bytes((Bytes&&)s.bytes) {}
 	StrA(char c, size_t len) { reset(len); memset(bytes.buf, c, len); }
 	explicit StrA(size_t len) { reset(len); }
 
 	StrA& operator=(const char* s) {
-		_reset(s, strlen(s));
+		if (s)_reset(s, strlen(s)); else _mknull();
 		return *this;
 	}
 	StrA& operator=(const StrA& s) {
@@ -531,7 +529,7 @@ public:
 	StrW(const charW* s) { if (s)bytes._ref(s, strlen<W>(s)*2); else _mknull(); }
 	//除了单参的常文本指针构造是赋引用外其余构造内容的方法都是拷贝构造
 	StrW() { _mknull(); }
-	StrW(charW* arr) { _reset(arr, strlen<W>(arr)*2); }
+	StrW(charW* arr) { if (arr)_reset(arr, strlen<W>(arr)*2); else _mknull(); }
 	StrW(const charW* s, size_t len) { if (s)_reset(s, len*2); else _mknull(); }
 	StrW(const StrW& s) { _reset(s.bytes.buf, s.bytes.size); }
 	StrW(StrW&& s) noexcept : bytes((Bytes&&)s.bytes) {}
@@ -542,7 +540,7 @@ public:
 	explicit StrW(size_t len) { reset(len); }
 
 	StrW& operator=(const charW* s) {
-		_reset(s, strlen<W>(s)*2);
+		if (s)_reset(s, strlen<W>(s)*2); else _mknull();
 		return *this;
 	}
 	StrW& operator=(const StrW& s) {
@@ -643,8 +641,8 @@ inline BR::Ref(const StrA& s) { p = s._buf(); size = s.bytes.size; }
 inline BR::Ref(const StrW& s) { p = s._buf(); size = s.bytes.size; }
 
 /**提供从字符串指针保留空终止的引用**/
-inline BR SR(const char* s) { return BR(s, strlen(s)+1); }
-inline BR SR(const charW* s) { return BR(s, (strlen<W>(s)+1)*2); }
+inline BR SR(const char* s) { return s ? BR(s, strlen(s)+1) : BR(); }
+inline BR SR(const charW* s) { return s ? BR(s, (strlen<W>(s)+1)*2) : BR(); }
 inline BR SR(const StrA& s) { return BR(s._buf(), s.bytes.size+1); }
 inline BR SR(const StrW& s) { return BR(s._buf(), s.bytes.size+2); }
 inline BR SR(StrA&& s) = delete; BR SR(StrW&& s) = delete;
@@ -654,7 +652,7 @@ inline Bytes BA(Bytes& b) { return Bytes(b, BRef, b.size ? b.size-1 : 0); }
 inline Bytes BW(Bytes&&b) { return Bytes((Bytes&&)b, b.size ? b.size-2 : 0); }
 inline Bytes BW(Bytes& b) { return Bytes(b, BRef, b.size ? b.size-2 : 0); }
 
-inline constexpr byte BNULLA[] = { 0 }; inline constexpr byte BNULLW[] = { 0, 0 };
+inline const Bytes BNULLA("\0", BRef, 1); inline const Bytes BNULLW("\0\0", BRef, 2);
 
 //如果使用0填充模式代表当前字节集已经恰好字符串大小只是需要填充0
 //常规非0填充的模式适用于原本已经有空终止的字节集只需把其大小-1
@@ -726,6 +724,9 @@ inline Bytes ToBytes(const char* a) {
 inline Bytes ToBytes(const charW* a) {
 	return Bytes(a, strlen<W>(a)*2);
 }
+//非const指针版：否则会被上面的兜底模板(T=char*)精确匹配而误拷贝指针本身的字节
+inline Bytes ToBytes(char* a) { return ToBytes((const char*)a); }
+inline Bytes ToBytes(charW* a) { return ToBytes((const charW*)a); }
 inline Bytes ToBytes(const StrA& a) {
 	return Bytes(a.bytes);
 }
@@ -734,6 +735,13 @@ inline Bytes ToBytes(const StrW& a) {
 }
 inline Bytes ToBytes(const Bytes& a) {
 	return Bytes(a);
+}
+//StrU8(派生类)和BR(引用类)同样会被兜底模板精确匹配，需显式接管
+inline Bytes ToBytes(const StrU8& a) {
+	return Bytes(a.bytes);
+}
+inline Bytes ToBytes(BR a) {
+	return Bytes(a.p, a.size);
 }
 
 #pragma warning(push)
@@ -909,39 +917,43 @@ StrPlat ToStrPlat(const T& a) {
 #endif
 }
 
-inline void __WtoA(const charW* src, char* dst)
+/**宽字符(取低字节)转窄字符，带目标缓冲区容量校验
+ * @param dstSize dst缓冲区容量(字符个数，含空终止)；超出部分会被截断，且始终以'\0'结尾
+ */
+inline void __WtoA(const charW* src, char* dst, size_t dstSize)
 {
-	while (*src) *dst++ = (char)(*src), src++;
-	*dst = '\0';
+	size_t i = 0;
+	for (; i + 1 < dstSize && src[i]; i++) dst[i] = (char)src[i];
+	dst[i] = '\0';
 }
-inline int ToInt(const char* s) { return atoi(s); }
+inline int ToInt(const char* s) { return s ? atoi(s) : 0; }
 inline int ToInt(const charW* s)
 {
-	char d[12]; __WtoA(s, d);
+	if (!s) return 0; char d[12]; __WtoA(s, d, sizeof(d));
 	return atoi(d);
 }
-inline short ToShort(const char* s) { return atoi(s); }
+inline short ToShort(const char* s) { return s ? atoi(s) : 0; }
 inline short ToShort(const charW* s)
 {
-	char d[12]; __WtoA(s, d);
+	if (!s) return 0; char d[12]; __WtoA(s, d, sizeof(d));
 	return (short)atoi(d);
 }
-inline int64 ToLong(const char* s) { return atoll(s); }
+inline int64 ToLong(const char* s) { return s ? atoll(s) : 0; }
 inline int64 ToLong(const charW* s)
 {
-	char d[12]; __WtoA(s, d);
+	if (!s) return 0; char d[24]; __WtoA(s, d, sizeof(d));
 	return atoll(d);
 }
-inline float ToFloat(const char* s) { return strtof(s, NULL); }
+inline float ToFloat(const char* s) { return s ? strtof(s, NULL) : 0.0f; }
 inline float ToFloat(const charW* s)
 {
-	char d[16]; __WtoA(s, d);
+	if (!s) return 0; char d[16]; __WtoA(s, d, sizeof(d));
 	return strtof(d, NULL);
 }
-inline double ToDouble(const char* s) { return strtod(s, NULL); }
+inline double ToDouble(const char* s) { return s ? strtod(s, NULL) : 0.0; }
 inline double ToDouble(const charW* s)
 {
-	char d[24]; __WtoA(s, d);
+	if (!s) return 0; char d[24]; __WtoA(s, d, sizeof(d));
 	return strtod(d, NULL);
 }
 

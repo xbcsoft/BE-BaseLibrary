@@ -1,4 +1,5 @@
-﻿#include "stdafx.h"
+#include "stdafx.h"
+#include <shobjidl.h>
 #include "其他系统操作.h"
 #include "环境存取.h"
 
@@ -87,13 +88,18 @@ public:
 		return firstFile;
 	}
 
-	StrX 保存(c_StrX 默认文件名 = "")
+	StrX 保存(c_StrX 默认后缀 = "", c_StrX 默认文件名 = "")
 	{
 		OPENFILENAMEW ofn = { sizeof(ofn) };
 		charW szFile[MAX_PATH] = { 0 };
 		if (默认文件名) {
 			StrW wDef = 默认文件名;
 			wcsncpy_s(szFile, wDef, MAX_PATH - 1);
+		}
+		StrW wDefExt;
+		if (默认后缀) {
+			wDefExt = 默认后缀;
+			ofn.lpstrDefExt = wDefExt;
 		}
 		ofn.hwndOwner = 父窗口.OR(GetActiveWindow());
 		ofn.lpstrFile = szFile;
@@ -124,10 +130,10 @@ StrX 文件对话框_打开(c_StrX 标题 = "", c_StrX 过滤器 = "", int 初�
 
 StrX 文件对话框_保存(c_StrX 标题 = "", c_StrX 过滤器 = "", int 初始过滤器索引 = 0,
 	c_StrX 初始目录 = "", bool 不改变当前目录 = true, NilOpt<HWND> 父窗口 = nil,
-	c_StrX 默认文件名 = "")
+	c_StrX 默认后缀 = "", c_StrX 默认文件名 = "")
 {
 	文件对话框 dlg(标题, 过滤器, 初始过滤器索引, 初始目录, 不改变当前目录, 父窗口);
-	return dlg.保存(默认文件名);
+	return dlg.保存(默认后缀, 默认文件名);
 }
 
 Arraybe<StrW> 多文件对话框(c_StrX 标题, c_StrX 过滤器, int 初始过滤器索引 = 0,
@@ -140,4 +146,91 @@ Arraybe<StrW> 多文件对话框(c_StrX 标题, c_StrX 过滤器, int 初始过�
 		res.push(item);
 	}
 	return res;
+}
+
+namespace {
+static int CALLBACK _BrowseFolderCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData)
+{
+	if (uMsg == BFFM_INITIALIZED && lpData) {
+		const wchar_t* dir = (const wchar_t*)lpData;
+		if (dir && *dir) {
+			SendMessageW(hwnd, BFFM_SETSELECTIONW, TRUE, (LPARAM)dir);
+		}
+	}
+	return 0;
+}
+}
+
+StrX 浏览文件夹(c_StrX 标题, c_StrX 初始目录, bool 地址栏, bool 新样式, bool 显示文件, NilOpt<HWND> 父窗口)
+{
+	HWND hOwner = 父窗口.OR(GetActiveWindow());
+	charW szPath[MAX_PATH] = { 0 };
+	BROWSEINFOW bi = { 0 };
+	bi.hwndOwner = hOwner;
+	StrW wTitle = 标题 ? (StrW)标题 : _W("请选择一个文件夹");
+	bi.lpszTitle = wTitle;
+	bi.ulFlags = BIF_RETURNONLYFSDIRS;
+	if (地址栏) bi.ulFlags |= BIF_EDITBOX;
+	if (新样式) bi.ulFlags |= BIF_NEWDIALOGSTYLE;
+	if (显示文件) bi.ulFlags |= BIF_BROWSEINCLUDEFILES;
+
+	StrW wInitDir = 初始目录;
+	if (wInitDir.len() > 0) {
+		bi.lpfn = _BrowseFolderCallbackProc;
+		bi.lParam = (LPARAM)(const wchar_t*)wInitDir;
+	}
+
+	LPITEMIDLIST pidl = SHBrowseForFolderW(&bi);
+	if (pidl != 0) {
+		SHGetPathFromIDListW(pidl, szPath);
+		IMalloc* imalloc = 0;
+		if (SUCCEEDED(SHGetMalloc(&imalloc))) {
+			imalloc->Free(pidl);
+			imalloc->Release();
+		}
+		return StrX(szPath);
+	}
+	return "";
+}
+
+StrX 浏览文件夹Ex(c_StrX 标题, c_StrX 初始目录, NilOpt<HWND> 父窗口)
+{
+	HWND hOwner = 父窗口.OR(GetActiveWindow());
+	IFileOpenDialog* pFileOpen = nullptr;
+	if (SUCCEEDED(CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pFileOpen)))) {
+		DWORD dwOptions = 0;
+		if (SUCCEEDED(pFileOpen->GetOptions(&dwOptions))) {
+			pFileOpen->SetOptions(dwOptions | FOS_PICKFOLDERS | FOS_FORCEFILESYSTEM | FOS_PATHMUSTEXIST);
+		}
+		if (标题) {
+			StrW wTitle = 标题;
+			pFileOpen->SetTitle(wTitle);
+		}
+		if (初始目录) {
+			StrW wInit = 初始目录;
+			IShellItem* pFolder = nullptr;
+			if (SUCCEEDED(SHCreateItemFromParsingName(wInit, NULL, IID_PPV_ARGS(&pFolder)))) {
+				pFileOpen->SetFolder(pFolder);
+				pFolder->Release();
+			}
+		}
+		if (SUCCEEDED(pFileOpen->Show(hOwner))) {
+			IShellItem* pItem = nullptr;
+			if (SUCCEEDED(pFileOpen->GetResult(&pItem))) {
+				PWSTR pszPath = nullptr;
+				if (SUCCEEDED(pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszPath))) {
+					StrX res = pszPath;
+					CoTaskMemFree(pszPath);
+					pItem->Release();
+					pFileOpen->Release();
+					return res;
+				}
+				pItem->Release();
+			}
+		}
+		pFileOpen->Release();
+		return "";
+	}
+
+	return 浏览文件夹(标题, 初始目录, true, true, false, 父窗口);
 }

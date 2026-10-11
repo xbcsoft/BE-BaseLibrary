@@ -151,6 +151,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='VSUIDll|Win32'">
     <OutDir>$(Configuration)\</OutDir>
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Source|x64'">
     <OutDir>$(Platform)\$(Configuration)\</OutDir>
@@ -183,7 +184,7 @@
       </Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>MakeBEC.exe -excludesrc=main.cpp -excludezip=*.cpp *.c *.ixx *.cppm Source x64/Source -outbec="$(SolutionDir)/$(SolutionName).bec"</Command>
+      <Command>MakeBEC.exe -excludesrc=main.cpp -excludezip=*.cpp *.c *.ixx *.cppm Source x64/Source -outbec="$(SolutionDir)/$(SolutionName).bec" -installG</Command>
     </PostBuildEvent>
     <Lib>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
@@ -234,7 +235,8 @@
       <AdditionalManifestFiles>app.manifest</AdditionalManifestFiles>
     </Manifest>
     <PreBuildEvent>
-      <Command>MakeBEC.exe -excludesrc=main.cpp -excludezip=main.cpp Debug Release Source 窗口 VSUIDll dllmeta -outbec="$(SolutionDir)/$(SolutionName).bec" -installG</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Source|x64'">
@@ -371,6 +373,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="$(BEModG)\FB\FB.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='VSUIDll|Win32'">true</ExcludedFromBuild>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='VSUIDll|Win32'">
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='VSUIDll|x64'">
@@ -388,15 +391,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="窗口\_\_启动窗口_.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='VSUIDll|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="窗口\_\窗口1_.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='VSUIDll|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="窗口\_启动窗口.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='VSUIDll|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='VSUIDll|Win32'">false</ExcludedFromBuild>
@@ -405,15 +399,22 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="窗口\窗口1.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='VSUIDll|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BEMod\BEMod.h" />
+    <ClInclude Include="dllmeta\树型框.hpp" />
+    <ClInclude Include="dllmeta\超级列表框.hpp" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="扩展界面库一.h" />
     <ClCompile Include="树型框.cpp" />
+    <ClCompile Include="窗口\_\_启动窗口_.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='VSUIDll|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="窗口\_启动窗口.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='VSUIDll|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="超级列表框.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

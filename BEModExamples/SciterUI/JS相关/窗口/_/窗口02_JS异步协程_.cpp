@@ -16,6 +16,6 @@ void _窗口02_JS异步协程::完毕(bool 模态)
 	SciterUI::全局初始化();
 	SciterUI::参数 cs;
 	cs.文件_html = "异步并发测试.html";
-	st.创建(cs, this);
+	st.绑定(cs, this);
 	窗口::完毕(模态);
 }

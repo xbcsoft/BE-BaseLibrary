@@ -14,7 +14,6 @@ class 图片框 : public 子容器<true>
 {
 public:
 	struct 参数 : public 子容器<true>::参数 {
-		定义_子组件通用构造方法;
 		Bytes 图片;
 		bool 是否贮存图片 = false;
 		图片框边框 边框 = 图片框边框::无边框;
@@ -42,6 +41,7 @@ public:
 
 public:
 	bool 通用事件_窗口重画(PAINTSTRUCT& ps);
+	bool 通用事件_背景绘制(HDC hdc) override;
 public:
 	图片框边框 边框;
 	定义_背景颜色成员;
@@ -56,4 +56,5 @@ private:
 	HandleCDC _hdcMask;
 	int _图片宽度 = 0;
 	int _图片高度 = 0;
+	void _绘制内容(HDC hdc, RECT rc);
 };

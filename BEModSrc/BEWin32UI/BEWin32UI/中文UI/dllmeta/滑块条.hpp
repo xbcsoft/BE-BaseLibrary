@@ -8,7 +8,7 @@
 滑块条* UI_滑块条_创建(byte* fb, 容器类* 父窗口)
 {
 	if (fb==nullptr){
-		delete 父窗口; //当参数1给出空指针时此方法变为销毁此投入的参数2实例对象
+		UI_销毁控件(父窗口); //当参数1给出空指针时此方法变为销毁此投入的参数2实例对象
 		return 0;
 	}
 	滑块条::参数 cs;
@@ -47,8 +47,8 @@ static UI属性元信息 META_滑块条[] = {
 	_MK属性(5, L"禁止", UI属性类型::布尔, 滑块条::_df.禁止, NULL, L"", false, false),
 	_MK属性(6, L"可停留焦点", UI属性类型::布尔, 滑块条::_df.可停留焦点, NULL, L"", false, false),
 	_MK属性(7, L"停留顺序", UI属性类型::整数, 滑块条::_df.停留顺序, NULL, L"", false, false),
-	_MK属性(8, L"方向", UI属性类型::枚举, (int)滑块条::_df.方向, L"TBS_HORZ.横向|TBS_VERT.纵向", L"", false, false),
-	_MK属性(9, L"刻度类型", UI属性类型::枚举, (int)滑块条::_df.刻度类型, L"TBS_BOTTOM.下_右|TBS_TOP.上_左|TBS_BOTH.两端|TBS_NOTICKS.无刻度", L"", false, false),
+	_MK属性(8, L"方向", UI属性类型::枚举, (int)滑块条::_df.方向, L"0.横向|2.纵向", L"", false, false),
+	_MK属性(9, L"刻度类型", UI属性类型::枚举, (int)滑块条::_df.刻度类型, L"0.下_右|4.上_左|8.两端|16.无刻度", L"", false, false),
 	_MK属性(10, L"单位刻度值", UI属性类型::整数, 滑块条::_df.单位刻度值, NULL, L"", false, false),
 	_MK属性(11, L"允许选择", UI属性类型::布尔, 滑块条::_df.允许选择, NULL, L"", false, false),
 	_MK属性(12, L"首选择位置", UI属性类型::整数, 滑块条::_df.首选择位置, NULL, L"", false, false),

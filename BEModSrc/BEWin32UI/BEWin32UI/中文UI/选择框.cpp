@@ -4,7 +4,6 @@ class EXP 选择框 : public 控件类
 {
 public:
 	struct 参数 : 控件类::参数 {
-		定义_子组件通用构造方法;
 		StrW 标题 = L"选择框";
 		字体 字体;
 		颜色 文本颜色 = 颜色::黑色;
@@ -202,7 +201,9 @@ LRESULT 选择框::挂接消息(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 		if (背景颜色 == 颜色::透明) return -1;
 		break;
 	case BE_REFLECT + WM_CTLCOLORSTATIC:
-		return (LRESULT)_背景画刷;
+		SetBkMode((HDC)wParam, TRANSPARENT);
+		return (LRESULT)(背景颜色 == 颜色::透明
+			? GetStockObject(HOLLOW_BRUSH) : (HBRUSH)_背景画刷);
 	case BE_REFLECT + WM_COMMAND:
 		if (HIWORD(wParam) == BN_CLICKED) {
 			选中 = _取选中();

@@ -7,8 +7,8 @@
 
 单选框* UI_单选框_创建(byte* fb, 容器类* 父窗口)
 {
-	if (fb==nullptr){
-		delete 父窗口; //当参数1给出空指针时此方法变为销毁此投入的参数2实例对象
+	if (fb==nullptr) {
+		UI_销毁控件(父窗口); //当参数1给出空指针时此方法变为销毁此投入的参数2实例对象
 		return 0;
 	}
 	单选框::参数 cs;
@@ -23,7 +23,7 @@
 	cs.标题 = gFBs<W>(fb, 8);
 	cs.字体 = gFBpo<字体>(fb, 9);
 	cs.文本颜色 = gFBi(fb, 10);
-	cs.背景颜色 = gFBi(fb, 11);
+	cs.背景颜色 = gFBi(fb, 11)==-1 ? 15790320 : gFBi(fb, 11);
 	cs.标题居左 = gFBb(fb, 12);
 	cs.选中 = gFBb(fb, 13);
 	cs.横向对齐方式 = gFBi(fb, 14);
@@ -86,14 +86,17 @@ void UI_单选框_置属性(单选框* ui, int methodi, byte* fb)
 		ui->标题_(gFBs<W>(fb, 0));
 		break;
 	case 9:
-		//字体
+		ui->置字体(gFBpo<字体>(fb, 0));
 		break;
 	case 10:
 		ui->文本颜色_(gFBi(fb, 0));
 		break;
-	case 11:
-		ui->背景颜色_(gFBi(fb, 0));
+	case 11: {
+		int c = gFBi(fb, 0);
+		if (c==-1)c = 15790320;
+		ui->背景颜色_(c);
 		break;
+	}
 	case 12:
 		ui->标题居左_(gFBb(fb, 0));
 		break;

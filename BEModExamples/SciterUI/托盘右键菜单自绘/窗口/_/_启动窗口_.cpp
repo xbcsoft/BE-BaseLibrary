@@ -17,7 +17,7 @@ void __启动窗口::完毕(bool 模态)
 {
 	SciterUI::参数 cs;
 	cs.文件_html = "index.html";
-	st.创建(cs, this);
+	st.绑定(cs, this);
 	dom = st.取文档模型();
 	窗口::完毕(模态);
 }

@@ -1,9 +1,11 @@
-#pragma once
+﻿#pragma once
 #include <BEWin32Base/BEWin32Base.h>
 
 //用于消息反射的安全前缀标示（类似于MFC的WM_REFLECT_BASE或WTL of OCM__BASE）
 //能确保控件在接收到反射消息时其原生态处理机制(DefWindowProc)不会出现误会并导致死循环反弹
 #define BE_REFLECT (WM_APP + 0x1000)
+// 顶层窗口尺寸改变通知；用于需要刷新父背景缓存的子控件。
+#define BE_PARENT_SIZE_CHANGED (WM_APP + 3)
 //仿易语言中的标签反馈事件消息号
 #define WM_反馈 32885
 
@@ -11,10 +13,7 @@ struct D {}; //用于设备单位的绘制
 
 struct RECTF { float left, top, right, bottom; };
 struct SIZEF { float cx, cy; };
-
-#define 定义_子组件通用构造方法 参数(){}\
-参数(float x,float y,float w,float h,bool show=true){左边=x;顶边=y;宽度=w;高度=h;可视=show;\
-}
+using 自定数据 = 字节集;
 
 #define 定义_字体成员 void 置字体(const 字体& f){窗口基类::置字体(f);}\
 字体 取字体(){return 窗口基类::取字体();}\

@@ -1,4 +1,4 @@
-#include "../_启动窗口.h"
+﻿#include "../_启动窗口.h"
 
 void __启动窗口::载入(窗口* 父窗, bool 模态)
 {
@@ -25,6 +25,6 @@ void __启动窗口::完毕(bool 模态)
 #endif
 	//打包内存zip已集成调用out\__!packZipLib.bat
 
-	st.创建(cs, this);
+	st.绑定(cs, this);
 	窗口::完毕(模态);
 }

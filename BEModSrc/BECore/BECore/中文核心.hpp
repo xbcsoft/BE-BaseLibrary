@@ -90,7 +90,7 @@ int 到整数(T&& s) { return ToInt(s); }
  * @return
  */
 template<typename T>
-int 到短整(T&& s) { return ToShort(s); }
+short 到短整(T&& s) { return ToShort(s); }
 
 /**文本到长整
  * @param s char*或charW*
@@ -116,6 +116,7 @@ double 到数值(T&& s) { return ToDouble(s); }
 #define 格式化文本 sprintF
 #define 数组字节集 ArrayBytes
 #define 分割V SplitV
+#define 分割V2 SplitV2
 
 /* 白易输出 */
 #define 调试输出 be::debug

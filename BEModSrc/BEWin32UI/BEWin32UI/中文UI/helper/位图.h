@@ -22,7 +22,7 @@ struct 颜色 {
 	颜色(COLORREF c);
 	颜色(byte r, byte g, byte b);
 
-	enum {
+	enum : COLORREF {
 		默认底色 = RGB(240, 240, 240),
 		黑色 = 0,
 		藏青 = 8388608,
@@ -56,7 +56,7 @@ struct 颜色 {
 		桃红 = 8409343,
 		芙红 = 12615935,
 		深灰 = 6316128,
-		透明 = -1,
+		透明 = 4294967295, //-1
 	};
 };
 
@@ -115,7 +115,7 @@ struct 位图
 	 * @param 目标宽度
 	 * @param 目标高度
 	 */
-	void 缩放(float 目标宽度, float 目标高度, 位图& 目标);
+	void 缩放(int 目标宽度, int 目标高度, 位图& 目标);
 
 	/**取尺寸 无参的则是成员方法，有参的则是静态方法
 	 * @return
@@ -255,7 +255,7 @@ struct 图片组 {
 	 * @param 动态增长个数=2 当内部数组容量不足时增长的槽个数
 	 * @return
 	 */
-	HIMAGELIST 创建(float 宽度, float 高度, int 标志 = 32, int 初始图片数量 = 0, int 动态增长个数 = 2);
+	HIMAGELIST 创建(int 宽度, int 高度, int 标志 = 32, int 初始图片数量 = 0, int 动态增长个数 = 2);
 	void 销毁();
 
 	/**成功返回该图片在图片组中的索引，失败返回-1
@@ -377,7 +377,7 @@ struct 图片组 {
 	 • ILD_IMAGE ：只绘制颜色图像
 	 * @return
 	 */
-	bool 窗口画图片(int 图片索引, HDC 窗口DC, float x, float y, int 标志);
+	bool 窗口画图片(int 图片索引, HDC 窗口DC, int x, int y, int 标志);
 
 	/*拖动功能解决方案
 	 MouseDown->
@@ -386,9 +386,9 @@ struct 图片组 {
 	 MouseMove->ImageList_DragMove -> 随鼠标移动
 	 MouseUp->ImageList_EndDrag -> 停止拖动
 	 **/
-	static bool 拖动_start(HIMAGELIST himl, HWND 窗口句柄, int 图片索引, float x, float y);
-	static bool 拖动_开始(HIMAGELIST himl, HWND 窗口句柄, int 图片索引, float x, float y);
-	static bool 拖动_移动中(float x, float y);
+	static bool 拖动_start(HIMAGELIST himl, HWND 窗口句柄, int 图片索引, int x, int y);
+	static bool 拖动_开始(HIMAGELIST himl, HWND 窗口句柄, int 图片索引, int x, int y);
+	static bool 拖动_移动中(int x, int y);
 	static bool 拖动_结束(HWND 窗口句柄);
 
 	operator HIMAGELIST();

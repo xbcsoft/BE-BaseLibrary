@@ -36,18 +36,20 @@ public:
 		Bytes dll = DLL::sciter;
 		StrA s_dll = "be\\sciter_5.0.3.15.dll";
 #endif
-//#ifdef _WIN64
-//		s_dll = R"(C:\Users\admin\AppData\Local\Temp\be\sciter64_5.0.3.15_fixed01.dll)";
-//#else
-//		s_dll = R"(C:\Users\admin\AppData\Local\Temp\be\sciter_5.0.3.15.dll)";
-//#endif
+		//#ifdef _WIN64
+//				s_dll = R"(C:\Users\admin\AppData\Local\Temp\be\sciter64_5.0.3.15_fixed01.dll)";
+//		#else
+//		s_dll = R"(D:\Develop\白菜Win32UI\VS-IDE本体插件\BEModSrc\SciterUI\原始库\sciter-js-sdk-5.0.3.15\bin\windows\x32\sciter.dll)";
+//		#endif
 
 		if (!g_sapi) {
 			g_sciterModule = NTCps::加载DLL(dll, s_dll);
-			//g_sciterModule = LoadLibraryA((const char*)s_dll);
+			//g_sciterModule = LoadLibraryW(U8toW(s_dll));
 
 			auto getSciterAPI = (SciterAPI_ptr)GetProcAddress(g_sciterModule, "SciterAPI");
 			g_sapi = _SAPI(getSciterAPI());
+
+			//g_sciterModule = NULL;
 
 #ifdef _DEBUG
 			g_sapi->SciterSetOption(NULL, SCITER_SET_SCRIPT_RUNTIME_FEATURES,
@@ -75,7 +77,7 @@ public:
 		}
 	}
 
-	struct 参数
+	struct 引擎参数
 	{
 		可空<StrU8> 内存_html; //UTF8编码的内存字符串数据
 		可空<StrU8> 内存_url; //如果填了内存_html，则该参数默认为L"file:///index.html"
@@ -83,112 +85,86 @@ public:
 		可空<Bytes> 内存_zip; //内存中ZIP文件的二进制数据
 		bool 是否有启动动画 = false; //如果有启动动画则默认禁止DWM过渡，开启后将直接令窗口可视为假（之后由JS那边控制窗口可视）
 		//如后续还需要DWM联动，则可 推迟调用子程序(一定毫秒数) 到动画结束后开启。
-	}static _df;
+	};
 
-	WNDPROC origWndProc = NULL;
+	struct 参数 : 控件类::参数, 引擎参数 {
+	} static _df;
+
+	// 仅用于承接白易 窗口 ABI 的内部子窗口壳
+	class 子窗口 : public 窗口
+	{
+	public:
+		bool 销毁(bool 同步 = true) {
+			DestroyWindow(窗口句柄);
+			return true;
+		}
+	}*_wnd = NULL;
+
+
+	bool 创建(const 参数& cs, 容器类* 父容器)
+	{
+		if (_origWndProc != NULL) return false; //防重入保护
+
+		// 1. 提取父窗口句柄
+		HWND hParent = 父容器 ? 父容器->窗口句柄 : NULL;
+		if (!hParent) return false;
+
+		// 2. 注册专属子窗口类（只注册一次）
+		static bool s_registered = false;
+		if (!s_registered) {
+			WNDCLASSEXW wc = {};
+			wc.cbSize = sizeof(WNDCLASSEXW);
+			wc.lpfnWndProc = DefWindowProcW;
+			wc.hInstance = g_hInst;
+			wc.hbrBackground = NULL; // Sciter 自绘，防白闪
+			wc.hCursor = LoadCursorW(NULL, IDC_ARROW);
+			wc.lpszClassName = L"BESciter";
+			RegisterClassExW(&wc);
+		}
+
+		// 3. 分配并初始化内部子窗口对象（构造函数内已初始化 _原窗口过程=DefWindowProcW）
+		_wnd = new 子窗口();
+		_wnd->左边 = cs.左边;
+		_wnd->顶边 = cs.顶边;
+		_wnd->宽度 = cs.宽度;
+		_wnd->高度 = cs.高度;
+		_wnd->可视 = cs.可视;
+		_wnd->禁止 = cs.禁止;
+		_wnd->父容器 = 父容器;
+		_wnd->父窗口句柄 = hParent;
+
+		DWORD dwStyle = WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
+		if (cs.可视) dwStyle |= WS_VISIBLE;
+		if (cs.禁止) dwStyle |= WS_DISABLED;
+
+		// 4. 创建子窗口句柄（WM_NCCREATE 时 _WndProc 绑定 GWLP_USERDATA = _wnd）
+		_wnd->窗口句柄 = CreateWindowExW(
+			WS_EX_CONTROLPARENT,
+			L"BESciter",
+			L"",
+			dwStyle,
+			dpi(cs.左边), dpi(cs.顶边),
+			dpi(cs.宽度), dpi(cs.高度),
+			hParent,
+			NULL,
+			g_hInst,
+			_wnd
+		);
+		SetWindowLongPtrW(_wnd->窗口句柄, GWLP_USERDATA, (LONG_PTR)_wnd);
+
+		// 5. 托管进父容器组件列表，父容器销毁时自动调用 _wnd->销毁()
+		父容器->_组件列表.push(_wnd);
+		绑定(cs, _wnd);
+		return true;
+	}
+
+
+	WNDPROC _origWndProc = NULL;
 	HWND hwnd = NULL;
 	int _shadowMargin = 0;
 	int _shadowMarginR = 0;
 	bool _isTransparentFrame = false; // 是否声明了由 HTML 完整接管非客户区的自绘框架
 	bool _isDragging = false; // 是否正在被拖动或改变大小
-	static void _设置Sciter内部光标屏蔽(bool enabled)
-	{
-		if (g_sciterModule) {
-			auto* flag = reinterpret_cast<volatile BYTE*>(
-				reinterpret_cast<BYTE*>(g_sciterModule) + SCITER_CURSOR_SUPPRESS_FLAG_RVA);
-			*flag = enabled ? 1 : 0;
-		}
-	}
-
-	static bool _允许窗口边缘拉伸(HWND targetHwnd)
-	{
-		auto* targetWindow = reinterpret_cast<窗口*>(窗口_句柄取对象(targetHwnd));
-		return !targetWindow || (int)targetWindow->边框 == 1;
-	}
-
-	void _设置BodyMargin(HELEMENT root, LPCWSTR marginStr)
-	{
-		HELEMENT bodyEl = NULL;
-		g_sapi->SciterGetNthChild(root, 1, &bodyEl);
-		g_sapi->SciterSetStyleAttribute(bodyEl, "margin", marginStr);
-	}
-
-	static HELEMENT _查找文本编辑框(HELEMENT target)
-	{
-		for (HELEMENT el = target; el;) {
-			LPCSTR type = nullptr;
-			if (g_sapi->SciterGetElementType(el, &type) == SCDOM_OK && type &&
-				(_stricmp(type, "input") == 0 || _stricmp(type, "textarea") == 0 ||
-					_stricmp(type, "plaintext") == 0 || _stricmp(type, "htmlarea") == 0))
-				return el;
-
-			HELEMENT parent = NULL;
-			if (g_sapi->SciterGetParentElement(el, &parent) != SCDOM_OK || !parent)
-				break;
-			el = parent;
-		}
-		return NULL;
-	}
-
-	static void _同步文本选区光标(HELEMENT target, bool prepareForSelection)
-	{
-		HELEMENT editor = _查找文本编辑框(target);
-		if (!editor) return;
-
-		if (prepareForSelection) {
-			g_sapi->SciterSetAttributeByName(
-				editor, "sciter-selection-caret-hidden", L"");
-			return;
-		}
-
-		static const wchar_t syncScript[] =
-			L"var api = this.edit || this.textarea || this.plaintext;"
-			L"var selected = api && typeof api.selectionText === 'string' && api.selectionText.length > 0;"
-			L"if(selected) this.setAttribute('sciter-selection-caret-hidden','');"
-			L"else this.removeAttribute('sciter-selection-caret-hidden');";
-		SciterObj r;
-		g_sapi->SciterEvalElementScript(
-			editor, syncScript, (UINT)wcslen(syncScript), &r.val);
-	}
-
-	// -1: 尚未同步；0: 普通窗口；1: 最大化；2: 贴靠；3: 仅垂直铺满。
-	// 最小化不是一种阴影布局，必须保留最小化前的状态，否则还原时会
-	// 重复改写 DOM 样式并导致透明窗口表面重建。
-	int _shadowLayoutState = -1;
-
-	bool _应用阴影布局状态(int newLayoutState, BOOL forceRender)
-	{
-		if (_shadowMargin <= 0 ||
-			newLayoutState == _shadowLayoutState)
-			return false;
-
-		HELEMENT root = NULL;
-		if (g_sapi->SciterGetRootElement(hwnd, &root) != SCDOM_OK || !root)
-			return false;
-		wchar_t margin[64];
-		if (newLayoutState == 1) {
-			// 最大化窗口的原生边框位于工作区之外。这里使用系统边框宽度
-			// 抵消那部分越界，而不是继续使用 HTML 的外围边距。
-			// 因而屏幕可见区域中的 body 恰好从 (0,0) 开始，不会镂空，
-			// 同时也不会因直接 margin:0 而让内容被原生边框裁掉。
-			swprintf(margin, 64, L"%dpx %dpx",
-				g_sciterMaximizedMargin.y, g_sciterMaximizedMargin.x);
-			_设置BodyMargin(root, margin);
-		} else if (newLayoutState == 2) {
-			_设置BodyMargin(root, L"0px");
-		}else if (newLayoutState == 3) {
-			// 双击顶部/底部缩放边框只会把窗口垂直铺满。上下阴影应消失，
-			// 但左右阴影仍须保留，否则可见内容会凭空增宽 2 * shadowMargin。
-			swprintf(margin, 48, L"0px %dpx", _shadowMarginR);
-			_设置BodyMargin(root, margin);
-		} else {
-			swprintf(margin, 32, L"%dpx", _shadowMarginR);
-			_设置BodyMargin(root, margin);
-		}
-
-		_shadowLayoutState = newLayoutState;
-		return true;
-	}
 
 	~SciterUI()
 	{
@@ -223,58 +199,6 @@ public:
 		return nil;
 	}
 
-
-	// Sciter原版的鼠标滚轮存在滚动中途产生僵硬问题，我们这里接管滚动让其丝滑运行
-	static BOOL SC_CALLBACK _StaticWindowMouseEventHandler(LPVOID tag, HELEMENT he, UINT evtg, LPVOID prms) {
-		if (!tag) return FALSE;
-		if (evtg == HANDLE_BEHAVIOR_EVENT) {
-			auto* p = (BEHAVIOR_EVENT_PARAMS*)prms;
-			// 剪切、删除、撤销等操作会折叠选区，但不会经过鼠标抬起事件。
-			// 在值变更完成后重新检查选区，及时移除透明 caret 属性。
-			if ((p->cmd & SINKING) == 0 && (p->cmd & ~SINKING) == VALUE_CHANGED)
-				_同步文本选区光标(p->heTarget, false);
-			return FALSE;
-		}
-		if (evtg == HANDLE_KEY) {
-			auto* p = (KEY_PARAMS*)prms;
-			if ((p->cmd & 0xFF) == KEY_DOWN && p->key_code == 'A' &&
-				(p->alt_state & CONTROL_KEY_PRESSED) != 0) {
-				// 捕获阶段先隐藏；冒泡阶段全选已经完成，再按实际选区同步。
-				_同步文本选区光标(p->target, (p->cmd & SINKING) != 0);
-			}
-			return FALSE;
-		}
-		if (evtg != HANDLE_MOUSE) return FALSE;
-		auto* p = (MOUSE_PARAMS*)prms;
-		auto* self = (SciterUI*)tag;
-		const UINT mouseCommand = p->cmd & 0xFF;
-		// 窗口事件处理器会最先收到 SINKING（捕获）阶段。只在这一阶段
-		// 截断拉伸热区内的事件，使目标 DOM/原生滚动条没有机会改写光标。
-		// 从客户区进入非客户区时首先可能出现 MOUSE_LEAVE，因此不能只拦 MOVE。
-		if ((p->cmd & SINKING) != 0 &&
-			(mouseCommand == MOUSE_ENTER || mouseCommand == MOUSE_LEAVE ||
-				mouseCommand == MOUSE_MOVE || mouseCommand == MOUSE_IDLE)) {
-			UINT forcedCursorId = CURSOR_ARROW;
-			if (self->_强制自定义拉伸光标(&forcedCursorId)) {
-				p->cursor_type = forcedCursorId;
-				return TRUE;
-			}
-		}
-
-		// 不要在捕获阶段改写 textarea 属性。Sciter 5 在处理按下位置前若收到
-		// DOM 属性变更，会重建多行编辑器并把内部滚动位置归零，后续点击坐标
-		// 也会按回顶后的内容解释。等引擎完成选择后再同步属性，仍赶在绘制前生效。
-		if ((p->cmd & SINKING) == 0 &&
-			(mouseCommand == MOUSE_UP || mouseCommand == MOUSE_DCLICK ||
-			(mouseCommand == MOUSE_MOVE && (p->button_state & MAIN_MOUSE_BUTTON) != 0))) {
-			_同步文本选区光标(p->target, false);
-			return FALSE;
-		}
-
-		// 滚轮完全交给补丁 DLL；应用层不查找容器、不累计目标、不拦截事件。
-		return FALSE;
-	}
-
 	//在 Sciter 引擎里，向它提供资源数据有两条平行且互斥的通道：
 	//	通道 A：直接写入成员字段（延迟拷贝）
 	//	做法：赋值 pld->outData = 缓冲区指针; 。
@@ -299,23 +223,11 @@ public:
 		return 返回码;
 	}
 
-	//  宏	作用对象	含义
-	//	WS_CLIPSIBLINGS	同级子窗口之间；
-		/*当父窗口有多个子窗口（siblings），且它们在位置上有重叠时：
-		  不设 WS_CLIPSIBLINGS：子窗口 A 调用 WM_PAINT 时，GDI 绘图会"穿透"到兄弟子窗口 B 的区域，导致 B 的内容被覆盖/污染。
-		  设了 WS_CLIPSIBLINGS：Windows 在给 A 发 WM_PAINT 前，会把 B 的矩形区域从 A 的 DC clip region 中剪掉，A 的绘制绝对不会画到 B 的区域里。
-		*/
-	//	WS_CLIPCHILDREN	父窗口与其子窗口	我自己(是父)画的时候裁掉我的子窗口所在区域（这样父的部分不用重复绘制）
-	void _支持Win32子控件()
+	void 绑定(const 参数& cs, 窗口* 宿主窗口)
 	{
-		窗口_添加风格(hwnd, WS_CLIPCHILDREN | WS_CLIPSIBLINGS);
-	}
-
-	void 创建(const 参数& cs, 窗口* 父窗口)
-	{
-		if (origWndProc != NULL) return; // 防重入保护
-		hwnd = 父窗口->窗口句柄;
-		父窗口->标记_置整数((size_t)this);
+		if (_origWndProc != NULL) return; // 防重入保护
+		hwnd = 宿主窗口->窗口句柄;
+		宿主窗口->标记_置整数((size_t)this);
 
 		// 如果有内存zip，直接通过内存二进制数据流式加载打开
 		if (cs.内存_zip != nil) {
@@ -323,9 +235,25 @@ public:
 		}
 
 		// 1. 进行主动子类化，接管窗口消息路由，使用白易内置 of 窗口_句柄取对象 实现超低开销的对象访问
-		origWndProc = (WNDPROC)SetWindowLongPtrW(hwnd, GWLP_WNDPROC, (LONG_PTR)(WNDPROC)[](HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) -> LRESULT {
+		_origWndProc = (WNDPROC)SetWindowLongPtrW(hwnd, GWLP_WNDPROC, (LONG_PTR)(WNDPROC)[](HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) -> LRESULT {
 			auto* pThis = (SciterUI*)reinterpret_cast<窗口*>(窗口_句柄取对象(hwnd))->标记_取整数();
 			BOOL handled = FALSE; LRESULT lr = 0;
+
+			// 子窗口模式忽略这些窗口过程
+			if (pThis->_wnd) {
+				switch (msg) {
+				case WM_WINDOWPOSCHANGING:
+				case WM_WINDOWPOSCHANGED:
+				case WM_MOVE:
+				case WM_NCPAINT:
+				case WM_NCCALCSIZE:
+				case WM_NCACTIVATE:
+				case WM_SYSCOMMAND:
+				case WM_NCLBUTTONDOWN:
+				case WM_NCLBUTTONDBLCLK:
+					return CallWindowProcW(pThis->_origWndProc, hwnd, msg, wParam, lParam);
+				}
+			}
 
 			// 按当前屏幕坐标重新询问用户定义的拉伸热区。
 			// WM_SETCURSOR 不能只依赖上一次 WM_NCHITTEST 的缓存，
@@ -377,6 +305,7 @@ public:
 				return true;
 			};
 
+
 			switch (msg) {
 			case WM_ENTERSIZEMOVE: {
 				pThis->_isDragging = true; break;
@@ -388,7 +317,7 @@ public:
 				auto* wp = (WINDOWPOS*)lParam;
 				if ((wp->flags & SWP_NOSIZE) && pThis->_isDragging) {
 					// 仅移动窗口（且处于拖动状态）时，完全绕过 Sciter 引擎的计算，防止引擎在内部进行排版计算导致拖动阻力
-					return CallWindowProcW(pThis->origWndProc, hwnd, msg, wParam, lParam);
+					return CallWindowProcW(pThis->_origWndProc, hwnd, msg, wParam, lParam);
 				}
 				break;
 			}
@@ -507,7 +436,7 @@ public:
 				case HTBOTTOMRIGHT:
 					// 拉伸区完全归原生窗口过程处理，避免 Sciter 吞掉
 					// 非客户区按下消息而只显示缩放光标却无法拖动。
-					return CallWindowProcW(pThis->origWndProc, hwnd, msg, wParam, lParam);
+					return CallWindowProcW(pThis->_origWndProc, hwnd, msg, wParam, lParam);
 				}
 				if (pThis->_shadowMargin > 0 &&
 					IsZoomed(hwnd) && wParam == HTCLOSE) {
@@ -684,7 +613,7 @@ public:
 			}
 			lr = SciterProcND(hwnd, msg, wParam, lParam, &handled);
 			if (handled) return lr;
-			lr = CallWindowProcW(pThis->origWndProc, hwnd, msg, wParam, lParam);
+			lr = CallWindowProcW(pThis->_origWndProc, hwnd, msg, wParam, lParam);
 			return lr;
 		});
 
@@ -770,6 +699,7 @@ public:
 				SciterLoadHtml(hwnd, htmlVal.buf, htmlVal.size, L"file:///index.html");
 			}
 		}
+		if (_wnd)return;
 
 		// body 的单值 margin 就是外围阴影及拉伸热区宽度。
 		HELEMENT root = NULL;
@@ -795,12 +725,13 @@ public:
 			_shadowMarginR = _shadowMargin;
 		}
 
-		//_支持Win32子控件();
-		if (cs.是否有启动动画) {
-			父窗口->可视_(false); //由JS那边控制动画开始时才设置可视
-			支持DWM动效(false);
-		} else {
-			支持DWM动效(true);
+		if (!_wnd) {
+			if (cs.是否有启动动画) {
+				宿主窗口->可视_(false); //由JS那边控制动画开始时才设置可视
+				支持DWM动效(false);
+			} else {
+				支持DWM动效(true);
+			}
 		}
 	}
 
@@ -820,6 +751,379 @@ public:
 		g_sapi->SciterGetRootElement(hwnd, &root);
 		SciterDom r; r.ctx = root; r._st = this;
 		return r;
+	}
+
+	//  宏	作用对象	含义
+	//	WS_CLIPSIBLINGS	同级子窗口之间；
+	/*当父窗口有多个子窗口（siblings），且它们在位置上有重叠时：
+	  不设 WS_CLIPSIBLINGS：子窗口 A 调用 WM_PAINT 时，GDI 绘图会"穿透"到兄弟子窗口 B 的区域，导致 B 的内容被覆盖/污染。
+	  设了 WS_CLIPSIBLINGS：Windows 在给 A 发 WM_PAINT 前，会把 B 的矩形区域从 A 的 DC clip region 中剪掉，A 的绘制绝对不会画到 B 的区域里。
+	*/
+	//	WS_CLIPCHILDREN	父窗口与其子窗口	我自己(是父)画的时候裁掉我的子窗口所在区域（这样父的部分不用重复绘制）
+	void _支持Win32子控件()
+	{
+		if ((GetWindowLongW(hwnd, GWL_STYLE) & WS_CLIPCHILDREN)==0) {
+			窗口_添加风格(hwnd, WS_CLIPCHILDREN | WS_CLIPSIBLINGS);
+		}
+	}
+
+	void _设置BodyMargin(HELEMENT root, LPCWSTR marginStr)
+	{
+		HELEMENT bodyEl = NULL;
+		g_sapi->SciterGetNthChild(root, 1, &bodyEl);
+		g_sapi->SciterSetStyleAttribute(bodyEl, "margin", marginStr);
+	}
+private:
+	SciterZip _zip;
+	static void _设置Sciter内部光标屏蔽(bool enabled)
+	{
+		if (g_sciterModule) {
+			auto* flag = reinterpret_cast<volatile BYTE*>(
+				reinterpret_cast<BYTE*>(g_sciterModule) + SCITER_CURSOR_SUPPRESS_FLAG_RVA);
+			*flag = enabled ? 1 : 0;
+		}
+	}
+
+	static bool _允许窗口边缘拉伸(HWND targetHwnd)
+	{
+		auto* targetWindow = reinterpret_cast<窗口*>(窗口_句柄取对象(targetHwnd));
+		return !targetWindow || (int)targetWindow->边框 == 1;
+	}
+
+	static HELEMENT _查找文本编辑框(HELEMENT target)
+	{
+		for (HELEMENT el = target; el;) {
+			LPCSTR type = nullptr;
+			if (g_sapi->SciterGetElementType(el, &type) == SCDOM_OK && type &&
+				(_stricmp(type, "input") == 0 || _stricmp(type, "textarea") == 0 ||
+					_stricmp(type, "plaintext") == 0 || _stricmp(type, "htmlarea") == 0))
+				return el;
+
+			HELEMENT parent = NULL;
+			if (g_sapi->SciterGetParentElement(el, &parent) != SCDOM_OK || !parent)
+				break;
+			el = parent;
+		}
+		return NULL;
+	}
+
+	static void _同步文本选区光标(HELEMENT target, bool prepareForSelection)
+	{
+		HELEMENT editor = _查找文本编辑框(target);
+		if (!editor) return;
+
+		if (prepareForSelection) {
+			g_sapi->SciterSetAttributeByName(
+				editor, "sciter-selection-caret-hidden", L"");
+			return;
+		}
+
+		static const wchar_t syncScript[] =
+			L"var api = this.edit || this.textarea || this.plaintext;"
+			L"var selected = api && typeof api.selectionText === 'string' && api.selectionText.length > 0;"
+			L"if(selected) this.setAttribute('sciter-selection-caret-hidden','');"
+			L"else this.removeAttribute('sciter-selection-caret-hidden');";
+		SciterObj r;
+		g_sapi->SciterEvalElementScript(
+			editor, syncScript, (UINT)wcslen(syncScript), &r.val);
+	}
+
+	static void _注入文本编辑历史API(HELEMENT documentElement)
+	{
+		static const wchar_t historyScript[] = LR"BEJS(
+(function(global) {
+  if(global.BETextHistory) return;
+
+  var states = new WeakMap();
+  var enabled = false;
+  var execOwner = null;
+  var nativeExecCommand = null;
+  var proxyExecCommand = null;
+  var boundTargets = [];
+
+  function editorOf(target) {
+    return target && (target.edit || target.password || target.textarea || target.plaintext || target.htmlarea);
+  }
+
+  function isEditor(target) {
+    return !!editorOf(target);
+  }
+
+  function snapshot(target) {
+    var editor = editorOf(target);
+    return {
+      value: target.value || "",
+      start: editor ? editor.selectionStart : 0,
+      end: editor ? editor.selectionEnd : 0
+    };
+  }
+
+  function stateOf(target) {
+    var state = states.get(target);
+    if(!state) {
+      state = { undo: [], redo: [], current: snapshot(target), applying: false, ignoreValue: null, lastEditAt: 0 };
+      states.set(target, state);
+    }
+    return state;
+  }
+
+  function remember(target) {
+    var state = stateOf(target);
+    if(state.applying) return;
+    var next = snapshot(target);
+    if(state.ignoreValue !== null) {
+      if(next.value === state.ignoreValue) {
+        state.current = next;
+        state.ignoreValue = null;
+        return;
+      }
+      state.ignoreValue = null;
+    }
+    var now = Date.now();
+    if(next.value === state.current.value) {
+      state.current = next;
+      return;
+    }
+    if(!state.lastEditAt || now - state.lastEditAt > 800) {
+      state.undo.push(state.current);
+      if(state.undo.length > 100) state.undo.shift();
+    }
+    state.current = next;
+    state.redo.length = 0;
+    state.lastEditAt = now;
+  }
+
+  function breakGroup(target) {
+    stateOf(target).lastEditAt = 0;
+  }
+
+  function restore(target, value) {
+    var state = stateOf(target);
+    state.applying = true;
+    state.ignoreValue = value.value;
+    target.value = value.value;
+    target.focus();
+    var editor = editorOf(target);
+    if(editor && typeof editor.selectRange === "function") editor.selectRange(value.start, value.end);
+    state.current = snapshot(target);
+    state.applying = false;
+  }
+
+  function move(target, redo) {
+    if(!isEditor(target)) return false;
+    var state = stateOf(target);
+    var source = redo ? state.redo : state.undo;
+    var destination = redo ? state.undo : state.redo;
+    if(!source.length) return false;
+    destination.push(state.current);
+    restore(target, source.pop());
+    state.lastEditAt = 0;
+    return true;
+  }
+
+  function onKeyDown(evt) {
+    var target = evt.currentTarget || evt.target;
+    if(!isEditor(target)) return;
+    stateOf(target);
+    var code = evt.keyCode || 0;
+    var ctrl = evt.ctrlKey || evt.metaKey;
+    if(ctrl && !evt.altKey && code === 90) {
+      evt.preventDefault();
+      evt.stopPropagation();
+      target.execCommand(evt.shiftKey ? "edit:redo" : "edit:undo");
+      return;
+    }
+    if(ctrl && !evt.altKey && code === 89) {
+      evt.preventDefault();
+      evt.stopPropagation();
+      target.execCommand("edit:redo");
+      return;
+    }
+    if(ctrl || code === 8 || code === 13 || code === 46 ||
+       code === 257 || code === 259 || code === 261 ||
+       (code >= 262 && code <= 269)) breakGroup(target);
+  }
+
+  function onInput(evt) {
+    var target = evt.currentTarget || evt.target;
+    if(isEditor(target)) remember(target);
+  }
+
+  function onFocus(evt) {
+    var target = evt.currentTarget || evt.target;
+    if(isEditor(target)) stateOf(target);
+  }
+
+  function onMouseUp(evt) {
+    var target = evt.currentTarget || evt.target;
+    if(isEditor(target) && evt.button !== 2) breakGroup(target);
+  }
+
+  function bind(target) {
+    if(!isEditor(target) || boundTargets.indexOf(target) >= 0) return;
+    stateOf(target);
+    target.addEventListener("keydown", onKeyDown, true);
+    target.addEventListener("input", onInput, true);
+    target.addEventListener("focus", onFocus, true);
+    target.addEventListener("mouseup", onMouseUp, true);
+    boundTargets.push(target);
+  }
+
+  function bindAll() {
+    document.querySelectorAll('input[type="text"], input[type="password"], textarea, plaintext, htmlarea')
+      .forEach(bind);
+  }
+
+  function findExecOwner() {
+    var owner = Element.prototype;
+    while(owner && !Object.prototype.hasOwnProperty.call(owner, "execCommand"))
+      owner = Object.getPrototypeOf(owner);
+    return owner;
+  }
+
+  function enable() {
+    if(enabled) {
+      bindAll();
+      return true;
+    }
+    execOwner = findExecOwner();
+    if(!execOwner || typeof execOwner.execCommand !== "function") return false;
+    nativeExecCommand = execOwner.execCommand;
+    proxyExecCommand = function(command) {
+      if(enabled && isEditor(this)) {
+        if(command === "edit:undo") return move(this, false) ? 0x01 : 0x02;
+        if(command === "edit:redo") return move(this, true) ? 0x01 : 0x02;
+      }
+      return nativeExecCommand.apply(this, arguments);
+    };
+    execOwner.execCommand = proxyExecCommand;
+    enabled = execOwner.execCommand === proxyExecCommand;
+    if(!enabled) return false;
+    bindAll();
+    return true;
+  }
+
+  function disable() {
+    if(!enabled) return;
+    boundTargets.forEach(function(target) {
+      target.removeEventListener("keydown", onKeyDown, true);
+      target.removeEventListener("input", onInput, true);
+      target.removeEventListener("focus", onFocus, true);
+      target.removeEventListener("mouseup", onMouseUp, true);
+    });
+    boundTargets.length = 0;
+    if(execOwner && execOwner.execCommand === proxyExecCommand) execOwner.execCommand = nativeExecCommand;
+    enabled = false;
+  }
+
+  global.BETextHistory = {
+    enable: enable,
+    disable: disable,
+    undo: function(target) { return move(target, false); },
+    redo: function(target) { return move(target, true); },
+    canUndo: function(target) { return isEditor(target) && stateOf(target).undo.length > 0; },
+    canRedo: function(target) { return isEditor(target) && stateOf(target).redo.length > 0; },
+    attach: bind,
+    isEnabled: function() { return enabled; }
+  };
+  global.BETextHistory.enable();
+})(globalThis);
+)BEJS";
+		SciterObj result;
+		g_sapi->SciterEvalElementScript(
+			documentElement, historyScript, (UINT)wcslen(historyScript), &result.val);
+	}
+
+	// -1: 尚未同步；0: 普通窗口；1: 最大化；2: 贴靠；3: 仅垂直铺满。
+	// 最小化不是一种阴影布局，必须保留最小化前的状态，否则还原时会
+	// 重复改写 DOM 样式并导致透明窗口表面重建。
+	int _shadowLayoutState = -1;
+
+	bool _应用阴影布局状态(int newLayoutState, BOOL forceRender)
+	{
+		if (_shadowMargin <= 0 ||
+			newLayoutState == _shadowLayoutState)
+			return false;
+
+		HELEMENT root = NULL;
+		if (g_sapi->SciterGetRootElement(hwnd, &root) != SCDOM_OK || !root)
+			return false;
+		wchar_t margin[64];
+		if (newLayoutState == 1) {
+			// 最大化窗口的原生边框位于工作区之外。这里使用系统边框宽度
+			// 抵消那部分越界，而不是继续使用 HTML 的外围边距。
+			// 因而屏幕可见区域中的 body 恰好从 (0,0) 开始，不会镂空，
+			// 同时也不会因直接 margin:0 而让内容被原生边框裁掉。
+			swprintf(margin, 64, L"%dpx %dpx",
+				g_sciterMaximizedMargin.y, g_sciterMaximizedMargin.x);
+			_设置BodyMargin(root, margin);
+		} else if (newLayoutState == 2) {
+			_设置BodyMargin(root, L"0px");
+		} else if (newLayoutState == 3) {
+			// 双击顶部/底部缩放边框只会把窗口垂直铺满。上下阴影应消失，
+			// 但左右阴影仍须保留，否则可见内容会凭空增宽 2 * shadowMargin。
+			swprintf(margin, 48, L"0px %dpx", _shadowMarginR);
+			_设置BodyMargin(root, margin);
+		} else {
+			swprintf(margin, 32, L"%dpx", _shadowMarginR);
+			_设置BodyMargin(root, margin);
+		}
+
+		_shadowLayoutState = newLayoutState;
+		return true;
+	}
+
+	// Sciter原版的鼠标滚轮存在滚动中途产生僵硬问题，我们这里接管滚动让其丝滑运行
+	static BOOL SC_CALLBACK _StaticWindowMouseEventHandler(LPVOID tag, HELEMENT he, UINT evtg, LPVOID prms) {
+		if (!tag) return FALSE;
+		if (evtg == HANDLE_BEHAVIOR_EVENT) {
+			auto* p = (BEHAVIOR_EVENT_PARAMS*)prms;
+			if ((p->cmd & ~SINKING) == DOCUMENT_READY)
+				_注入文本编辑历史API(p->heTarget ? p->heTarget : he);
+			// 剪切、删除、撤销等操作会折叠选区，但不会经过鼠标抬起事件。
+			// 在值变更完成后重新检查选区，及时移除透明 caret 属性。
+			if ((p->cmd & SINKING) == 0 && (p->cmd & ~SINKING) == VALUE_CHANGED)
+				_同步文本选区光标(p->heTarget, false);
+			return FALSE;
+		}
+		if (evtg == HANDLE_KEY) {
+			auto* p = (KEY_PARAMS*)prms;
+			if ((p->cmd & 0xFF) == KEY_DOWN && p->key_code == 'A' &&
+				(p->alt_state & CONTROL_KEY_PRESSED) != 0) {
+				// 捕获阶段先隐藏；冒泡阶段全选已经完成，再按实际选区同步。
+				_同步文本选区光标(p->target, (p->cmd & SINKING) != 0);
+			}
+			return FALSE;
+		}
+		if (evtg != HANDLE_MOUSE) return FALSE;
+		auto* p = (MOUSE_PARAMS*)prms;
+		auto* self = (SciterUI*)tag;
+		const UINT mouseCommand = p->cmd & 0xFF;
+		// 窗口事件处理器会最先收到 SINKING（捕获）阶段。只在这一阶段
+		// 截断拉伸热区内的事件，使目标 DOM/原生滚动条没有机会改写光标。
+		// 从客户区进入非客户区时首先可能出现 MOUSE_LEAVE，因此不能只拦 MOVE。
+		if ((p->cmd & SINKING) != 0 &&
+			(mouseCommand == MOUSE_ENTER || mouseCommand == MOUSE_LEAVE ||
+				mouseCommand == MOUSE_MOVE || mouseCommand == MOUSE_IDLE)) {
+			UINT forcedCursorId = CURSOR_ARROW;
+			if (self->_强制自定义拉伸光标(&forcedCursorId)) {
+				p->cursor_type = forcedCursorId;
+				return TRUE;
+			}
+		}
+
+		// 不要在捕获阶段改写 textarea 属性。Sciter 5 在处理按下位置前若收到
+		// DOM 属性变更，会重建多行编辑器并把内部滚动位置归零，后续点击坐标
+		// 也会按回顶后的内容解释。等引擎完成选择后再同步属性，仍赶在绘制前生效。
+		if ((p->cmd & SINKING) == 0 &&
+			(mouseCommand == MOUSE_UP || mouseCommand == MOUSE_DCLICK ||
+			(mouseCommand == MOUSE_MOVE && (p->button_state & MAIN_MOUSE_BUTTON) != 0))) {
+			_同步文本选区光标(p->target, false);
+			return FALSE;
+		}
+
+		// 滚轮完全交给补丁 DLL；应用层不查找容器、不累计目标、不拦截事件。
+		return FALSE;
 	}
 
 	// 按当前鼠标位置查询用户定义的原生拉伸区，并强制对应光标。
@@ -882,10 +1186,20 @@ public:
 		SetCursor(LoadCursorW(nullptr, cursorId));
 		return true;
 	}
-
-private:
-	SciterZip _zip;
 };
+
+void SciterDom::嵌入原生控件(c_StrX 选择器, HWND childHwnd)
+{
+	HELEMENT found = NULL;
+	StrA selector = 选择器;
+	_st->_支持Win32子控件();
+	g_sapi->SciterSelectElements(ctx, selector, [](HELEMENT he, LPVOID param)
+	{
+		*(HELEMENT*)param = he;
+		return TRUE;
+	}, &found);
+	if (found && g_sapi) g_sapi->SciterAttachHwndToElement(found, childHwnd);
+}
 
 void SciterDom::浏览(c_StrU8 路径)
 {

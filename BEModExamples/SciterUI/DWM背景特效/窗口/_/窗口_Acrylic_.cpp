@@ -25,6 +25,6 @@ void _窗口_Acrylic::完毕(bool 模态)
 #endif
 	//打包内存zip已集成调用out\__!packZipLib.bat
 
-	st.创建(cs, this);
+	st.绑定(cs, this);
 	窗口::完毕(模态);
 }

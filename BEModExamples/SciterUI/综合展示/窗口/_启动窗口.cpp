@@ -10,7 +10,7 @@ struct __启动窗口 : 窗口
 		SciterUI::全局初始化();
 		SciterUI::参数 cs;
 		cs.文件_html = "index.html";
-		st.创建(cs, this);
+		st.绑定(cs, this);
 		dom = st.取文档模型();
 	}
 	void 事件_创建完毕()

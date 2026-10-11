@@ -8,7 +8,7 @@
 标签* UI_标签_创建(byte* fb, 容器类* 父窗口)
 {
 	if (fb==nullptr){
-		delete 父窗口; //当参数1给出空指针时此方法变为销毁此投入的参数2实例对象
+		UI_销毁控件(父窗口); //当参数1给出空指针时此方法变为销毁此投入的参数2实例对象
 		return 0;
 	}
 	标签::参数 cs;
@@ -94,7 +94,7 @@ void UI_标签_置属性(标签* ui, int methodi, byte* fb)
 		ui->边框_(gFBi(fb, 0));
 		break;
 	case 11:
-		//字体
+		ui->置字体(gFBpo<字体>(fb, 0));
 		break;
 	case 12:
 		ui->文本颜色_(gFBi(fb, 0));

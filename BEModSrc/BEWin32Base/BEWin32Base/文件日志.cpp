@@ -61,6 +61,16 @@ public:
 		}
 	}
 
+	static StrA 格式化日志(c_StrX data) {
+		日期时间型 now = 取现行时间();
+		wchar_t time_buf[64];
+		swprintf_s(time_buf, L"%04d-%02d-%02d %02d:%02d:%02d ",
+			(int)now.年, (int)now.月, (int)now.日,
+			(int)now.时, (int)now.分, (int)now.秒);
+		StrW log_line = StrW(time_buf) + StrW(data) + L"\r\n";
+		return WtoU8(log_line);
+	}
+
 	void 写(c_StrX data) {
 		StrW fm;
 		if (_cycle > 0) {
@@ -109,15 +119,7 @@ public:
 		}
 
 		if (_hf != INVALID_HANDLE_VALUE) {
-			日期时间型 now = 取现行时间();
-			wchar_t time_buf[64];
-			swprintf_s(time_buf, L"%04d-%02d-%02d %02d:%02d:%02d ",
-				(int)now.年, (int)now.月, (int)now.日,
-				(int)now.时, (int)now.分, (int)now.秒);
-			StrW log_line = StrW(time_buf) + StrW(data) + L"\r\n";
-
-			// Convert to UTF-8 using WtoU8
-			StrA log_line_u8 = WtoU8(log_line);
+			StrA log_line_u8 = 格式化日志(data);
 			DWORD dwWritten = 0;
 			WriteFile(_hf, (const char*)log_line_u8, (DWORD)log_line_u8.len(), &dwWritten, NULL);
 		}
@@ -135,16 +137,45 @@ extern 文件日志 _dbglog;
 
 namespace be
 {
+
+/**以参1为bool标记做的日志，在程序启动之前会被清空，
+   并在整个程序生命周期内可持续向尾写入
+ * @param bool any
+ * @param args
+ */
 template <typename... Args>
-void log(Args&&... args) {
+void log(bool, Args&&... args) {
 	AutoStr result;
 	_sprint_helper(result, args...);
 	_dbglog.写(result.str);
 }
+
+/**自定义路径日志，总是向文件末尾追加写入
+ * @param c_StrW path 自定义路径
+ * @param args
+ */
+template <typename... Args>
+void log(c_StrX path, Args&&... args) {
+	AutoStr result;
+	_sprint_helper(result, args...);
+	StrA line = 文件日志::格式化日志(result.str);
+	StrW dir = 路径_去文件名(path);
+	if (dir && !目录是否存在(dir)) {
+		创建目录Ex(dir);
+	}
+	文件读写 f(false);
+	if (f.打开文件(path, 2, 3)) {
+		f.移动读写位置(2, 0);
+		f.写出字节集(line.bytes);
+		f.关闭文件();
+	}
+}
 }
 
 #if DBG
-#define dbg_log(...) be::log(__VA_ARGS__)
+#define dbg_log(...) be::log(0, __VA_ARGS__)
+#define dbg_flog(file, ...) be::log(file, __VA_ARGS__)
 #else
 #define dbg_log(...)
+#define dbg_flog(...)
 #endif

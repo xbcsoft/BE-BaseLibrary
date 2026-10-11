@@ -10,7 +10,7 @@
 
 #include "stdafx.h"
 
-#ifdef DBG
+#if DBG
 
 namespace {
 
@@ -137,10 +137,10 @@ void coutClear() {
 
 #else
 
-void coutlog_option(AutoS host, bool isStop = false) {}
-void coutlog_optionT(AutoS host) {}
-StrU8 coutlog(AutoS str, bool zusai = false) { return ""; }
-StrU8 coutlogR(AutoS str, bool zusai = false, AutoS ext = "") { return ""; }
+void coutlog_option(c_StrX host, bool isStop = false) {}
+void coutlog_optionT(c_StrX host) {}
+StrU8 coutlog(c_StrX str, bool zusai = false) { return ""; }
+StrU8 coutlogR(c_Bytes str, bool zusai = false, c_StrX ext = "") { return ""; }
 bool coutlog_is_stop() { return true; }
 void coutlogV(...) {}
 void coutClear() {}

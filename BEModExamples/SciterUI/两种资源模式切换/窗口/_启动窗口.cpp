@@ -10,7 +10,7 @@ struct __启动窗口 : 窗口
 #else
 		cs.内存_zip = R::reszip;
 #endif
-		st.创建(cs, this);
+		st.绑定(cs, this);
 	}
 
 	void 事件_创建完毕()

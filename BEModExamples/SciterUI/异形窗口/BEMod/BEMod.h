@@ -43,20 +43,5 @@
 #pragma region SciterUI
 //#version 1.0
 #include <SciterUI/SciterUI.h>
-#ifndef _LIB
-#ifdef _WIN64
-#ifdef _DLL
-#pragma comment(lib,"SciterUI/BEMod/zip中文版/x64/Release/zip中文版.lib")
-#else
-#pragma comment(lib,"SciterUI/BEMod/zip中文版/x64/Release/zip中文版_static.lib")
-#endif
-#else
-#ifdef _DLL
-#pragma comment(lib,"SciterUI/BEMod/zip中文版/Release/zip中文版.lib")
-#else
-#pragma comment(lib,"SciterUI/BEMod/zip中文版/Release/zip中文版_static.lib")
-#endif
-#endif
-#endif
 #pragma endregion
 

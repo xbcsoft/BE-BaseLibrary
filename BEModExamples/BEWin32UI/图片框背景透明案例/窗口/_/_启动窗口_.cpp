@@ -1,4 +1,4 @@
-﻿#include "../_启动窗口.h"
+#include "../_启动窗口.h"
 
 void __启动窗口::载入(窗口* 父窗, bool 模态)
 {
@@ -8,7 +8,7 @@ void __启动窗口::载入(窗口* 父窗, bool 模态)
 	{
 		位图 t(位图::从内存创建(R::图1)); //这是张BMP图
 		SIZE sz = t.取尺寸();
-		图片框::参数 cs(30, 10, rdpi(sz.cx), rdpi(sz.cy));
+		图片框::参数 cs{ 30, 10, rdpi(sz.cx), rdpi(sz.cy) };
 		cs.背景颜色 = 颜色::透明;
 		图片框1.创建(cs, this);
 		图片框1.置图片(t, 位图::创建掩码位图(R::图1, 颜色::品红));
@@ -18,7 +18,7 @@ void __启动窗口::载入(窗口* 父窗, bool 模态)
 		HandleBITMAP hmask;
 		位图 t(真彩图::从内存创建(R::图2, hmask)); //这是张PNG图
 		SIZE sz = t.取尺寸();
-		图片框::参数 cs(100, 10, rdpi(sz.cx), rdpi(sz.cy));
+		图片框::参数 cs{ 100, 10, rdpi(sz.cx), rdpi(sz.cy) };
 		//要提取GIF的掩码位图需要依赖【GdiPlus.bec】
 		cs.背景颜色 = 颜色::透明;
 		图片框2.创建(cs, this);
@@ -30,7 +30,7 @@ void __启动窗口::载入(窗口* 父窗, bool 模态)
 		HandleBITMAP hmask;
 		位图 t(真彩图::从内存创建(R::图3, hmask)); //这是张PNG图
 		SIZE sz = t.取尺寸();
-		图片框::参数 cs(300, 80, rdpi(sz.cx), rdpi(sz.cy));
+		图片框::参数 cs{ 300, 80, rdpi(sz.cx), rdpi(sz.cy) };
 		//要提取GIF的掩码位图需要依赖【GdiPlus.bec】
 		cs.背景颜色 = 颜色::透明;
 		图片框3.创建(cs, this);

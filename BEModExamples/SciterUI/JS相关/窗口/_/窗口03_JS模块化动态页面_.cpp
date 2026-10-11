@@ -18,6 +18,6 @@ void _窗口03_JS模块化动态页面::完毕(bool 模态)
 {
 	SciterUI::参数 cs;
 	cs.文件_html = "动态页面测试/index.html";
-	st.创建(cs, this);
+	st.绑定(cs, this);
 	窗口::完毕(模态);
 }

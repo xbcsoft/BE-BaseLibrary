@@ -11,15 +11,11 @@ struct EXP 字体
 	bool 加粗 = false;
 	int 角度 = 0;
 
-	字体() { 字体名称 = (const charW*)获取默认逻辑字体().lfFaceName; }
-	字体(可空<c_StrW> 字体名称, int 字体大小 = 9, bool 下划线 = false, bool 删除线 = false,
+	字体() {}
+	字体(c_StrW 字体名称, int 字体大小 = 9, bool 下划线 = false, bool 删除线 = false,
 		bool 倾斜 = false, bool 加粗 = false, int 角度 = 0)
 		: 字体大小(字体大小), 下划线(下划线), 删除线(删除线),
-		倾斜(倾斜), 加粗(加粗), 角度(角度)
-	{
-		if (字体名称==空)this->字体名称 = (const charW*)获取默认逻辑字体().lfFaceName;
-		else { this->字体名称 = 字体名称; }
-	}
+		倾斜(倾斜), 加粗(加粗), 角度(角度), 字体名称(字体名称) {}
 
 	int _字体像素; //-px为单位，内部使用
 	//注：该px是字体实际字形对应的原生设备像素（若计算整体行距的情况不要使用此值，还需加上内部行距）
@@ -30,7 +26,7 @@ struct EXP 字体
 		return lf;
 	}
 
-	/**到字体句柄
+	/**到字体句柄（会创建一个字体句柄）
 	 * @return 务必使用HandleFONT去接
 	 */
 	HandleFONT 到字体句柄() const {
@@ -51,7 +47,7 @@ struct EXP 字体
 	{
 		LOGFONT lf = { 0 };
 		Bytes facename(lf.lfFaceName, BRef);
-		facename.copyFrom(SR(字体名称));
+		facename.copyFrom(SR(字体名称 ? 字体名称 : 获取默认逻辑字体().lfFaceName));
 
 		lf.lfItalic = 倾斜;
 		lf.lfUnderline = 下划线;

@@ -119,7 +119,7 @@ bool 置当前目录(c_StrX 新当前目录) {
 	return SetCurrentDirectoryW((LPCWSTR)新当前目录) != 0;
 }
 
-StrW 取模块路径(void* 模块句柄 = NULL) {
+StrX 取模块路径(void* 模块句柄 = NULL) {
 	wchar_t path[MAX_PATH];
 	GetModuleFileNameW((HMODULE)模块句柄, path, MAX_PATH);
 	StrW ret;

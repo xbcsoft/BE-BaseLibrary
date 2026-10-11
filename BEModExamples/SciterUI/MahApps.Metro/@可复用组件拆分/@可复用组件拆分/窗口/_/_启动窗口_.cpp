@@ -22,7 +22,7 @@ void __启动窗口::完毕(bool 模态)
 	SciterUI::参数 cs;
 	//本工程已将启动目录设置为$(ProjectDir)\out
 #ifdef _DEBUG
-	cs.文件_html = "模态对话框.html";
+	cs.文件_html = "编辑框.html";
 #else
 	cs.内存_zip = R::reszip;
 #endif

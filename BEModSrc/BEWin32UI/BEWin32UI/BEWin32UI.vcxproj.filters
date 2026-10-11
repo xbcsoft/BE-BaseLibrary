@@ -28,12 +28,12 @@
     <Filter Include="源文件\中文UI\基础类">
       <UniqueIdentifier>{65a23c31-2991-4bda-9176-15b6d7ab1738}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\metaUI">
+      <UniqueIdentifier>{bcdea110-f824-4872-a310-0da5b1c908a6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="窗口\_\_启动窗口_.cpp">
-      <Filter>BEBuild</Filter>
-    </ClCompile>
-    <ClCompile Include="BEMod\#SymbolsG.cpp">
       <Filter>BEBuild</Filter>
     </ClCompile>
     <ClCompile Include="中文UI\选择夹.cpp">
@@ -111,17 +111,23 @@
     <ClCompile Include="中文UI\组合框.cpp">
       <Filter>源文件\中文UI</Filter>
     </ClCompile>
-    <ClCompile Include="窗口\窗口1.cpp">
-      <Filter>程序集</Filter>
-    </ClCompile>
-    <ClCompile Include="窗口\_\窗口1_.cpp">
-      <Filter>BEBuild</Filter>
-    </ClCompile>
     <ClCompile Include="中文UI\菜单.cpp">
       <Filter>源文件\中文UI</Filter>
     </ClCompile>
     <ClCompile Include="中文UI\输入框.cpp">
       <Filter>源文件\中文UI</Filter>
+    </ClCompile>
+    <ClCompile Include="中文UI\网格布局.cpp">
+      <Filter>源文件\中文UI\基础类</Filter>
+    </ClCompile>
+    <ClCompile Include="中文UI\列表框.cpp">
+      <Filter>源文件\中文UI</Filter>
+    </ClCompile>
+    <ClCompile Include="中文UI\分隔条.cpp">
+      <Filter>源文件\中文UI</Filter>
+    </ClCompile>
+    <ClCompile Include="BEMod\#SymbolsG.cpp">
+      <Filter>BEBuild</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -137,9 +143,6 @@
     <ClInclude Include="BEWin32UI.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="VSDllSDK.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="中文UI\多夹接口.h">
       <Filter>源文件\中文UI\基础类</Filter>
     </ClInclude>
@@ -151,6 +154,63 @@
     </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="中文UI\dllmeta\窗口.hpp">
+      <Filter>源文件\metaUI</Filter>
+    </ClInclude>
+    <ClInclude Include="中文UI\dllmeta\选择夹.hpp">
+      <Filter>源文件\metaUI</Filter>
+    </ClInclude>
+    <ClInclude Include="中文UI\dllmeta\列表框.hpp">
+      <Filter>源文件\metaUI</Filter>
+    </ClInclude>
+    <ClInclude Include="中文UI\dllmeta\按钮.hpp">
+      <Filter>源文件\metaUI</Filter>
+    </ClInclude>
+    <ClInclude Include="中文UI\dllmeta\标签.hpp">
+      <Filter>源文件\metaUI</Filter>
+    </ClInclude>
+    <ClInclude Include="中文UI\dllmeta\分组框.hpp">
+      <Filter>源文件\metaUI</Filter>
+    </ClInclude>
+    <ClInclude Include="中文UI\dllmeta\滑块条.hpp">
+      <Filter>源文件\metaUI</Filter>
+    </ClInclude>
+    <ClInclude Include="中文UI\dllmeta\组合框.hpp">
+      <Filter>源文件\metaUI</Filter>
+    </ClInclude>
+    <ClInclude Include="中文UI\dllmeta\编辑框.hpp">
+      <Filter>源文件\metaUI</Filter>
+    </ClInclude>
+    <ClInclude Include="中文UI\dllmeta\超级链接框.hpp">
+      <Filter>源文件\metaUI</Filter>
+    </ClInclude>
+    <ClInclude Include="中文UI\dllmeta\单选框.hpp">
+      <Filter>源文件\metaUI</Filter>
+    </ClInclude>
+    <ClInclude Include="中文UI\dllmeta\进度条.hpp">
+      <Filter>源文件\metaUI</Filter>
+    </ClInclude>
+    <ClInclude Include="中文UI\dllmeta\时钟.hpp">
+      <Filter>源文件\metaUI</Filter>
+    </ClInclude>
+    <ClInclude Include="中文UI\dllmeta\选择框.hpp">
+      <Filter>源文件\metaUI</Filter>
+    </ClInclude>
+    <ClInclude Include="中文UI\dllmeta\外形框.hpp">
+      <Filter>源文件\metaUI</Filter>
+    </ClInclude>
+    <ClInclude Include="中文UI\dllmeta\图片框.hpp">
+      <Filter>源文件\metaUI</Filter>
+    </ClInclude>
+    <ClInclude Include="VSDllSDK.hpp">
+      <Filter>源文件\metaUI</Filter>
+    </ClInclude>
+    <ClInclude Include="中文UI\组件基类.h">
+      <Filter>源文件\中文UI\基础类</Filter>
+    </ClInclude>
+    <ClInclude Include="中文UI\dllmeta\分隔条.hpp">
+      <Filter>源文件\metaUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

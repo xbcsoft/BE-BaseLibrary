@@ -69,8 +69,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="DWM毛玻璃特效.rc">
-      <Filter>资源文件</Filter>
-    </ResourceCompile>
+    <ResourceCompile Include="DWM背景特效.rc" />
   </ItemGroup>
 </Project>

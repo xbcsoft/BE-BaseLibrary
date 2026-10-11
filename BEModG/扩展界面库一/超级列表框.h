@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include "stdafx.h"
-#include <CommCtrl.h>
 
 定义_枚举型(超级列表框边框, char,
 	无边框 = 0, 凹入式 = 1, 凸出式 = 2, 浅凹入式 = 3, 镜框式 = 4, 单线边框式 = 5
@@ -22,7 +21,6 @@ class 超级列表框 : public 控件类
 {
 public:
 	struct 参数 : 控件类::参数 {
-		定义_子组件通用构造方法;
 		超级列表框边框 边框 = 超级列表框边框::凹入式;
 		颜色 文本颜色 = 颜色::黑色;
 		颜色 文本背景色 = 颜色::透明;
@@ -32,11 +30,15 @@ public:
 		超级列表框对齐方式 图标对齐方式 = 超级列表框对齐方式::顶部对齐;
 		bool 自动排列图标 = true;
 		bool 标题自动换行 = true;
+		自定数据 报表列;
 		bool 无表头 = false;
+		自定数据 表头图片组;
 		bool 表头可单击 = true;
 		bool 整行选择 = false;
 		bool 显示表格线 = false;
 		bool 表列可拖动 = false;
+		自定数据 图片组;
+		自定数据 状态图片组;
 		bool 热点跟踪 = false;
 		bool 手形指针 = false;
 		bool 标注非热点 = false;
@@ -46,10 +48,9 @@ public:
 		bool 是否有检查框 = false;
 		bool 平面滚动条 = false;
 		bool 单一选择 = false;
-		bool 始终显示选择项 = false;
 		int 现行选中项 = -1;
-		Bytes 报表列;
-		Bytes 表项;
+		bool 始终显示选择项 = false;
+		自定数据 表项;
 	} static _df;
 
 	超级列表框边框 边框;
@@ -136,6 +137,8 @@ public:
 
 	void 现行选中项_(int index);
 
+	void _复制图片组_适配DPI(图片组& 源, 图片组& 目标);
+
 	void 置图片组(图片组& imageList);
 
 	void 置状态图片组(图片组& imageList);
@@ -144,7 +147,7 @@ public:
 
 	StrW 取标题(int 表项索引, int 列索引 = 0);
 
-	void 置标题(int 表项索引, int 列索引 = 0, StrW 标题 = L"");
+	void 置标题(int 表项索引, int 列索引 = 0, c_StrW 标题 = L"");
 
 	int 取图片(int 表项索引, int 列索引 = 0);
 
@@ -180,7 +183,7 @@ public:
 
 	void 全部删除();
 
-	int 查找表项(StrW 标题, int 起始查找位置 = 0, bool 是否精确匹配 = true, int 列索引 = 0);
+	int 查找表项(c_StrW 标题, int 起始查找位置 = 0, bool 是否精确匹配 = true, int 列索引 = 0);
 
 	int 查找表项数值(int 起始查找位置 = 0, int 表项数值 = 0);
 
@@ -198,7 +201,7 @@ public:
 
 	bool 图片是否居右(int 列索引);
 
-	void 置列标题(int 列索引, StrW 标题 = L"");
+	void 置列标题(int 列索引, c_StrW 标题);
 
 	void 置列宽(int 列索引, int 列宽 = -1);
 
@@ -210,13 +213,9 @@ public:
 
 	void 删除列(int 列索引);
 
-	Bytes 导出列项();
+	Bytes 报表列_(可空<Bytes> dat = 空);
 
-	void 载入列项(const Bytes& dat);
-
-	Bytes 导出表项();
-
-	void 载入表项(const Bytes& dat);
+	Bytes 表项_(可空<Bytes> dat = 空);
 
 	void 进入编辑(int 表项索引);
 

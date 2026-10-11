@@ -208,7 +208,7 @@ Bytes 字节集_取之间(const Bytes& 完整内容, const Bytes& 左边字节�
 template<int STACK_CAP>
 Arraybe<Bytes, STACK_CAP>& 分割字节集(const Bytes& 原内容, const Bytes& 分割内容,
 	Arraybe<Bytes, STACK_CAP>& 结果数组, bool 保持容量 = false) {
-	return _SplitBytes<Bytes, STACK_CAP>(原内容, 分割内容, 结果数组, 保持容量);
+	return SplitBytes<Bytes, STACK_CAP>(原内容, 分割内容, 结果数组, 保持容量);
 }
 
 /**分割字节引集
@@ -221,5 +221,6 @@ Arraybe<Bytes, STACK_CAP>& 分割字节集(const Bytes& 原内容, const Bytes& 
 template<int STACK_CAP>
 Arraybe<BR, STACK_CAP>& 分割字节引集(const Bytes& 原内容, const Bytes& 分割内容,
 	Arraybe<BR, STACK_CAP>& 结果数组, bool 保持容量 = false) {
-	return _SplitBytes<BR, STACK_CAP>(原内容, 分割内容, 结果数组, 保持容量);
+	return SplitBytes<BR, STACK_CAP>(原内容, 分割内容, 结果数组, 保持容量);
 }
+

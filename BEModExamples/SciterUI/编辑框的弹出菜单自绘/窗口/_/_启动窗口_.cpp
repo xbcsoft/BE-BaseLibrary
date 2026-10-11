@@ -18,6 +18,6 @@ void __启动窗口::完毕(bool 模态)
 	SciterUI::全局初始化();
 	SciterUI::参数 cs;
 	cs.文件_html = "index.html";
-	st.创建(cs, this);
+	st.绑定(cs, this);
 	窗口::完毕(模态);
 }

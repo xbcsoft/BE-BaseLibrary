@@ -5,9 +5,20 @@
 #endif
 #include "../窗口.h"
 
+struct __窗口 :窗口 {
+	LRESULT 挂接消息(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+	{
+		if (msg==WM_SIZE) {
+			//InvalidateRect(hwnd, NULL, TRUE);
+			return 1;
+		}
+		return 窗口::挂接消息(hwnd, msg, wParam, lParam);
+	}
+};
+
 窗口* UI_窗口_创建(byte* fb, 窗口* 父窗口)
 {
-	if (fb==nullptr){
+	if (fb==nullptr) {
 		delete 父窗口; //当参数1给出空指针时此方法变为销毁此投入的参数2实例对象
 		return 0;
 	}
@@ -20,8 +31,8 @@
 	cs.禁止 = gFBb(fb, 5);
 	cs.类名 = gFBs<W>(fb, 6);
 	cs.标题 = gFBs<W>(fb, 7);
-	cs.图标.SET(gFBpo<Bytes>(gFB_p(fb, 8), 0), gFBb(gFB_p(fb, 8), 1));
-	cs.图标ID.SET(gFBi(gFB_p(fb, 9), 0), gFBb(gFB_p(fb, 9), 1));
+	//cs.图标.SET(gFB(gFB_p(fb, 8), 0), gFBb(gFB_p(fb, 8), 1));
+	//cs.图标ID.SET(gFBi(gFB_p(fb, 9), 0), gFBb(gFB_p(fb, 9), 1));
 	cs.总在最前 = gFBb(fb, 10);
 	cs.边框 = gFBi(fb, 11);
 	cs.位置.SET(gFBi(gFB_p(fb, 12), 0), gFBb(gFB_p(fb, 12), 1));
@@ -34,8 +45,11 @@
 	cs.在任务栏显示 = gFBb(fb, 19);
 	cs.保持标题栏点燃 = gFBb(fb, 20);
 	cs.子控件焦点导航 = gFBb(fb, 21);
-	窗口* ui = new 窗口;
+	窗口* ui = new __窗口;
 	ui->创建(cs, 父窗口);
+	if (gFBb(gFB_p(fb, 8), 1)) {
+		ui->置图标(gFB(gFB_p(fb, 8), 0));
+	}
 	return ui;
 }
 
@@ -95,7 +109,7 @@ void UI_窗口_置属性(窗口* ui, int methodi, byte* fb)
 		ui->标题_(gFBs<W>(fb, 0));
 		break;
 	case 8:
-		ui->置图标(gFBpo<Bytes>(fb, 0));
+		ui->置图标(gFB(fb, 0));
 		break;
 	case 9:
 		//图标ID
@@ -107,7 +121,7 @@ void UI_窗口_置属性(窗口* ui, int methodi, byte* fb)
 		ui->边框_(gFBi(fb, 0));
 		break;
 	case 12:
-		ui->位置_(gFBi(fb, 0));
+		//ui->位置_(gFBi(fb, 0));
 		break;
 	case 13:
 		ui->背景颜色_(gFBi(fb, 0));

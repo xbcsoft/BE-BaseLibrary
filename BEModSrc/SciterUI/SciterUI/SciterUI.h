@@ -1,11 +1,11 @@
 ﻿#pragma once
-/**@ModuleTitle: SciterHTML自绘库
+/**@ModuleTitle:
 *  @version:     1.0
 *  @platform:    win32(x86|x64)
 *  @compiler:    source
 *  @author:
 *  @datetime:
-*  @description: 封装自拥有独立HTML引擎的Sciter轻量化窗口UI自绘库
+*  @description:
 */
 #include "stdafx.h"
 #include "SciterDom.h"
@@ -30,7 +30,7 @@ public:
 	 */
 	static void 全局初始化();
 
-	struct 参数
+	struct 引擎参数
 	{
 		可空<StrU8> 内存_html; //UTF8编码的内存字符串数据
 		可空<StrU8> 内存_url; //如果填了内存_html，则该参数默认为L"file:///index.html"
@@ -38,30 +38,28 @@ public:
 		可空<Bytes> 内存_zip; //内存中ZIP文件的二进制数据
 		bool 是否有启动动画 = false; //如果有启动动画则默认禁止DWM过渡，开启后将直接令窗口可视为假（之后由JS那边控制窗口可视）
 		//如后续还需要DWM联动，则可 推迟调用子程序(一定毫秒数) 到动画结束后开启。
-	}static _df;
+	};
 
-	WNDPROC origWndProc = NULL;
+	struct 参数 : 控件类::参数, 引擎参数 {
+	} static _df;
+
+	// 仅用于承接白易 窗口 ABI 的内部子窗口壳
+	class 子窗口 : public 窗口
+	{
+	public:
+		bool 销毁(bool 同步 = true);
+	}*_wnd = NULL;
+
+
+	bool 创建(const 参数& cs, 容器类* 父容器);
+
+
+	WNDPROC _origWndProc = NULL;
 	HWND hwnd = NULL;
 	int _shadowMargin = 0;
 	int _shadowMarginR = 0;
 	bool _isTransparentFrame = false; // 是否声明了由 HTML 完整接管非客户区的自绘框架
 	bool _isDragging = false; // 是否正在被拖动或改变大小
-	static void _设置Sciter内部光标屏蔽(bool enabled);
-
-	static bool _允许窗口边缘拉伸(HWND targetHwnd);
-
-	void _设置BodyMargin(HELEMENT root, LPCWSTR marginStr);
-
-	static HELEMENT _查找文本编辑框(HELEMENT target);
-
-	static void _同步文本选区光标(HELEMENT target, bool prepareForSelection);
-
-	// -1: 尚未同步；0: 普通窗口；1: 最大化；2: 贴靠；3: 仅垂直铺满。
-	// 最小化不是一种阴影布局，必须保留最小化前的状态，否则还原时会
-	// 重复改写 DOM 样式并导致透明窗口表面重建。
-	int _shadowLayoutState = -1;
-
-	bool _应用阴影布局状态(int newLayoutState, BOOL forceRender);
 
 	~SciterUI();
 
@@ -89,10 +87,6 @@ public:
 		bool inLeft, bool inRight, bool inTop, bool inBottom,
 		bool inCornerLeft, bool inCornerRight, bool inCornerTop, bool inCornerBottom);
 
-
-	// Sciter原版的鼠标滚轮存在滚动中途产生僵硬问题，我们这里接管滚动让其丝滑运行
-	static BOOL SC_CALLBACK _StaticWindowMouseEventHandler(LPVOID tag, HELEMENT he, UINT evtg, LPVOID prms);
-
 	//在 Sciter 引擎里，向它提供资源数据有两条平行且互斥的通道：
 	//	通道 A：直接写入成员字段（延迟拷贝）
 	//	做法：赋值 pld->outData = 缓冲区指针; 。
@@ -107,24 +101,44 @@ public:
 
 	int 资源返回(LPSCN_LOAD_DATA pld, c_StrA 数据, int 返回码 = LOAD_OK);
 
-	//  宏	作用对象	含义
-	//	WS_CLIPSIBLINGS	同级子窗口之间；
-		/*当父窗口有多个子窗口（siblings），且它们在位置上有重叠时：
-		  不设 WS_CLIPSIBLINGS：子窗口 A 调用 WM_PAINT 时，GDI 绘图会"穿透"到兄弟子窗口 B 的区域，导致 B 的内容被覆盖/污染。
-		  设了 WS_CLIPSIBLINGS：Windows 在给 A 发 WM_PAINT 前，会把 B 的矩形区域从 A 的 DC clip region 中剪掉，A 的绘制绝对不会画到 B 的区域里。
-		*/
-	//	WS_CLIPCHILDREN	父窗口与其子窗口	我自己(是父)画的时候裁掉我的子窗口所在区域（这样父的部分不用重复绘制）
-	void _支持Win32子控件();
-
-	void 创建(const 参数& cs, 窗口* 父窗口);
+	void 绑定(const 参数& cs, 窗口* 宿主窗口);
 
 	void 支持DWM动效(bool is);
 
 	SciterDom 取文档模型();
 
-	// 按当前鼠标位置查询用户定义的原生拉伸区，并强制对应光标。
-	bool _强制自定义拉伸光标(UINT* sciterCursorId);
+	//  宏	作用对象	含义
+	//	WS_CLIPSIBLINGS	同级子窗口之间；
+	/*当父窗口有多个子窗口（siblings），且它们在位置上有重叠时：
+	  不设 WS_CLIPSIBLINGS：子窗口 A 调用 WM_PAINT 时，GDI 绘图会"穿透"到兄弟子窗口 B 的区域，导致 B 的内容被覆盖/污染。
+	  设了 WS_CLIPSIBLINGS：Windows 在给 A 发 WM_PAINT 前，会把 B 的矩形区域从 A 的 DC clip region 中剪掉，A 的绘制绝对不会画到 B 的区域里。
+	*/
+	//	WS_CLIPCHILDREN	父窗口与其子窗口	我自己(是父)画的时候裁掉我的子窗口所在区域（这样父的部分不用重复绘制）
+	void _支持Win32子控件();
 
+	void _设置BodyMargin(HELEMENT root, LPCWSTR marginStr);
 private:
 	SciterZip _zip;
+	static void _设置Sciter内部光标屏蔽(bool enabled);
+
+	static bool _允许窗口边缘拉伸(HWND targetHwnd);
+
+	static HELEMENT _查找文本编辑框(HELEMENT target);
+
+	static void _同步文本选区光标(HELEMENT target, bool prepareForSelection);
+
+	static void _注入文本编辑历史API(HELEMENT documentElement);
+
+	// -1: 尚未同步；0: 普通窗口；1: 最大化；2: 贴靠；3: 仅垂直铺满。
+	// 最小化不是一种阴影布局，必须保留最小化前的状态，否则还原时会
+	// 重复改写 DOM 样式并导致透明窗口表面重建。
+	int _shadowLayoutState = -1;
+
+	bool _应用阴影布局状态(int newLayoutState, BOOL forceRender);
+
+	// Sciter原版的鼠标滚轮存在滚动中途产生僵硬问题，我们这里接管滚动让其丝滑运行
+	static BOOL SC_CALLBACK _StaticWindowMouseEventHandler(LPVOID tag, HELEMENT he, UINT evtg, LPVOID prms);
+
+	// 按当前鼠标位置查询用户定义的原生拉伸区，并强制对应光标。
+	bool _强制自定义拉伸光标(UINT* sciterCursorId);
 };

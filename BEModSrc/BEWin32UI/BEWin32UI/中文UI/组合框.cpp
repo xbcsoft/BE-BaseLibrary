@@ -10,7 +10,6 @@ class EXP 组合框 : public 控件类
 {
 public:
 	struct 参数 : 控件类::参数 {
-		定义_子组件通用构造方法;
 		组合框类型 类型 = 组合框类型::不可编辑下拉式;
 		StrW 内容 = L"";
 		int 最大文本长度 = 0;
@@ -64,9 +63,11 @@ public:
 		return true;
 	}
 
-	void 行间距_() {
+	void 行间距_(int v) {
+		行间距 = v;
+		if (!窗口句柄) return;
 		SendMessageW(窗口句柄, CB_SETITEMHEIGHT, 0,
-			字体::取字体高度<D>(取字体句柄(), false)+行间距);
+			字体::取字体高度<D>(取字体句柄(), false) + 行间距);
 	}
 
 	void 内容_(const StrW& txt) {

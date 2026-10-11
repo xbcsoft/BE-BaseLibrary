@@ -1,6 +1,6 @@
 ﻿#pragma once
 /**@ModuleTitle:
-*  @version:     0.7
+*  @version:     0.8.5
 *  @platform:    win32(x86|x64)
 *  @compiler:    msvc141
 *  @author:      xbcsoft
@@ -21,8 +21,11 @@
 #include "中文UI/外形框.h"
 #include "中文UI/进度条.h"
 #include "中文UI/滑块条.h"
+#include "中文UI/分隔条.h"
 #include "中文UI/图片框.h"
 #include "中文UI/组合框.h"
 #include "中文UI/菜单.h"
 #include "中文UI/时钟.h"
 #include "中文UI/输入框.h"
+#include "中文UI/网格布局.h"
+#include "中文UI/列表框.h"

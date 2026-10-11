@@ -20,27 +20,12 @@
       <UniqueIdentifier>{0a4028a7-c9d7-4952-9b16-2e82da44b770}</UniqueIdentifier>
     </Filter>
     <Filter Include="BEBuild\FB">
-      <UniqueIdentifier>{7cceeaf4-e561-4948-ad4f-474076c090a5}</UniqueIdentifier>
+      <UniqueIdentifier>{d1c5beeb-ce3c-4833-b37d-cee9eef500bd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="窗口\_启动窗口.cpp">
-      <Filter>程序集</Filter>
-    </ClCompile>
-    <ClCompile Include="窗口\_\_启动窗口_.cpp">
-      <Filter>BEBuild</Filter>
-    </ClCompile>
-    <ClCompile Include="$(BEModG)\FB\FB.cpp">
-      <Filter>BEBuild\FB</Filter>
-    </ClCompile>
-    <ClCompile Include="窗口\窗口1.cpp">
-      <Filter>程序集</Filter>
-    </ClCompile>
-    <ClCompile Include="窗口\_\窗口1_.cpp">
-      <Filter>BEBuild</Filter>
     </ClCompile>
     <ClCompile Include="树型框.cpp">
       <Filter>源文件</Filter>
@@ -48,15 +33,30 @@
     <ClCompile Include="超级列表框.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="$(BEModG)\FB\FB.cpp">
+      <Filter>BEBuild\FB</Filter>
+    </ClCompile>
+    <ClCompile Include="窗口\_启动窗口.cpp">
+      <Filter>程序集</Filter>
+    </ClCompile>
+    <ClCompile Include="窗口\_\_启动窗口_.cpp">
+      <Filter>BEBuild</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="扩展界面库一.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
     <ClInclude Include="BEMod\BEMod.h">
       <Filter>BEBuild</Filter>
     </ClInclude>
-    <ClInclude Include="扩展界面库一.h">
+    <ClInclude Include="dllmeta\超级列表框.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="dllmeta\树型框.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include "stdafx.h"
-#include <CommCtrl.h>
 
 定义_枚举型(树型框边框, char,
 	无边框 = 0, 凹入式 = 1, 凸出式 = 2, 浅凹入式 = 3, 镜框式 = 4, 单线边框式 = 5
@@ -10,7 +9,6 @@ class EXP 树型框 : public 控件类
 {
 public:
 	struct 参数 : 控件类::参数 {
-		定义_子组件通用构造方法;
 		树型框边框 边框 = 树型框边框::凹入式;
 		颜色 文本颜色 = 颜色::黑色;
 		颜色 背景颜色 = 颜色::白色;
@@ -83,7 +81,17 @@ public:
 
 		控件类::_子类化();
 
-		if (cs.项目.size) 载入项目(cs.项目);
+		if (cs.图片组.size) {
+			图片组 imageList;
+			imageList.h = imageList.导入图片组字节集(cs.图片组);
+			if (imageList.h) 置图片组(imageList);
+		}
+		if (cs.检查框图片组.size) {
+			图片组 imageList;
+			imageList.h = imageList.导入图片组字节集(cs.检查框图片组);
+			if (imageList.h) 置检查框图片组(imageList);
+		}
+		if (cs.项目.size) 项目_(cs.项目);
 
 		if (现行选中项 >= 0) {
 			现行选中项_(现行选中项);
@@ -248,13 +256,13 @@ public:
 		return 0;
 	}
 
-	bool 置项目文本(int 项目索引, StrW 欲置入的项目文本) {
+	bool 置项目文本(int 项目索引, c_StrW 欲置入的项目文本) {
 		HTREEITEM hItem = _取项目句柄(项目索引);
 		if (!hItem) return false;
 		TVITEMW tvi = { 0 };
 		tvi.mask = TVIF_TEXT | TVIF_HANDLE;
 		tvi.hItem = hItem;
-		tvi.pszText = (wchar_t*)(const wchar_t*)欲置入的项目文本;
+		tvi.pszText = 欲置入的项目文本;
 		return SendMessageW(窗口句柄, TVM_SETITEMW, 0, (LPARAM)&tvi) != 0;
 	}
 
@@ -353,7 +361,7 @@ public:
 		}
 	}
 
-	int 加入项目(int 父项目索引 = -1, StrW 项目文本 = L"", int 图片索引 = 0, int 选中图片索引 = -1, int 项目数值 = 0, bool 是否加粗 = false, int 检查框状态 = 0) {
+	int 加入项目(int 父项目索引 = -1, c_StrW 项目文本 = L"", int 图片索引 = 0, int 选中图片索引 = -1, int 项目数值 = 0, bool 是否加粗 = false, int 检查框状态 = 0) {
 		HTREEITEM hParent = TVI_ROOT;
 		if (父项目索引 != -1) {
 			hParent = _取项目句柄(父项目索引);
@@ -364,7 +372,7 @@ public:
 		tvis.hParent = hParent;
 		tvis.hInsertAfter = TVI_LAST;
 		tvis.item.mask = TVIF_TEXT | TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_PARAM;
-		tvis.item.pszText = (wchar_t*)(const wchar_t*)项目文本;
+		tvis.item.pszText = 项目文本;
 		tvis.item.iImage = 图片索引;
 		tvis.item.iSelectedImage = (选中图片索引 == -1) ? 图片索引 : 选中图片索引;
 		tvis.item.lParam = 项目数值;
@@ -486,7 +494,41 @@ public:
 		}
 	}
 
-	Bytes 导出项目() {
+	Bytes 项目_(可空<Bytes> dat = 空) {
+		if (dat != 空) {
+			const Bytes& src = dat.val;
+			if (!src.buf) return Bytes();
+			Arraybe<StrW> texts;
+			Arraybe<int> images;
+			Arraybe<int> selectedImages;
+			Arraybe<int> values;
+			Arraybe<int> states;
+			Arraybe<bool> bolds;
+			Arraybe<bool> expands;
+			Arraybe<int> indents;
+			deFB(src, texts, images, selectedImages, values, states, bolds, expands, indents);
+
+			清空();
+			Arraybe<int> parentStack;
+			parentStack.push(-1);
+			int currentLevel = 0;
+			for (int i = 0; i < texts.count; ++i) {
+				int level = indents[i];
+				while (currentLevel >= level) {
+					parentStack.pop();
+					currentLevel--;
+				}
+				int parentIdx = parentStack[parentStack.count - 1];
+				int newIdx = 加入项目(parentIdx, texts[i], images[i], selectedImages[i], values[i], bolds[i], states[i]);
+				parentStack.push(newIdx);
+				currentLevel = level;
+			}
+			for (int i = 0; i < texts.count; ++i) {
+				if (expands[i]) 扩展(i);
+			}
+			return Bytes();
+		}
+
 		int rows = 取项目数();
 		Arraybe<StrW> texts;
 		Arraybe<int> images;
@@ -510,42 +552,6 @@ public:
 		return FB(texts, images, selectedImages, values, states, bolds, expands, indents);
 	}
 
-	void 载入项目(const Bytes& dat) {
-		if (!dat.buf) return;
-		Arraybe<StrW> texts;
-		Arraybe<int> images;
-		Arraybe<int> selectedImages;
-		Arraybe<int> values;
-		Arraybe<int> states;
-		Arraybe<bool> bolds;
-		Arraybe<bool> expands;
-		Arraybe<int> indents;
-		deFB(dat, texts, images, selectedImages, values, states, bolds, expands, indents);
-
-		清空();
-		
-		Arraybe<int> parentStack;
-		parentStack.push(-1);
-		int currentLevel = 0;
-		
-		for (int i = 0; i < texts.count; ++i) {
-			int level = indents[i];
-			while(currentLevel >= level) {
-				parentStack.pop();
-				currentLevel--;
-			}
-			int parentIdx = parentStack[parentStack.count - 1];
-			
-			int newIdx = 加入项目(parentIdx, texts[i], images[i], selectedImages[i], values[i], bolds[i], states[i]);
-			
-			parentStack.push(newIdx);
-			currentLevel = level;
-		}
-
-		for (int i = 0; i < texts.count; ++i) {
-			if (expands[i]) 扩展(i);
-		}
-	}
 
 	virtual void 事件_项目被选择(int 选择方式) {}
 	virtual void 事件_双击项目() {}

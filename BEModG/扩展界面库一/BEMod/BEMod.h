@@ -1,7 +1,15 @@
 ﻿#pragma once
 
+#pragma region 全局量区(SymbolsG)
+#include <扩展界面库一/BEMod/ICON.h>
+#pragma endregion
+
+#ifndef _BE_FB
+#include <FB/FB.h>
+#endif
+
 #pragma region BEWin32UI
-//#version 0.6
+//#version 0.8
 #include <BEWin32UI/BEWin32UI.h>
 #ifndef _LIB
 #ifdef _DEBUG
@@ -12,11 +20,7 @@
 #pragma comment(lib,"BEWin32UI/x64/Debug/BEWin32UI_static.lib")
 #endif
 #else
-#ifdef _DLL
 #pragma comment(lib,"BEWin32UI/Debug/BEWin32UI.lib")
-#else
-#pragma comment(lib,"BEWin32UI/Debug/BEWin32UI_static.lib")
-#endif
 #endif
 #else
 #ifdef _WIN64
@@ -30,10 +34,5 @@
 #endif
 #endif
 #endif
-#pragma endregion
-
-#pragma region FB
-//#version 1.0
-#include <FB/FB.h>
 #pragma endregion
 

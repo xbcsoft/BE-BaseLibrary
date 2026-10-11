@@ -356,6 +356,89 @@ body.theme-light .metro-native-select:focus {
     outline: none;
 }
 
+/*
+ * Sciter scrolls an edit control's padding together with overflowing text.
+ * Keep the visible frame and its 10px gutters outside the scrolling control.
+ */
+.metro-input-shell {
+    box-sizing: border-box;
+    width: 1*;
+    min-width: 0;
+    height: 32px;
+    flow: horizontal;
+    content-vertical-align: middle;
+    padding: 0 10px;
+    background: #1e1e1e;
+    color: #ffffff;
+    border: 1px solid #555555;
+    border-radius: 0;
+    cursor: text;
+    transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, color 0.15s ease;
+}
+
+body.theme-light .metro-input-shell {
+    background: #ffffff;
+    color: #222222;
+    border-color: #cccccc;
+}
+
+.metro-input-shell:hover,
+body.theme-light .metro-input-shell:hover {
+    border-color: var(--accent-hover, #1c8ce3);
+    box-shadow: 0 0 0 3px var(--accent-glow, rgba(0, 120, 215, .35));
+}
+
+.metro-input-shell[input-focused],
+.metro-input-shell[text-menu-open],
+body.theme-light .metro-input-shell[input-focused],
+body.theme-light .metro-input-shell[text-menu-open] {
+    border-color: var(--accent-color, #0078d7);
+    box-shadow: 0 0 0 3px var(--accent-glow, rgba(0, 120, 215, .35));
+}
+
+.metro-input-shell > input[type="text"],
+.metro-input-shell > input[type="password"],
+.metro-input-shell > .metro-input,
+.metro-input-shell > input[type="text"]:hover,
+.metro-input-shell > input[type="password"]:hover,
+.metro-input-shell > .metro-input:hover,
+.metro-input-shell > input[type="text"]:focus,
+.metro-input-shell > input[type="password"]:focus,
+.metro-input-shell > .metro-input:focus,
+.metro-input-shell > input[type="text"][text-menu-open],
+.metro-input-shell > input[type="password"][text-menu-open],
+.metro-input-shell > .metro-input[text-menu-open] {
+    box-sizing: border-box;
+    width: 1*;
+    min-width: 0;
+    height: 30px;
+    padding: 0;
+    content-vertical-align: middle;
+    color: #ffffff;
+    background: #1e1e1e;
+    border: none;
+    border-radius: 0;
+    outline: none;
+    box-shadow: none;
+    cursor: text;
+    transition: none;
+}
+
+body.theme-light .metro-input-shell > input[type="text"],
+body.theme-light .metro-input-shell > input[type="password"],
+body.theme-light .metro-input-shell > .metro-input,
+body.theme-light .metro-input-shell > input[type="text"]:hover,
+body.theme-light .metro-input-shell > input[type="password"]:hover,
+body.theme-light .metro-input-shell > .metro-input:hover,
+body.theme-light .metro-input-shell > input[type="text"]:focus,
+body.theme-light .metro-input-shell > input[type="password"]:focus,
+body.theme-light .metro-input-shell > .metro-input:focus {
+    color: #222222;
+    background: #ffffff;
+    border: none;
+    box-shadow: none;
+}
+
 /* --------------------------------------------------------------------------
    8. Dropdown & Sciter Native Popup
    -------------------------------------------------------------------------- */

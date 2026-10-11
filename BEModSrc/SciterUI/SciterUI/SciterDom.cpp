@@ -31,8 +31,8 @@ BOOL SC_CALLBACK _onDocComplete(
 	return FALSE;
 }
 }
-class SciterUI;
 
+class SciterUI;
 class EXP SciterDom
 {
 public:
@@ -40,17 +40,7 @@ public:
 	SciterUI* _st = nullptr;
 	SciterDom() {}
 
-	void 嵌入原生控件(c_StrX 选择器, HWND childHwnd)
-	{
-		HELEMENT found = NULL;
-		StrA selector = 选择器;
-		g_sapi->SciterSelectElements(ctx, selector, [](HELEMENT he, LPVOID param)
-		{
-			*(HELEMENT*)param = he;
-			return TRUE;
-		}, &found);
-		if (found && g_sapi) g_sapi->SciterAttachHwndToElement(found, childHwnd);
-	}
+	void 嵌入原生控件(c_StrX 选择器, HWND childHwnd);
 
 	typedef be::function<SciterObj(SciterObj&)> JS函数回调;
 

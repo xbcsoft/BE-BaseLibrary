@@ -15,9 +15,10 @@ struct __启动窗口 : 窗口
 		dc.置背景模式(TRANSPARENT);
 		dc.绘制文本(L"囧", 30, 30);
 
-		HandlePEN pen = CreatePen(PS_SOLID, 1, 颜色::黄色);
+		//HandlePEN pen = CreatePen(PS_SOLID, 1, 颜色::黄色);
+		HandlePEN pen = 画笔::创建(颜色::黄色);
 		dc.选择画笔(pen);
-		dc.选择画刷(绘制上下文::获取透明画刷());
+		dc.选择画刷(画刷::获取透明画刷());
 		RoundRect(dc.hdc, 100, 20, 300, 200, 10, 10); //注意这些都是设备像素(按需dpi进行转换)
 
 		return true;

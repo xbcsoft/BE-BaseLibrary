@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "容器类.h"
 
 template <bool 背景是否自定义 = false>
@@ -6,7 +6,6 @@ class 子容器 : public 容器类
 {
 public:
 	struct 参数 : 容器类::参数 {
-		定义_子组件通用构造方法;
 	};
 
 	bool 创建(const 参数& cs, 容器类* 父窗口 = NULL, HWND 父句柄 = NULL) {
@@ -38,7 +37,7 @@ public:
 				HDC hdc = (HDC)wParam;
 				RECT rc = { 0, 0, (int)dpi(宽度), (int)dpi(高度) };
 				UI_请求父窗绘制背景(窗口句柄, hdc, rc);
-				ValidateRect(hwnd, NULL); //主动报告系统此区域有效
+				//ValidateRect(hwnd, NULL); //主动报告系统此区域有效（有副作用现已注释）
 				return 1;
 			}
 			case WM_PAINT: { //这个是防止仅重画而没有背景擦除

@@ -1,4 +1,4 @@
-#include "控件类.h"
+﻿#include "控件类.h"
 
 定义_枚举型(编辑框边框, char,
 	无边框 = 0, 凹入式 = 1, 凸出式 = 2, 浅凹入式 = 3, 镜框式 = 4, 单线边框式 = 5
@@ -53,7 +53,6 @@ class EXP 编辑框 :public 控件类
 {
 public:
 	struct 参数 : 控件类::参数 {
-		定义_子组件通用构造方法;
 		StrW 内容 = L"";
 		编辑框边框 边框 = 编辑框边框::凹入式;
 		字体 字体;
@@ -107,7 +106,7 @@ public:
 		最大允许长度_(最大允许长度);
 		密码遮盖字符_(密码遮盖字符);
 		控件类::_子类化();
-		if (!是否允许多行 && 输入方式 != 编辑框输入方式::密码输入) {
+		if (!是否允许多行) {
 			_更新编辑框格式矩形(窗口句柄);
 		}
 		return true;
@@ -301,9 +300,10 @@ protected:
 			}
 		} else {
 			style |= ES_AUTOHSCROLL;
-			if (输入方式 != 编辑框输入方式::密码输入) {
-				style |= ES_MULTILINE;
-			}
+			// 单行编辑框内部统一使用 ES_MULTILINE + EM_SETRECT 实现垂直居中。
+			// 密码模式不依赖 ES_PASSWORD 风格，而由 EM_SETPASSWORDCHAR 完成遮盖，
+			// 因此也可继续沿用同一套格式矩形布局。
+			style |= ES_MULTILINE;
 		}
 
 		if (对齐方式 == 横向对齐::居中) style |= ES_CENTER;
@@ -317,7 +317,8 @@ protected:
 			style |= ES_READONLY;
 			break;
 		case 编辑框输入方式::密码输入:
-			style |= ES_PASSWORD;
+			// 密码遮盖统一由 EM_SETPASSWORDCHAR 完成。这里不再使用 ES_PASSWORD，
+			// 以便保持与普通单行编辑框一致的 ES_MULTILINE + EM_SETRECT 垂直布局。
 			break;
 		case 编辑框输入方式::整数文本输入:
 		case 编辑框输入方式::输入字节:
@@ -399,7 +400,7 @@ protected:
 
 		// 6. 重新子类化
 		控件类::_子类化();
-		if (!是否允许多行 && 输入方式 != 编辑框输入方式::密码输入) {
+		if (!是否允许多行) {
 			_更新编辑框格式矩形(窗口句柄);
 		}
 
@@ -497,10 +498,19 @@ protected:
 
 LRESULT 编辑框::挂接消息(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	switch (msg) {
+	case BE_PARENT_SIZE_CHANGED:
+		if (背景颜色 == 颜色::透明) {
+			// 透明编辑框使用父背景快照作为画刷。父窗口缩放后快照内容和
+			// 尺寸都已变化，必须重建，并同时重画客户区、边框和滚动条。
+			背景颜色_(颜色::透明, false);
+			RedrawWindow(hwnd, NULL, NULL,
+				RDW_INVALIDATE | RDW_ERASE | RDW_FRAME);
+		}
+		return 0;
 	case WM_SIZE:
 	{
 		LRESULT res = 窗口基类::挂接消息(hwnd, msg, wParam, lParam);
-		if (!是否允许多行 && 输入方式 != 编辑框输入方式::密码输入) {
+		if (!是否允许多行) {
 			_更新编辑框格式矩形(hwnd);
 		}
 		return res;
@@ -508,7 +518,7 @@ LRESULT 编辑框::挂接消息(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 	case WM_SETFONT:
 	{
 		LRESULT res = 窗口基类::挂接消息(hwnd, msg, wParam, lParam);
-		if (!是否允许多行 && 输入方式 != 编辑框输入方式::密码输入) {
+		if (!是否允许多行) {
 			_更新编辑框格式矩形(hwnd);
 		}
 		return res;

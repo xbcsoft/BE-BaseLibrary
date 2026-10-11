@@ -175,7 +175,7 @@ public:
 
 #pragma region Split
 template<typename T_STR, typename T_CHAR, int STACK_CAP = 0>
-Arraybe<T_STR, STACK_CAP>& _SplitStr(const T_STR& str, const T_STR& split, Arraybe<T_STR, STACK_CAP>& arr, bool keep = false) {
+Arraybe<T_STR, STACK_CAP>& SplitStr(const T_STR& str, const T_STR& split, Arraybe<T_STR, STACK_CAP>& arr, bool keep = false) {
 	arr.reset(0, false, !keep);
 	if (str.bytes.size == 0) return arr;
 	if (split.bytes.size == 0) { arr.push(str); return arr; }
@@ -195,8 +195,12 @@ Arraybe<T_STR, STACK_CAP>& _SplitStr(const T_STR& str, const T_STR& split, Array
 	return arr;
 }
 
+/**SplitBytes仅支持字节集分割按逐字节匹配分隔内容直接返回相关数组。
+ * 若需要按双字节边界进行匹配，可使用 SplitV2 遍历分段，
+ * 并在遍历过程中自行构造所需的字节集/字节引集数组。
+ */
 template<typename T_B, int STACK_CAP = 0>
-Arraybe<T_B, STACK_CAP>& _SplitBytes(const Bytes& zjj, const Bytes& split, Arraybe<T_B, STACK_CAP>& arr, bool keep = false) {
+Arraybe<T_B, STACK_CAP>& SplitBytes(const Bytes& zjj, const Bytes& split, Arraybe<T_B, STACK_CAP>& arr, bool keep = false) {
 	arr.reset(0, false, !keep);
 	if (zjj.size == 0) return arr;
 	if (split.size == 0) { if (zjj.buf) arr.push(T_B(zjj.buf, zjj.size)); else arr.push(T_B()); return arr; }
@@ -217,12 +221,12 @@ Arraybe<T_B, STACK_CAP>& _SplitBytes(const Bytes& zjj, const Bytes& split, Array
 
 template<typename T, typename T_STR, typename T_SPLIT, int STACK_CAP>
 Arraybe<T, STACK_CAP>& Split(const T_STR& str, const T_SPLIT& split, Arraybe<T, STACK_CAP>& arr, bool keep = false) {
-	if constexpr (be::same<T, StrA>) return _SplitStr<T, char, STACK_CAP>(str, split, arr, keep);
-	else if constexpr (be::same<T, StrW>) return _SplitStr<T, charW, STACK_CAP>(str, split, arr, keep);
-	else return _SplitBytes<T, STACK_CAP>(str, split, arr, keep);
+	if constexpr (be::same<T, StrA>) return SplitStr<T, char, STACK_CAP>(str, split, arr, keep);
+	else if constexpr (be::same<T, StrW>) return SplitStr<T, charW, STACK_CAP>(str, split, arr, keep);
+	else return SplitBytes<T, STACK_CAP>(str, split, arr, keep);
 }
 
-template<typename T>
+template<typename T, int STEP = 1>
 struct _SplitView {
 	const T& str; const T& split;
 	_SplitView(const T& s, const T& sp) : str(s), split(sp) {}
@@ -242,7 +246,7 @@ struct _SplitView {
 			byte* found = nullptr; int remaining = (int)(end - p);
 			if (splitLen <= remaining && splitPtr) {
 				byte* limit = end - splitLen;
-				for (byte* i = p; i <= limit; ++i) { if (memcmp(i, splitPtr, splitLen) == 0) { found = i; break; } }
+				for (byte* i = p; i <= limit; i += STEP) { if (memcmp(i, splitPtr, splitLen) == 0) { found = i; break; } }
 			}
 			current = BR(p, found ? (size_t)(found - p) : (size_t)(end - p));
 			p = found ? found + splitLen : end;
@@ -253,5 +257,6 @@ struct _SplitView {
 	Iterator begin() const { return Iterator(str, split); }
 	Iterator end() const { return Iterator(); }
 };
-template<typename T> _SplitView<T> SplitV(const T& str, const T& split) { return _SplitView<T>(str, split); }
+template<typename T> _SplitView<T, 1> SplitV(const T& str, const T& split) { return _SplitView<T, 1>(str, split); }
+template<typename T> _SplitView<T, 2> SplitV2(const T& str, const T& split) { return _SplitView<T, 2>(str, split); }
 #pragma endregion
